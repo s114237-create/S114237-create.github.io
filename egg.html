@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>互動解碼器 — 簡易原型</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,'Noto Sans TC',sans-serif;padding:20px;background:#f7fafc}
+    .card{background:#fff;padding:16px;border-radius:10px;box-shadow:0 6px 20px rgba(16,24,40,0.06);max-width:980px;margin:12px auto}
+    textarea{width:100%;height:64px;padding:8px;font-size:16px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    button{padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;cursor:pointer}
+    pre{background:#0f172a;color:#e6eef8;padding:12px;border-radius:8px;overflow:auto}
+    label{font-weight:600}
+    .out{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>互動解碼器（prototype）</h2>
+    <p>把你要解碼的字串貼在下面，按右邊按鈕試試看常見的轉換方法。</p>
+
+    <label>輸入字串</label>
+    <textarea id="input">ji3ul4yji42u4u ek7</textarea>
+
+    <div class="row">
+      <button onclick="doLeet()">Leetspeak → 常見替換</button>
+      <button onclick="doCaesarAll()">Caesar 0→25</button>
+      <button onclick="doROT13()">ROT13</button>
+      <button onclick="tryBase64()">Base64 decode</button>
+      <button onclick="tryHex()">Hex decode</button>
+      <button onclick="urlDecode()">URL decode</button>
+      <button onclick="stripDigits()">移除數字</button>
+      <button onclick="toggleCustom()">自訂 Leet 映射</button>
+      <button onclick="tryAll()">全部嘗試（快速檢視）</button>
+    </div>
+
+    <div id="custom" style="display:none;margin-top:8px">
+      <label>自訂替換（格式：3=e,4=a,7=t）</label>
+      <input id="map" placeholder="3=e,4=a,7=t" style="width:100%;padding:8px;margin-top:6px" />
+      <div style="margin-top:6px"><button onclick="applyCustom()">套用自訂映射</button></div>
+    </div>
+
+    <div class="out" id="out">
+    </div>
+
+    <hr />
+    <small>備註：這只是原型，若想把它包成正式網頁或加入更多解碼法（鍵盤位移、維吉尼亞、字典破解），我可以幫你擴充。</small>
+  </div>
+
+  <script>
+    const out = document.getElementById('out');
+    function write(title, text){
+      const el = document.createElement('div');
+      el.innerHTML = `<label>${title}</label><pre>${escapeHtml(text)}</pre>`;
+      out.prepend(el);
+    }
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function doLeet(){
+      const s = document.getElementById('input').value;
+      const map = {'3':'e','4':'a','1':'l','0':'o','5':'s','7':'t','2':'z'};
+      let r = '';
+      for(const ch of s){ r += map[ch] ?? ch; }
+      write('Leet → 常見替換', r);
+    }
+
+    function applyCustom(){
+      const s = document.getElementById('input').value;
+      const raw = document.getElementById('map').value;
+      const map = {};
+      raw.split(',').map(x=>x.trim()).forEach(pair=>{
+        if(!pair) return;
+        const [k,v] = pair.split('='); if(k && v) map[k]=v;
+      });
+      let r = '';
+      for(const ch of s) r += map[ch] ?? ch;
+      write('Leet → 自訂替換', r);
+    }
+
+    function doCaesarAll(){
+      const s = document.getElementById('input').value;
+      for(let shift=0; shift<26; shift++){
+        write('Caesar shift '+shift, caesar(s, shift));
+      }
+    }
+    function caesar(s, shift){
+      return s.split('').map(ch=>{
+        if(ch.match(/[a-z]/)) return String.fromCharCode((ch.charCodeAt(0)-97+shift)%26+97);
+        if(ch.match(/[A-Z]/)) return String.fromCharCode((ch.charCodeAt(0)-65+shift)%26+65);
+        return ch;
+      }).join('');
+    }
+    function doROT13(){ write('ROT13', caesar(document.getElementById('input').value, 13)); }
+
+    function tryBase64(){
+      const s = document.getElementById('input').value.trim();
+      try{ const decoded = atob(s); write('Base64 decode', decoded); }catch(e){ write('Base64 decode', '失敗（不是合法 base64）'); }
+    }
+    function tryHex(){
+      const s = document.getElementById('input').value.replace(/[^0-9a-fA-F]/g,'');
+      if(s.length%2===1){ write('Hex decode', '長度不是偶數，可能非 hex'); return; }
+      try{
+        let outp='';
+        for(let i=0;i<s.length;i+=2) outp += String.fromCharCode(parseInt(s.substr(i,2),16));
+        write('Hex decode', outp);
+      }catch(e){ write('Hex decode', '失敗'); }
+    }
+    function urlDecode(){ try{ write('URL decode', decodeURIComponent(document.getElementById('input').value)); }catch(e){ write('URL decode', '失敗'); } }
+    function stripDigits(){ write('移除數字', document.getElementById('input').value.replace(/[0-9]/g,'')); }
+
+    function toggleCustom(){ const el=document.getElementById('custom'); el.style.display = el.style.display==='none' ? 'block':'none'; }
+
+    function tryAll(){ out.innerHTML=''; doLeet(); doROT13(); tryBase64(); tryHex(); urlDecode(); stripDigits(); doCaesarAll(); }
+
+    // 預先嘗試一次
+    tryAll();
+  </script>
+</body>
+</html>
