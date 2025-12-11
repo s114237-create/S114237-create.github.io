@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>質感時鐘</title>
+    <title>時鐘</title>
     <style>
         * {
             margin: 0;
@@ -16,66 +16,47 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: 
-                radial-gradient(ellipse at 20% 20%, #0a0a14 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, #0c0c1a 0%, transparent 50%),
-                #000;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f8f8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             overflow: hidden;
         }
         
-        /* 日期顯示在左上角 */
+        /* 日期 - 左上角 */
         .date-display {
             position: absolute;
             top: 30px;
             left: 40px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 28px;
-            font-weight: 300;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            padding: 20px 30px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            z-index: 10;
+            color: #666;
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: 1px;
         }
         
         .clock-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(30px);
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 
-                0 25px 80px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
         
-        /* 時鐘主體 */
+        /* 時鐘主體 - 純白簡約 */
         .clock-row {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             align-items: center;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 40px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.05),
+                0 1px 3px rgba(0, 0, 0, 0.05);
         }
         
-        /* 數字卡片 - 加大尺寸 */
+        /* 數字卡片 */
         .digit-card {
-            width: 180px;
-            height: 260px;
+            width: 120px;
+            height: 160px;
             position: relative;
-            perspective: 1500px;
+            perspective: 800px;
         }
         
         /* 卡片基礎樣式 */
@@ -84,212 +65,63 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 25px;
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 140px;
-            font-weight: 350;
-            color: #ffffff;
+            font-size: 100px;
+            font-weight: 300;
+            color: #333;
             overflow: hidden;
-            transition: all 0.3s ease;
+            background: white;
+            border: 1px solid #eee;
         }
         
-        /* 金屬質感漸層 */
         .card-front {
-            background: linear-gradient(
-                135deg,
-                rgba(45, 45, 65, 0.95) 0%,
-                rgba(35, 35, 55, 0.95) 50%,
-                rgba(25, 25, 45, 0.95) 100%
-            );
-            box-shadow: 
-                0 15px 40px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 2;
         }
         
-        /* 卡片背面 */
         .card-back {
-            background: linear-gradient(
-                135deg,
-                rgba(35, 35, 55, 0.95) 0%,
-                rgba(25, 25, 45, 0.95) 50%,
-                rgba(15, 15, 35, 0.95) 100%
-            );
-            box-shadow: 
-                0 15px 40px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #fafafa;
             transform: rotateX(180deg);
         }
         
-        /* 翻頁層 - 向下翻轉 */
+        /* 翻頁層 */
         .flip-layer {
             position: absolute;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                135deg,
-                rgba(50, 50, 70, 0.95) 0%,
-                rgba(40, 40, 60, 0.95) 50%,
-                rgba(30, 30, 50, 0.95) 100%
-            );
-            border-radius: 25px;
+            background: white;
+            border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 140px;
-            font-weight: 350;
-            color: #ffffff;
+            font-size: 100px;
+            font-weight: 300;
+            color: #333;
             transform-style: preserve-3d;
-            transform-origin: top; /* 從頂部開始翻轉 */
+            transform-origin: top;
             backface-visibility: hidden;
             z-index: 3;
-            box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid #eee;
         }
         
-        /* 分隔符號 - 加大 */
+        /* 分隔符號 */
         .separator {
-            color: rgba(255, 255, 255, 0.12);
-            font-size: 110px;
+            color: #999;
+            font-size: 80px;
             font-weight: 200;
-            margin: 0 10px;
-            height: 260px;
+            margin: 0 5px;
+            height: 160px;
             display: flex;
             align-items: center;
-            text-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
-        }
-        
-        /* 卡片邊緣光效 */
-        .card-glow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 25px;
-            background: linear-gradient(
-                135deg,
-                transparent 0%,
-                rgba(100, 150, 255, 0.03) 50%,
-                transparent 100%
-            );
-            box-shadow: 
-                0 0 50px rgba(100, 150, 255, 0.08),
-                inset 0 0 30px rgba(255, 255, 255, 0.03);
-            pointer-events: none;
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-        
-        .digit-card:hover .card-glow {
-            opacity: 0.7;
-        }
-        
-        /* 狀態指示器 */
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 35px;
-            padding: 16px 28px;
-            background: rgba(0, 200, 255, 0.08);
-            backdrop-filter: blur(15px);
-            border-radius: 16px;
-            border: 1px solid rgba(0, 200, 255, 0.15);
-            box-shadow: 
-                0 8px 25px rgba(0, 200, 255, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        }
-        
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00c8ff, #0066ff);
-            box-shadow: 0 0 15px rgba(0, 200, 255, 0.6);
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { 
-                opacity: 0.8;
-                transform: scale(1);
-            }
-            50% { 
-                opacity: 1;
-                transform: scale(1.2);
-                box-shadow: 0 0 25px rgba(0, 200, 255, 0.9);
-            }
-        }
-        
-        .status-text {
-            color: rgba(255, 255, 255, 0.75);
-            font-size: 18px;
-            font-weight: 400;
-            letter-spacing: 2px;
         }
         
         /* 響應式設計 */
-        @media (max-width: 1400px) {
-            .digit-card {
-                width: 150px;
-                height: 220px;
-            }
-            
-            .card-face, .flip-layer {
-                font-size: 120px;
-            }
-            
-            .separator {
-                font-size: 95px;
-                height: 220px;
-            }
-            
-            .date-display {
-                font-size: 24px;
-                padding: 18px 25px;
-            }
-        }
-        
         @media (max-width: 1200px) {
             .digit-card {
-                width: 130px;
-                height: 190px;
-            }
-            
-            .card-face, .flip-layer {
-                font-size: 100px;
-            }
-            
-            .separator {
-                font-size: 80px;
-                height: 190px;
-            }
-            
-            .date-display {
-                font-size: 22px;
-                padding: 16px 22px;
-                left: 30px;
-            }
-            
-            .clock-row {
-                gap: 20px;
-            }
-        }
-        
-        @media (max-width: 900px) {
-            .digit-card {
-                width: 110px;
-                height: 160px;
+                width: 100px;
+                height: 140px;
             }
             
             .card-face, .flip-layer {
@@ -298,34 +130,14 @@
             
             .separator {
                 font-size: 70px;
-                height: 160px;
-            }
-            
-            .date-display {
-                font-size: 20px;
-                padding: 14px 20px;
-                left: 25px;
-                top: 20px;
-            }
-            
-            .clock-row {
-                gap: 15px;
-                padding: 25px;
-            }
-            
-            .clock-container {
-                padding: 30px;
-            }
-            
-            .status-text {
-                font-size: 16px;
+                height: 140px;
             }
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .digit-card {
-                width: 90px;
-                height: 130px;
+                width: 80px;
+                height: 110px;
             }
             
             .card-face, .flip-layer {
@@ -334,103 +146,48 @@
             
             .separator {
                 font-size: 55px;
-                height: 130px;
-                margin: 0 6px;
+                height: 110px;
             }
             
             .date-display {
-                font-size: 18px;
-                padding: 12px 18px;
-                left: 20px;
-                top: 15px;
-                letter-spacing: 2px;
+                font-size: 16px;
+                left: 30px;
+                top: 25px;
             }
             
             .clock-row {
-                gap: 12px;
-                padding: 20px;
+                padding: 30px;
+                gap: 15px;
             }
         }
         
         @media (max-width: 600px) {
             .digit-card {
-                width: 75px;
-                height: 110px;
+                width: 60px;
+                height: 85px;
             }
             
             .card-face, .flip-layer {
-                font-size: 60px;
+                font-size: 55px;
             }
             
             .separator {
                 font-size: 45px;
-                height: 110px;
-                margin: 0 4px;
+                height: 85px;
             }
             
             .date-display {
-                font-size: 16px;
-                padding: 10px 16px;
-                left: 15px;
-                top: 15px;
+                font-size: 14px;
+                left: 20px;
+                top: 20px;
             }
             
             .clock-row {
-                gap: 10px;
-                padding: 15px;
-            }
-            
-            .clock-container {
                 padding: 20px;
-                margin: 20px;
+                gap: 10px;
             }
-            
-            .status-indicator {
-                padding: 12px 20px;
-            }
-        }
-        
-        /* 質感細節 */
-        .card-texture {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
-                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
-            background-size: 25px 25px;
-            opacity: 0.4;
-            pointer-events: none;
-            z-index: 1;
-            border-radius: 25px;
-        }
-        
-        /* 環境反射光 */
-        .card-reflect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 35%;
-            background: linear-gradient(
-                to bottom,
-                rgba(255, 255, 255, 0.12) 0%,
-                transparent 100%
-            );
-            border-radius: 25px 25px 0 0;
-            pointer-events: none;
-            z-index: 2;
-        }
-        
-        /* 分隔符號呼吸效果 */
-        @keyframes breath {
-            0%, 100% { opacity: 0.12; }
-            50% { opacity: 0.25; }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- 日期顯示在左上角 -->
@@ -440,18 +197,12 @@
         <div class="clock-row">
             <!-- 小時 - 十位數 -->
             <div class="digit-card" id="hours-tens">
-                <div class="card-texture"></div>
-                <div class="card-reflect"></div>
-                <div class="card-glow"></div>
                 <div class="card-face card-front">0</div>
                 <div class="card-face card-back">0</div>
             </div>
             
             <!-- 小時 - 個位數 -->
             <div class="digit-card" id="hours-ones">
-                <div class="card-texture"></div>
-                <div class="card-reflect"></div>
-                <div class="card-glow"></div>
                 <div class="card-face card-front">0</div>
                 <div class="card-face card-back">0</div>
             </div>
@@ -461,18 +212,12 @@
             
             <!-- 分鐘 - 十位數 -->
             <div class="digit-card" id="minutes-tens">
-                <div class="card-texture"></div>
-                <div class="card-reflect"></div>
-                <div class="card-glow"></div>
                 <div class="card-face card-front">0</div>
                 <div class="card-face card-back">0</div>
             </div>
             
             <!-- 分鐘 - 個位數 -->
             <div class="digit-card" id="minutes-ones">
-                <div class="card-texture"></div>
-                <div class="card-reflect"></div>
-                <div class="card-glow"></div>
                 <div class="card-face card-front">0</div>
                 <div class="card-face card-back">0</div>
             </div>
@@ -482,27 +227,15 @@
             
             <!-- 秒鐘 - 十位數 -->
             <div class="digit-card" id="seconds-tens">
-                <div class="card-texture"></div>
-                <div class="card-reflect"></div>
-                <div class="card-glow"></div>
                 <div class="card-face card-front">0</div>
                 <div class="card-face card-back">0</div>
             </div>
             
             <!-- 秒鐘 - 個位數 -->
             <div class="digit-card" id="seconds-ones">
-                <div class="card-texture"></div>
-                <div class="card-reflect"></div>
-                <div class="card-glow"></div>
                 <div class="card-face card-front">0</div>
                 <div class="card-face card-back">0</div>
             </div>
-        </div>
-        
-        <!-- 狀態指示器 -->
-        <div class="status-indicator">
-            <div class="status-dot"></div>
-            <span class="status-text" id="statusText">時間同步中</span>
         </div>
     </div>
 
@@ -518,47 +251,17 @@
         };
         
         const dateDisplay = document.getElementById('dateDisplay');
-        const statusText = document.getElementById('statusText');
-        const separators = document.querySelectorAll('.separator');
         
         // 初始化時鐘
         function initClock() {
             updateTime();
             updateDate();
-            updateStatus();
             
             // 每秒更新時間
-            setInterval(() => {
-                updateTime();
-                updateStatus();
-            }, 1000);
+            setInterval(updateTime, 1000);
             
             // 每分鐘更新日期
             setInterval(updateDate, 60000);
-            
-            // 分隔符號呼吸效果
-            let breathDirection = 1;
-            setInterval(() => {
-                separators.forEach(sep => {
-                    sep.style.animation = 'breath 3s ease-in-out infinite';
-                });
-            }, 100);
-            
-            // 添加卡片點擊效果
-            Object.values(digitCards).forEach(card => {
-                card.addEventListener('click', () => {
-                    // 觸發點擊動畫
-                    card.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        card.style.transform = 'scale(1)';
-                    }, 150);
-                    
-                    updateTime();
-                    updateDate();
-                    statusText.textContent = '手動同步完成';
-                    setTimeout(() => updateStatus(), 2000);
-                });
-            });
         }
         
         // 更新時間
@@ -583,7 +286,7 @@
             updateDigitCard(digitCards.secondsOnes, secondsStr[1]);
         }
         
-        // 更新單個數字卡片 - 向下翻頁
+        // 更新單個數字卡片
         function updateDigitCard(cardElement, newDigit) {
             const frontFace = cardElement.querySelector('.card-front');
             const backFace = cardElement.querySelector('.card-back');
@@ -600,37 +303,20 @@
             flipLayer.className = 'flip-layer';
             flipLayer.textContent = currentDigit;
             
-            // 添加紋理和反射
-            const texture = document.createElement('div');
-            texture.className = 'card-texture';
-            
-            const reflect = document.createElement('div');
-            reflect.className = 'card-reflect';
-            
-            flipLayer.appendChild(texture);
-            flipLayer.appendChild(reflect);
-            
             // 添加到卡片
             cardElement.appendChild(flipLayer);
             
-            // 觸發向下翻頁動畫
+            // 觸發翻頁動畫
             requestAnimationFrame(() => {
-                // 向下翻轉效果
-                flipLayer.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                flipLayer.style.transition = 'transform 0.5s ease';
                 flipLayer.style.transform = 'rotateX(-180deg)';
-                
-                // 卡片輕微下壓效果
-                cardElement.style.transform = 'translateY(8px) scale(0.98)';
-                setTimeout(() => {
-                    cardElement.style.transform = 'translateY(0) scale(1)';
-                }, 300);
             });
             
             // 動畫結束後更新正面卡片
             setTimeout(() => {
                 frontFace.textContent = newDigit;
                 flipLayer.remove();
-            }, 600);
+            }, 500);
         }
         
         // 更新日期顯示
@@ -647,43 +333,6 @@
             // 簡潔日期格式
             dateDisplay.textContent = `${year}/${month}/${day} ${weekday}`;
         }
-        
-        // 更新狀態文字
-        function updateStatus() {
-            const now = new Date();
-            const hours = now.getHours();
-            
-            // 根據時間顯示不同狀態
-            let period;
-            if (hours < 5) period = '深夜';
-            else if (hours < 12) period = '早晨';
-            else if (hours < 18) period = '午後';
-            else period = '夜晚';
-            
-            // 隨機狀態訊息
-            const statusMessages = [
-                `實時同步 · ${period}`,
-                `原子鐘校準 · 毫秒精度`,
-                `GPS時間信號 · 已同步`,
-                `網路時間協定 · 運作中`,
-                `國際標準時間 · UTC+8`
-            ];
-            
-            // 每15秒切換一次狀態訊息
-            if (now.getSeconds() % 15 === 0) {
-                const randomIndex = Math.floor(Math.random() * statusMessages.length);
-                statusText.textContent = statusMessages[randomIndex];
-            }
-        }
-        
-        // 添加視差效果
-        document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth - 0.5) * 15;
-            const y = (e.clientY / window.innerHeight - 0.5) * 15;
-            
-            document.querySelector('.clock-container').style.transform = 
-                `translateX(${x}px) translateY(${y}px)`;
-        });
         
         // 初始化
         window.onload = initClock;
