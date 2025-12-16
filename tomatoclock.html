@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>陪讀角色番茄鐘</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff3f3;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+
+    #pet {
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+
+    #time {
+      font-size: 56px;
+      margin: 20px 0;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 10px 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .start { background: #ff6b6b; color: white; }
+    .pause { background: #ccc; }
+    .reset { background: #ffd166; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div id="pet">😺</div>
+  <div id="time">25:00</div>
+
+  <button class="start" onclick="start()">開始</button>
+  <button class="pause" onclick="pause()">暫停</button>
+  <button class="reset" onclick="reset()">重置</button>
+</div>
+
+<script>
+  let totalSeconds = 25 * 60;
+  let timer = null;
+
+  const timeEl = document.getElementById("time");
+  const pet = document.getElementById("pet");
+
+  function updateTime() {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    timeEl.textContent =
+      `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  }
+
+  function updatePet() {
+    if (totalSeconds <= 0) {
+      pet.textContent = "😴";
+    } else if (totalSeconds <= 5 * 60) {
+      pet.textContent = "😼";
+    } else {
+      pet.textContent = "😺";
+    }
+  }
+
+  function start() {
+    if (timer) return;
+    timer = setInterval(() => {
+      totalSeconds--;
+      updateTime();
+      updatePet();
+
+      if (totalSeconds <= 0) {
+        clearInterval(timer);
+        timer = null;
+        alert("時間到！休息一下 🍅");
+      }
+    }, 1000);
+  }
+
+  function pause() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  function reset() {
+    pause();
+    totalSeconds = 25 * 60;
+    updateTime();
+    updatePet();
+  }
+
+  updateTime();
+  updatePet();
+</script>
+
+</body>
+</html>
