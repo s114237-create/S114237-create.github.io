@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☁️ 專注小天地</title>
+    <title>☁️ 專注小天地 (置中版)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,19 +12,19 @@
     
     <style>
         :root {
-            --bg-color: #fff9f5; /* 奶油白背景 */
+            --bg-color: #fff9f5;
             --card-bg: #ffffff;
-            --primary: #ffafcc; /* 櫻花粉 */
+            --primary: #ffafcc;
             --primary-hover: #ff8fab;
-            --secondary: #a2d2ff; /* 寶寶藍 */
-            --accent: #cdb4db; /* 芋頭紫 */
-            --text-main: #6d6875; /* 溫暖深灰 */
+            --secondary: #a2d2ff;
+            --accent: #cdb4db;
+            --text-main: #6d6875;
             --text-light: #b5b0ba;
             --shadow: 0 10px 30px rgba(255, 175, 204, 0.15);
         }
 
         body {
-            font-family: 'Zen Maru Gothic', sans-serif; /* 圓體字 */
+            font-family: 'Zen Maru Gothic', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
@@ -35,50 +35,45 @@
             align-items: center;
         }
 
+        /* ★ 修改重點：三欄佈局 (左側固定 - 中間自適應 - 右側固定) */
         .app-container {
-            width: 90%;
+            width: 95%;
             height: 90vh;
             display: grid;
-            grid-template-columns: 380px 1fr;
+            /* 定義：左300px | 中間(自動填滿) | 右300px */
+            grid-template-columns: 300px 1fr 300px; 
             gap: 25px;
         }
 
-        /* 卡片通用樣式 - 變得更圓潤 */
         .card {
             background: var(--card-bg);
             border-radius: 30px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: var(--shadow);
-            border: 2px solid #fff; /* 增加一點質感 */
+            border: 2px solid #fff;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         h3 {
             margin-top: 0;
             color: var(--text-main);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #f0f0f0;
+            padding-bottom: 10px;
         }
 
-        /* --- 左側區域 --- */
-        .sidebar {
+        /* --- 左欄：待辦清單 --- */
+        .col-todo {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            height: 100%;
-            overflow-y: auto;
-            padding-right: 5px;
         }
 
-        /* 隱藏捲軸但保留功能 */
-        .sidebar::-webkit-scrollbar { width: 0px; }
-
-        /* 1. 待辦清單 */
-        .todo-section { flex: 0 0 auto; max-height: 45%; }
-        
         .input-group { 
             display: flex; 
             margin-bottom: 15px; 
@@ -88,199 +83,158 @@
         }
         
         #task-input { 
-            flex: 1; 
-            padding: 10px 15px; 
-            border: none; 
-            background: transparent; 
-            outline: none; 
-            font-family: inherit;
-            color: var(--text-main);
+            flex: 1; padding: 8px 12px; border: none; 
+            background: transparent; outline: none; 
+            font-family: inherit; color: var(--text-main);
         }
 
         #add-btn { 
-            width: 40px;
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            border-radius: 50%; 
-            cursor: pointer; 
-            font-size: 1.2rem;
-            transition: 0.2s;
+            width: 35px; height: 35px; background: var(--primary); 
+            color: white; border: none; border-radius: 50%; 
+            cursor: pointer; font-size: 1.2rem; display: flex; 
+            justify-content: center; align-items: center; transition: 0.2s;
         }
-        #add-btn:hover { transform: rotate(90deg); background: var(--primary-hover); }
+        #add-btn:hover { background: var(--primary-hover); transform: rotate(90deg); }
 
-        ul { list-style: none; padding: 0; overflow-y: auto; flex: 1; }
-        
+        ul { list-style: none; padding: 0; overflow-y: auto; flex: 1; margin: 0; }
+        ul::-webkit-scrollbar { width: 0; } /* 隱藏捲軸 */
+
         li { 
-            margin-bottom: 10px; 
-            padding: 12px; 
-            border-radius: 15px; 
-            display: flex; 
-            align-items: center; 
-            transition: 0.2s;
-            background: white;
-            border: 1px solid #f0f0f0;
+            margin-bottom: 8px; padding: 10px; border-radius: 15px; 
+            display: flex; align-items: center; transition: 0.2s;
+            background: #fff; border: 1px solid #f4f4f4;
         }
-        li:hover { background: #fdf0f5; }
+        li:hover { background: #fdf0f5; transform: translateX(3px); }
         
-        /* 自訂可愛 checkbox */
         li input[type="checkbox"] {
-            appearance: none;
-            width: 20px; height: 20px;
-            border: 2px solid var(--primary);
-            border-radius: 50%;
-            margin-right: 10px;
-            cursor: pointer;
-            position: relative;
+            appearance: none; width: 18px; height: 18px;
+            border: 2px solid var(--primary); border-radius: 50%;
+            margin-right: 10px; cursor: pointer; flex-shrink: 0; position: relative;
         }
-        li input[type="checkbox"]:checked {
-            background-color: var(--primary);
-        }
+        li input[type="checkbox"]:checked { background-color: var(--primary); }
         li input[type="checkbox"]:checked::after {
-            content: '✔';
-            position: absolute; color: white; font-size: 12px;
-            left: 3px; top: 0px;
+            content: '✔'; position: absolute; color: white; font-size: 10px; left: 3px; top: 0px;
         }
-
         li.completed span { text-decoration: line-through; color: var(--text-light); }
-        .delete-btn { margin-left: auto; color: #ffadad; cursor: pointer; border: none; background: none; font-size: 1rem; }
+        .delete-btn { margin-left: auto; color: #ffadad; cursor: pointer; border: none; background: none; }
 
-        /* 2. 圖表區 */
-        .charts-section { flex: 1; gap: 10px; }
-        .chart-container { position: relative; height: 160px; width: 100%; }
-
-        /* --- 右側計時器 --- */
-        .timer-main {
+        /* --- 中間欄：番茄鐘 (主角) --- */
+        .col-timer {
             position: relative;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%); /* 淡淡的漸層背景 */
+            background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
+            z-index: 2; /* 讓中間稍微浮起來的感覺 */
         }
 
-        .subject-wrapper { margin-bottom: 20px; text-align: center; z-index: 10; }
+        .subject-wrapper { margin-bottom: 30px; text-align: center; z-index: 10; }
         select {
-            padding: 10px 30px;
-            font-size: 1.1rem;
-            border-radius: 50px;
-            border: 2px solid var(--secondary);
-            background: white;
-            color: var(--text-main);
-            outline: none;
-            font-family: inherit;
-            cursor: pointer;
-            appearance: none; /* 隱藏預設箭頭 */
-            text-align: center;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a2d2ff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px top 50%;
-            background-size: 12px auto;
+            padding: 10px 30px; font-size: 1.2rem; border-radius: 50px;
+            border: 2px solid var(--secondary); background: white; color: var(--text-main);
+            outline: none; font-family: inherit; cursor: pointer; text-align: center;
+            box-shadow: 0 5px 15px rgba(162, 210, 255, 0.2);
         }
 
-        /* 圓環計時器 */
+        /* 放大中間的計時器 */
         .timer-wrapper {
             position: relative;
             width: 380px; height: 380px;
             display: flex; align-items: center; justify-content: center;
         }
         .progress-ring { transform: rotate(-90deg); }
-        .progress-ring__bg { stroke: #f0f0f0; }
         .progress-ring__circle {
             transition: stroke-dashoffset 0.35s;
             stroke: var(--primary);
-            filter: drop-shadow(0 0 5px rgba(255, 175, 204, 0.5));
+            filter: drop-shadow(0 0 8px rgba(255, 175, 204, 0.6));
         }
 
         .timer-display {
             position: absolute;
-            font-size: 5rem;
+            font-size: 5.5rem;
             font-weight: 700;
             color: var(--text-main);
             letter-spacing: 2px;
         }
 
-        /* 按鈕群 */
-        .controls { margin-top: 30px; display: flex; gap: 15px; z-index: 10; }
+        .controls { margin-top: 35px; display: flex; gap: 15px; z-index: 10; }
         .btn {
-            padding: 12px 35px;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: bold;
-            transition: all 0.2s;
+            padding: 12px 35px; font-size: 1.1rem; border: none; border-radius: 50px;
+            cursor: pointer; font-family: inherit; font-weight: bold; transition: all 0.2s;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         .btn:active { transform: scale(0.95); }
-        
         .btn-start { background: var(--primary); color: white; }
-        .btn-start:hover { background: var(--primary-hover); box-shadow: 0 5px 15px rgba(255, 175, 204, 0.4); }
-        
         .btn-pause { background: #ffe5d9; color: var(--text-main); }
         .btn-reset { background: #f0f0f0; color: #aaa; }
 
-        /* 語錄泡泡 */
         .quote-bubble {
-            margin-top: 25px;
-            background: white;
-            padding: 15px 30px;
-            border-radius: 20px;
-            border: 2px dashed var(--secondary);
-            color: var(--text-main);
-            font-size: 0.95rem;
-            max-width: 80%;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.5s ease;
-            position: relative;
-        }
-        /* 小三角形 */
-        .quote-bubble::after {
-            content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            border-width: 0 10px 10px; border-style: solid; border-color: transparent transparent var(--secondary);
+            margin-top: 30px;
+            background: white; padding: 12px 25px; border-radius: 20px;
+            border: 2px dashed var(--secondary); color: var(--text-main);
+            font-size: 1rem; max-width: 80%; text-align: center;
+            opacity: 0; transform: translateY(10px); transition: all 0.5s ease;
         }
         .quote-bubble.show { opacity: 1; transform: translateY(0); }
-
+        
         #calendar-btn {
-            display: none; margin-top: 20px;
-            background: #4cc9f0; color: white;
-            padding: 10px 25px; border-radius: 50px;
-            text-decoration: none; font-size: 0.9rem;
+            display: none; margin-top: 20px; background: #4cc9f0; color: white;
+            padding: 10px 25px; border-radius: 50px; text-decoration: none; font-size: 0.9rem;
             transition: 0.2s;
         }
         #calendar-btn:hover { background: #480ca8; }
 
-        @media (max-width: 900px) {
-            .app-container { grid-template-columns: 1fr; overflow-y: auto; display: block; height: auto; padding-bottom: 30px; }
-            .timer-wrapper { width: 300px; height: 300px; margin: 0 auto; }
+        /* --- 右欄：圖表 --- */
+        .col-stats {
+            overflow-y: auto;
+            gap: 15px;
+            padding-right: 5px; /* 預留一點空間給捲軸 */
+        }
+        .col-stats::-webkit-scrollbar { width: 0; } 
+        
+        .chart-container { 
+            position: relative; 
+            height: 160px; /* 圖表高度稍微縮小以容納三個 */
+            width: 100%; 
+            background: #fafafa;
+            border-radius: 20px;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        /* 響應式：手機版變回垂直排列 */
+        @media (max-width: 1100px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                display: flex; flex-direction: column;
+                overflow-y: auto; height: auto; padding-bottom: 50px;
+            }
+            body { overflow: auto; height: auto; padding: 20px 0; }
+            
+            /* 手機版順序：計時器第一 -> 待辦第二 -> 圖表第三 */
+            .col-timer { order: 1; height: 500px; flex-shrink: 0; }
+            .col-todo { order: 2; height: 350px; flex-shrink: 0; }
+            .col-stats { order: 3; height: 500px; flex-shrink: 0; }
+            
+            .timer-wrapper { width: 280px; height: 280px; }
             .timer-display { font-size: 3.5rem; }
-            body { overflow: auto; display: block; padding: 20px 0; }
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div class="sidebar">
-        <div class="card todo-section">
-            <h3>📝 待辦小清單</h3>
-            <div class="input-group">
-                <input type="text" id="task-input" placeholder="今天想做什麼呢？">
-                <button id="add-btn">＋</button>
-            </div>
-            <ul id="todo-list"></ul>
+    
+    <div class="card col-todo">
+        <h3>📝 待辦小清單</h3>
+        <div class="input-group">
+            <input type="text" id="task-input" placeholder="輸入任務...">
+            <button id="add-btn">＋</button>
         </div>
-
-        <div class="card charts-section">
-            <h3>📊 專注能量分析</h3>
-            <div class="chart-container"><canvas id="pieChart"></canvas></div>
-            <div class="chart-container"><canvas id="barChart"></canvas></div>
-            <div class="chart-container"><canvas id="lineChart"></canvas></div>
-        </div>
+        <ul id="todo-list"></ul>
     </div>
 
-    <div class="card timer-main">
+    <div class="card col-timer">
         <div class="subject-wrapper">
             <select id="subject-select" onchange="checkCustomSubject(this)">
                 <option value="國文">📖 國文</option>
@@ -304,28 +258,52 @@
         </div>
         
         <div class="controls">
-            <button class="btn btn-start" onclick="startTimer()">開始專注</button>
+            <button class="btn btn-start" onclick="startTimer()">開始</button>
             <button class="btn btn-pause" onclick="pauseTimer()">暫停</button>
             <button class="btn btn-reset" onclick="resetTimer()">重置</button>
         </div>
 
-        <div class="quote-bubble" id="quote-box">
-            ✨ 準備好變強了嗎？加油！
-        </div>
-
+        <div class="quote-bubble" id="quote-box">準備好開始了嗎？</div>
         <a id="calendar-btn" target="_blank" href="#">📅 寫入日曆</a>
     </div>
+
+    <div class="card col-stats">
+        <h3>📊 學習記錄分析</h3>
+        <div class="chart-container">
+            <canvas id="pieChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="barChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+
 </div>
 
 <script>
-    // --- 音效與設定 ---
+    // --- 參數設定 ---
     const soundClick = new Audio('https://actions.google.com/sounds/v1/ui/click_on.ogg');
     const soundAlarm = new Audio('https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg');
-    
-    // 柔和色系配置給圖表用
     const pastelColors = ['#ffafcc', '#a2d2ff', '#cdb4db', '#ffc8dd', '#bde0fe', '#ffdfd3'];
+    
+    // --- 初始化資料 ---
+    let records = JSON.parse(localStorage.getItem('studyRecords')) || [];
+    let todoTasks = JSON.parse(localStorage.getItem('todoTasks')) || [];
+    let customSubjects = JSON.parse(localStorage.getItem('customSubjects')) || [];
 
-    // --- 圓形進度條 ---
+    // --- 計時器邏輯 ---
+    let timer;
+    let isRunning = false;
+    let workTime = 25 * 60; 
+    let timeLeft = workTime;
+    const timeDisplay = document.getElementById('time');
+    const subjectSelect = document.getElementById('subject-select');
+    const calendarBtn = document.getElementById('calendar-btn');
+    const quoteBox = document.getElementById('quote-box');
+    
+    // 圓形進度條
     const circle = document.querySelector('.progress-ring__circle');
     const radius = circle.r.baseVal.value;
     const circumference = radius * 2 * Math.PI;
@@ -337,39 +315,23 @@
         circle.style.strokeDashoffset = offset;
     }
 
-    // --- 語錄資料庫 ---
+    // --- 語錄 ---
     const quotes = [
-        "✨ 今天的努力，是為了遇見更好的自己！",
-        "🌱 慢慢來，比較快。專注當下。",
-        "💪 你比自己想像的還要強大！",
-        "📚 學習不是為了別人，是為了裝飾你的靈魂。",
-        "🚀 專注是通往夢想的加速器。",
-        "🌈 堅持下去，彩虹就在雨後。",
-        "💖 休息一下也很重要，愛自己喔！",
-        "🔥 讓未來的你，感謝現在拼命的自己。"
+        "✨ 今天的努力，是為了遇見更好的自己！", "🌱 慢慢來，比較快。", "💪 你比自己想像的還要強大！",
+        "📚 學習不是為了別人，是為了裝飾你的靈魂。", "🚀 專注是通往夢想的加速器。",
+        "🌈 堅持下去，彩虹就在雨後。", "💖 休息一下也很重要，愛自己喔！"
     ];
 
-    // --- 核心邏輯 ---
-    let records = JSON.parse(localStorage.getItem('studyRecords')) || [];
-    let todoTasks = JSON.parse(localStorage.getItem('todoTasks')) || [];
-    let customSubjects = JSON.parse(localStorage.getItem('customSubjects')) || [];
+    function showRandomQuote() {
+        const randomQ = quotes[Math.floor(Math.random() * quotes.length)];
+        quoteBox.textContent = randomQ;
+        quoteBox.classList.add('show');
+    }
 
-    let timer;
-    let isRunning = false;
-    let workTime = 25 * 60; 
-    let timeLeft = workTime;
-    const timeDisplay = document.getElementById('time');
-    const subjectSelect = document.getElementById('subject-select');
-    const calendarBtn = document.getElementById('calendar-btn');
-    const quoteBox = document.getElementById('quote-box');
-
-    // 載入自訂科目
+    // --- 自訂科目 ---
     function loadCustomSubjects() { customSubjects.forEach(sub => addOptionToSelect(sub)); }
     function addOptionToSelect(name) {
-        // 避免重複
-        for (let i = 0; i < subjectSelect.options.length; i++) {
-            if (subjectSelect.options[i].value === name) return;
-        }
+        for (let i = 0; i < subjectSelect.options.length; i++) { if (subjectSelect.options[i].value === name) return; }
         const newOption = document.createElement('option');
         newOption.value = name; newOption.text = "✏️ " + name;
         const divider = subjectSelect.querySelector('option[disabled]');
@@ -382,12 +344,12 @@
                 const name = newSubject.trim();
                 customSubjects.push(name);
                 localStorage.setItem('customSubjects', JSON.stringify(customSubjects));
-                addOptionToSelect(name);
-                select.value = name;
+                addOptionToSelect(name); select.value = name;
             } else { select.value = "國文"; }
         }
     }
 
+    // --- 計時器操作 ---
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
@@ -396,29 +358,15 @@
         setProgress((timeLeft / workTime) * 100);
     }
 
-    // 顯示隨機語錄
-    function showRandomQuote() {
-        const randomQ = quotes[Math.floor(Math.random() * quotes.length)];
-        quoteBox.textContent = randomQ;
-        quoteBox.classList.add('show'); // 觸發 CSS 動畫
-    }
-
     function startTimer() {
         if (isRunning) return;
         soundClick.play();
         isRunning = true;
         calendarBtn.style.display = 'none';
-        
-        // ★ 這裡：按下開始，顯示語錄
         showRandomQuote();
-
         timer = setInterval(() => {
-            if (timeLeft > 0) {
-                timeLeft--;
-                updateDisplay();
-            } else {
-                completeSession();
-            }
+            if (timeLeft > 0) { timeLeft--; updateDisplay(); } 
+            else { completeSession(); }
         }, 1000);
     }
 
@@ -435,31 +383,28 @@
         timeLeft = workTime;
         updateDisplay();
         calendarBtn.style.display = 'none';
-        quoteBox.classList.remove('show'); // 隱藏語錄
+        quoteBox.classList.remove('show');
     }
 
     function completeSession() {
         pauseTimer();
         soundAlarm.play();
         fireConfetti();
-        
         const subject = subjectSelect.value;
         const now = new Date();
         records.push({ subject: subject, duration: workTime / 60, date: now.toISOString().split('T')[0], timestamp: now.getTime() });
         localStorage.setItem('studyRecords', JSON.stringify(records));
-
         updateCharts();
         generateCalendarLink(subject, now);
-        
         calendarBtn.style.display = 'inline-flex';
         quoteBox.textContent = "🎉 太棒了！完成一次專注！";
         timeLeft = workTime;
         updateDisplay();
     }
 
+    // --- 特效與圖表 ---
     function fireConfetti() {
-        var duration = 3000;
-        var end = Date.now() + duration;
+        var duration = 3000; var end = Date.now() + duration;
         (function frame() {
             confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: pastelColors });
             confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: pastelColors });
@@ -478,7 +423,6 @@
         calendarBtn.href = url.toString();
     }
 
-    // --- 圖表 ---
     let pieChart, barChart, lineChart;
     function initCharts() {
         Chart.defaults.font.family = "'Zen Maru Gothic', sans-serif";
@@ -486,12 +430,11 @@
         const commonOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
 
         pieChart = new Chart(document.getElementById('pieChart'), {
-            type: 'doughnut', 
-            data: { labels: [], datasets: [{ data: [], backgroundColor: pastelColors }] },
+            type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: pastelColors }] },
             options: { ...commonOpts, plugins: { title: { display: true, text: '總時長分佈' }, legend: { position: 'right' } } }
         });
         barChart = new Chart(document.getElementById('barChart'), {
-            type: 'bar', data: { labels: [], datasets: [{ label: '分', data: [], backgroundColor: '#a2d2ff', borderRadius: 10 }] },
+            type: 'bar', data: { labels: [], datasets: [{ label: '分', data: [], backgroundColor: '#a2d2ff', borderRadius: 8 }] },
             options: { ...commonOpts, plugins: { title: { display: true, text: '今日學習' } }, scales: { x: { grid: { display: false } }, y: { grid: { borderDash: [5, 5] } } } }
         });
         lineChart = new Chart(document.getElementById('lineChart'), {
@@ -536,6 +479,7 @@
     window.toggleTask = (i) => { todoTasks[i].completed = !todoTasks[i].completed; renderTodos(); };
     window.deleteTask = (i) => { todoTasks.splice(i, 1); renderTodos(); };
 
+    // --- 啟動 ---
     loadCustomSubjects(); renderTodos(); initCharts();
 </script>
 </body>
