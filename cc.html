@@ -3,281 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>番茄鐘學習中樞</title>
+    <title>☁️ 專注小天地</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary-color: #ff6b6b;
-            --secondary-color: #4ecdc4;
-            --bg-color: #f0f2f5;
-            --text-color: #2d3436;
+            --bg-color: #fff9f5; /* 奶油白背景 */
             --card-bg: #ffffff;
+            --primary: #ffafcc; /* 櫻花粉 */
+            --primary-hover: #ff8fab;
+            --secondary: #a2d2ff; /* 寶寶藍 */
+            --accent: #cdb4db; /* 芋頭紫 */
+            --text-main: #6d6875; /* 溫暖深灰 */
+            --text-light: #b5b0ba;
+            --shadow: 0 10px 30px rgba(255, 175, 204, 0.15);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Zen Maru Gothic', sans-serif; /* 圓體字 */
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 0;
             height: 100vh;
-            overflow: hidden; 
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
         .app-container {
-            width: 95%;
-            height: 95vh;
+            width: 90%;
+            height: 90vh;
             display: grid;
-            grid-template-columns: 400px 1fr; /* 左側固定 400px，右側自適應 */
-            gap: 20px;
+            grid-template-columns: 380px 1fr;
+            gap: 25px;
         }
 
-        /* 卡片通用樣式 */
+        /* 卡片通用樣式 - 變得更圓潤 */
         .card {
             background: var(--card-bg);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 30px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border: 2px solid #fff; /* 增加一點質感 */
             display: flex;
             flex-direction: column;
-            margin-bottom: 20px;
         }
 
-        .card:last-child { margin-bottom: 0; }
-
-        h3 { 
-            margin-top: 0; 
-            color: #444; 
-            border-bottom: 2px solid #f0f0f0; 
-            padding-bottom: 10px; 
+        h3 {
+            margin-top: 0;
+            color: var(--text-main);
+            font-size: 1.2rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 8px;
         }
 
-        /* --- 左側區域 (可捲動) --- */
+        /* --- 左側區域 --- */
         .sidebar {
-            height: 100%;
-            overflow-y: auto; /* 左側獨立捲動 */
-            padding-right: 5px;
             display: flex;
             flex-direction: column;
-        }
-
-        /* 1. 待辦清單樣式 */
-        .input-group { display: flex; margin-bottom: 10px; }
-        #task-input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 5px 0 0 5px; outline: none; }
-        #add-btn { padding: 8px 12px; background: var(--secondary-color); color: white; border: none; border-radius: 0 5px 5px 0; cursor: pointer; }
-        
-        ul.list-style { list-style: none; padding: 0; overflow-y: auto; margin: 0; max-height: 200px; }
-        li.task-item { background: #f8f9fa; margin-bottom: 6px; padding: 8px; border-radius: 5px; display: flex; align-items: center; font-size: 0.95rem; }
-        li.task-item.completed span { text-decoration: line-through; color: #aaa; }
-        .delete-btn { margin-left: auto; color: #ff6b6b; cursor: pointer; border: none; background: none; font-weight: bold; }
-        .delete-btn:hover { background-color: #ffeaea; border-radius: 50%; }
-
-        /* 2. 時間記錄列表樣式 (新功能) */
-        .history-section ul {
-            list-style: none;
-            padding: 0;
-            max-height: 200px; /* 超過高度就捲動 */
+            gap: 20px;
+            height: 100%;
             overflow-y: auto;
-        }
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 0.9rem;
-        }
-        .history-item:last-child { border-bottom: none; }
-        .history-time { color: #888; font-size: 0.8rem; margin-right: 10px; }
-        .history-subject { font-weight: bold; color: var(--text-color); }
-        .history-duration { background: #e3f2fd; color: #1565c0; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px; }
-
-        /* 3. 圖表區塊 */
-        .charts-section { gap: 15px; }
-        .chart-container { position: relative; height: 180px; width: 100%; }
-
-        /* --- 右側區域 (番茄鐘) --- */
-        .timer-main {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
+            padding-right: 5px;
         }
 
-        .timer-display { font-size: 8rem; font-weight: bold; color: var(--primary-color); font-variant-numeric: tabular-nums; margin: 20px 0; }
+        /* 隱藏捲軸但保留功能 */
+        .sidebar::-webkit-scrollbar { width: 0px; }
+
+        /* 1. 待辦清單 */
+        .todo-section { flex: 0 0 auto; max-height: 45%; }
         
-        .subject-wrapper { text-align: center; margin-bottom: 20px; }
-        select { 
-            padding: 10px 20px; font-size: 1.2rem; border-radius: 50px; 
-            border: 2px solid #eee; outline: none; background: white; cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        .input-group { 
+            display: flex; 
+            margin-bottom: 15px; 
+            background: #fdf0f5; 
+            border-radius: 20px; 
+            padding: 5px;
+        }
+        
+        #task-input { 
+            flex: 1; 
+            padding: 10px 15px; 
+            border: none; 
+            background: transparent; 
+            outline: none; 
+            font-family: inherit;
+            color: var(--text-main);
         }
 
-        .controls button { padding: 15px 40px; font-size: 1.5rem; margin: 0 10px; border: none; border-radius: 50px; cursor: pointer; color: white; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .controls button:active { transform: scale(0.95); }
-        .btn-start { background-color: var(--primary-color); }
-        .btn-pause { background-color: #ffd93d; color: #444 !important; }
-        .btn-reset { background-color: #b2bec3; }
-
-        #calendar-btn {
-            display: none;
-            margin-top: 30px;
-            background-color: #4285F4;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-size: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        #add-btn { 
+            width: 40px;
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            font-size: 1.2rem;
             transition: 0.2s;
         }
-        #calendar-btn:hover { background-color: #3367d6; transform: translateY(-2px); }
+        #add-btn:hover { transform: rotate(90deg); background: var(--primary-hover); }
 
-        /* 手機版響應式 */
+        ul { list-style: none; padding: 0; overflow-y: auto; flex: 1; }
+        
+        li { 
+            margin-bottom: 10px; 
+            padding: 12px; 
+            border-radius: 15px; 
+            display: flex; 
+            align-items: center; 
+            transition: 0.2s;
+            background: white;
+            border: 1px solid #f0f0f0;
+        }
+        li:hover { background: #fdf0f5; }
+        
+        /* 自訂可愛 checkbox */
+        li input[type="checkbox"] {
+            appearance: none;
+            width: 20px; height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            margin-right: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        li input[type="checkbox"]:checked {
+            background-color: var(--primary);
+        }
+        li input[type="checkbox"]:checked::after {
+            content: '✔';
+            position: absolute; color: white; font-size: 12px;
+            left: 3px; top: 0px;
+        }
+
+        li.completed span { text-decoration: line-through; color: var(--text-light); }
+        .delete-btn { margin-left: auto; color: #ffadad; cursor: pointer; border: none; background: none; font-size: 1rem; }
+
+        /* 2. 圖表區 */
+        .charts-section { flex: 1; gap: 10px; }
+        .chart-container { position: relative; height: 160px; width: 100%; }
+
+        /* --- 右側計時器 --- */
+        .timer-main {
+            position: relative;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%); /* 淡淡的漸層背景 */
+        }
+
+        .subject-wrapper { margin-bottom: 20px; text-align: center; z-index: 10; }
+        select {
+            padding: 10px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            border: 2px solid var(--secondary);
+            background: white;
+            color: var(--text-main);
+            outline: none;
+            font-family: inherit;
+            cursor: pointer;
+            appearance: none; /* 隱藏預設箭頭 */
+            text-align: center;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a2d2ff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: 12px auto;
+        }
+
+        /* 圓環計時器 */
+        .timer-wrapper {
+            position: relative;
+            width: 380px; height: 380px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .progress-ring { transform: rotate(-90deg); }
+        .progress-ring__bg { stroke: #f0f0f0; }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            stroke: var(--primary);
+            filter: drop-shadow(0 0 5px rgba(255, 175, 204, 0.5));
+        }
+
+        .timer-display {
+            position: absolute;
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 2px;
+        }
+
+        /* 按鈕群 */
+        .controls { margin-top: 30px; display: flex; gap: 15px; z-index: 10; }
+        .btn {
+            padding: 12px 35px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .btn:active { transform: scale(0.95); }
+        
+        .btn-start { background: var(--primary); color: white; }
+        .btn-start:hover { background: var(--primary-hover); box-shadow: 0 5px 15px rgba(255, 175, 204, 0.4); }
+        
+        .btn-pause { background: #ffe5d9; color: var(--text-main); }
+        .btn-reset { background: #f0f0f0; color: #aaa; }
+
+        /* 語錄泡泡 */
+        .quote-bubble {
+            margin-top: 25px;
+            background: white;
+            padding: 15px 30px;
+            border-radius: 20px;
+            border: 2px dashed var(--secondary);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            max-width: 80%;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+            position: relative;
+        }
+        /* 小三角形 */
+        .quote-bubble::after {
+            content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            border-width: 0 10px 10px; border-style: solid; border-color: transparent transparent var(--secondary);
+        }
+        .quote-bubble.show { opacity: 1; transform: translateY(0); }
+
+        #calendar-btn {
+            display: none; margin-top: 20px;
+            background: #4cc9f0; color: white;
+            padding: 10px 25px; border-radius: 50px;
+            text-decoration: none; font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        #calendar-btn:hover { background: #480ca8; }
+
         @media (max-width: 900px) {
-            body { height: auto; overflow: auto; display: block; padding: 10px; }
-            .app-container { display: flex; flex-direction: column-reverse; width: 100%; height: auto; }
-            .sidebar { overflow: visible; height: auto; }
-            .timer-display { font-size: 5rem; }
-            .card { margin-bottom: 15px; }
+            .app-container { grid-template-columns: 1fr; overflow-y: auto; display: block; height: auto; padding-bottom: 30px; }
+            .timer-wrapper { width: 300px; height: 300px; margin: 0 auto; }
+            .timer-display { font-size: 3.5rem; }
+            body { overflow: auto; display: block; padding: 20px 0; }
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    
     <div class="sidebar">
-        
         <div class="card todo-section">
-            <h3>📝 待辦清單</h3>
+            <h3>📝 待辦小清單</h3>
             <div class="input-group">
-                <input type="text" id="task-input" placeholder="輸入任務...">
-                <button id="add-btn">+</button>
+                <input type="text" id="task-input" placeholder="今天想做什麼呢？">
+                <button id="add-btn">＋</button>
             </div>
-            <ul id="todo-list" class="list-style"></ul>
-        </div>
-
-        <div class="card history-section">
-            <h3>🕒 詳細時間記錄 <small style="font-size:0.8rem; color:#999; font-weight:normal;">(最近20筆)</small></h3>
-            <ul id="history-list">
-                </ul>
+            <ul id="todo-list"></ul>
         </div>
 
         <div class="card charts-section">
-            <h3>📊 數據統計</h3>
-            <div class="chart-container">
-                <canvas id="pieChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="barChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="lineChart"></canvas>
-            </div>
+            <h3>📊 專注能量分析</h3>
+            <div class="chart-container"><canvas id="pieChart"></canvas></div>
+            <div class="chart-container"><canvas id="barChart"></canvas></div>
+            <div class="chart-container"><canvas id="lineChart"></canvas></div>
         </div>
     </div>
 
     <div class="card timer-main">
         <div class="subject-wrapper">
-            <label style="display:block; color:#888; margin-bottom:5px;">當前科目</label>
             <select id="subject-select" onchange="checkCustomSubject(this)">
-                <option value="國文">國文</option>
-                <option value="英文">英文</option>
-                <option value="數學">數學</option>
-                <option value="物理">物理</option>
-                <option value="化學">化學</option>
-                <option value="歷史">歷史</option>
-                <option value="程式設計">程式設計</option>
-                <option disabled>──────────</option>
-                <option value="custom_add">＋ 新增其他科目...</option>
+                <option value="國文">📖 國文</option>
+                <option value="英文">🔤 英文</option>
+                <option value="數學">🔢 數學</option>
+                <option value="物理">⚛️ 物理</option>
+                <option value="化學">🧪 化學</option>
+                <option value="歷史">🏰 歷史</option>
+                <option value="程式">💻 程式設計</option>
+                <option disabled>──────</option>
+                <option value="custom_add">＋ 新增科目...</option>
             </select>
         </div>
 
-        <div class="timer-display" id="time">25:00</div>
+        <div class="timer-wrapper">
+            <svg class="progress-ring" width="380" height="380">
+                <circle class="progress-ring__bg" stroke-width="15" fill="transparent" r="170" cx="190" cy="190"/>
+                <circle class="progress-ring__circle" stroke-width="15" stroke-linecap="round" fill="transparent" r="170" cx="190" cy="190"/>
+            </svg>
+            <div class="timer-display" id="time">25:00</div>
+        </div>
         
         <div class="controls">
-            <button class="btn-start" onclick="startTimer()">開始</button>
-            <button class="btn-pause" onclick="pauseTimer()">暫停</button>
-            <button class="btn-reset" onclick="resetTimer()">重置</button>
+            <button class="btn btn-start" onclick="startTimer()">開始專注</button>
+            <button class="btn btn-pause" onclick="pauseTimer()">暫停</button>
+            <button class="btn btn-reset" onclick="resetTimer()">重置</button>
         </div>
 
-        <a id="calendar-btn" target="_blank" href="#">📅 記錄到 Google 日曆</a>
-    </div>
+        <div class="quote-bubble" id="quote-box">
+            ✨ 準備好變強了嗎？加油！
+        </div>
 
+        <a id="calendar-btn" target="_blank" href="#">📅 寫入日曆</a>
+    </div>
 </div>
 
 <script>
-    // --- 1. 資料初始化 ---
-    // 為了安全起見，若 localStorage 資料格式不對，給予空陣列
-    let records = [];
-    try {
-        records = JSON.parse(localStorage.getItem('studyRecords')) || [];
-    } catch(e) { records = []; }
+    // --- 音效與設定 ---
+    const soundClick = new Audio('https://actions.google.com/sounds/v1/ui/click_on.ogg');
+    const soundAlarm = new Audio('https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg');
+    
+    // 柔和色系配置給圖表用
+    const pastelColors = ['#ffafcc', '#a2d2ff', '#cdb4db', '#ffc8dd', '#bde0fe', '#ffdfd3'];
 
+    // --- 圓形進度條 ---
+    const circle = document.querySelector('.progress-ring__circle');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = 0;
+
+    function setProgress(percent) {
+        const offset = circumference - (percent / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+    }
+
+    // --- 語錄資料庫 ---
+    const quotes = [
+        "✨ 今天的努力，是為了遇見更好的自己！",
+        "🌱 慢慢來，比較快。專注當下。",
+        "💪 你比自己想像的還要強大！",
+        "📚 學習不是為了別人，是為了裝飾你的靈魂。",
+        "🚀 專注是通往夢想的加速器。",
+        "🌈 堅持下去，彩虹就在雨後。",
+        "💖 休息一下也很重要，愛自己喔！",
+        "🔥 讓未來的你，感謝現在拼命的自己。"
+    ];
+
+    // --- 核心邏輯 ---
+    let records = JSON.parse(localStorage.getItem('studyRecords')) || [];
     let todoTasks = JSON.parse(localStorage.getItem('todoTasks')) || [];
     let customSubjects = JSON.parse(localStorage.getItem('customSubjects')) || [];
 
-    // --- 2. 自訂科目邏輯 ---
+    let timer;
+    let isRunning = false;
+    let workTime = 25 * 60; 
+    let timeLeft = workTime;
+    const timeDisplay = document.getElementById('time');
     const subjectSelect = document.getElementById('subject-select');
-    
-    function loadCustomSubjects() {
-        customSubjects.forEach(sub => addOptionToSelect(sub));
-    }
-    
+    const calendarBtn = document.getElementById('calendar-btn');
+    const quoteBox = document.getElementById('quote-box');
+
+    // 載入自訂科目
+    function loadCustomSubjects() { customSubjects.forEach(sub => addOptionToSelect(sub)); }
     function addOptionToSelect(name) {
+        // 避免重複
         for (let i = 0; i < subjectSelect.options.length; i++) {
             if (subjectSelect.options[i].value === name) return;
         }
         const newOption = document.createElement('option');
-        newOption.value = name;
-        newOption.text = name;
+        newOption.value = name; newOption.text = "✏️ " + name;
         const divider = subjectSelect.querySelector('option[disabled]');
         subjectSelect.insertBefore(newOption, divider);
     }
-
     function checkCustomSubject(select) {
         if (select.value === 'custom_add') {
-            const newSubject = prompt("請輸入新科目的名稱：");
+            const newSubject = prompt("✨ 請輸入新科目名稱：");
             if (newSubject && newSubject.trim() !== "") {
                 const name = newSubject.trim();
                 customSubjects.push(name);
                 localStorage.setItem('customSubjects', JSON.stringify(customSubjects));
                 addOptionToSelect(name);
                 select.value = name;
-            } else {
-                select.value = "國文";
-            }
+            } else { select.value = "國文"; }
         }
     }
-
-    // --- 3. 番茄鐘邏輯 ---
-    let timer;
-    let isRunning = false;
-    let workTime = 25 * 60; 
-    let timeLeft = workTime;
-    const timeDisplay = document.getElementById('time');
-    const calendarBtn = document.getElementById('calendar-btn');
 
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
         timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        document.title = isRunning ? `(${timeDisplay.textContent}) 專注中` : "番茄鐘學習中樞";
+        document.title = isRunning ? `(${timeDisplay.textContent}) 專注ing` : "專注小天地";
+        setProgress((timeLeft / workTime) * 100);
+    }
+
+    // 顯示隨機語錄
+    function showRandomQuote() {
+        const randomQ = quotes[Math.floor(Math.random() * quotes.length)];
+        quoteBox.textContent = randomQ;
+        quoteBox.classList.add('show'); // 觸發 CSS 動畫
     }
 
     function startTimer() {
         if (isRunning) return;
+        soundClick.play();
         isRunning = true;
         calendarBtn.style.display = 'none';
+        
+        // ★ 這裡：按下開始，顯示語錄
+        showRandomQuote();
+
         timer = setInterval(() => {
             if (timeLeft > 0) {
                 timeLeft--;
@@ -289,161 +423,100 @@
     }
 
     function pauseTimer() {
+        soundClick.play();
         clearInterval(timer);
         isRunning = false;
+        quoteBox.textContent = "💤 休息是為了走更長遠的路";
     }
 
     function resetTimer() {
+        soundClick.play();
         pauseTimer();
         timeLeft = workTime;
         updateDisplay();
         calendarBtn.style.display = 'none';
+        quoteBox.classList.remove('show'); // 隱藏語錄
     }
 
     function completeSession() {
         pauseTimer();
+        soundAlarm.play();
+        fireConfetti();
+        
         const subject = subjectSelect.value;
         const now = new Date();
-        
-        // 建立紀錄
-        const record = {
-            id: Date.now(), // 唯一ID，用於刪除
-            subject: subject,
-            duration: workTime / 60,
-            date: now.toISOString().split('T')[0],
-            timestamp: now.getTime(),
-            timeStr: now.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
-        };
-        
-        records.push(record);
-        saveRecords();
+        records.push({ subject: subject, duration: workTime / 60, date: now.toISOString().split('T')[0], timestamp: now.getTime() });
+        localStorage.setItem('studyRecords', JSON.stringify(records));
 
+        updateCharts();
         generateCalendarLink(subject, now);
         
-        // 音效
-        const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-        audio.play().catch(e => {});
-
         calendarBtn.style.display = 'inline-flex';
-        alert(`完成！${subject} 記錄已儲存。`);
+        quoteBox.textContent = "🎉 太棒了！完成一次專注！";
         timeLeft = workTime;
         updateDisplay();
     }
 
-    function saveRecords() {
-        localStorage.setItem('studyRecords', JSON.stringify(records));
-        renderHistory(); // 更新列表
-        updateCharts();  // 更新圖表
+    function fireConfetti() {
+        var duration = 3000;
+        var end = Date.now() + duration;
+        (function frame() {
+            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: pastelColors });
+            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: pastelColors });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }());
     }
 
     function generateCalendarLink(subject, date) {
         const start = new Date(date.getTime());
         const end = new Date(date.getTime() + workTime * 1000);
         const formatTime = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, "");
-        
         const url = new URL("https://www.google.com/calendar/render");
         url.searchParams.append("action", "TEMPLATE");
-        url.searchParams.append("text", `[番茄鐘] ${subject} 專注學習`);
-        url.searchParams.append("details", `完成 ${workTime/60} 分鐘學習。`);
+        url.searchParams.append("text", `✨ 專注時光：${subject}`);
         url.searchParams.append("dates", `${formatTime(start)}/${formatTime(end)}`);
         calendarBtn.href = url.toString();
     }
 
-    // --- 4. 歷史列表邏輯 (新功能) ---
-    const historyList = document.getElementById('history-list');
-
-    function renderHistory() {
-        historyList.innerHTML = '';
-        // 反轉陣列，讓最新的顯示在最上面，並只取前 50 筆
-        const sortedRecords = [...records].sort((a, b) => b.timestamp - a.timestamp).slice(0, 50);
-
-        if (sortedRecords.length === 0) {
-            historyList.innerHTML = '<li style="text-align:center; color:#999; padding:10px;">尚無記錄，快開始學習吧！</li>';
-            return;
-        }
-
-        sortedRecords.forEach(rec => {
-            const li = document.createElement('li');
-            li.className = 'history-item';
-            li.innerHTML = `
-                <div style="display:flex; align-items:center;">
-                    <span class="history-time">${rec.date.slice(5)} ${rec.timeStr || ''}</span>
-                    <span class="history-subject">${rec.subject}</span>
-                    <span class="history-duration">${rec.duration} min</span>
-                </div>
-                <button class="delete-btn" onclick="deleteRecord(${rec.id})">✕</button>
-            `;
-            historyList.appendChild(li);
-        });
-    }
-
-    window.deleteRecord = (id) => {
-        if(confirm("確定要刪除這筆時間記錄嗎？")) {
-            records = records.filter(r => r.id !== id);
-            saveRecords();
-        }
-    }
-
-    // --- 5. 圖表邏輯 ---
+    // --- 圖表 ---
     let pieChart, barChart, lineChart;
-
     function initCharts() {
-        Chart.defaults.font.family = "'Segoe UI', sans-serif";
-        const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10 } } } };
+        Chart.defaults.font.family = "'Zen Maru Gothic', sans-serif";
+        Chart.defaults.color = '#6d6875';
+        const commonOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
 
-        pieChart = new Chart(document.getElementById('pieChart').getContext('2d'), {
-            type: 'pie',
-            data: { labels: [], datasets: [{ data: [], backgroundColor: ['#ff7675', '#74b9ff', '#55efc4', '#ffeaa7', '#a29bfe', '#636e72', '#fd79a8'] }] },
-            options: { ...commonOptions, plugins: { title: { display: true, text: '總時長佔比' } } }
+        pieChart = new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut', 
+            data: { labels: [], datasets: [{ data: [], backgroundColor: pastelColors }] },
+            options: { ...commonOpts, plugins: { title: { display: true, text: '總時長分佈' }, legend: { position: 'right' } } }
         });
-
-        barChart = new Chart(document.getElementById('barChart').getContext('2d'), {
-            type: 'bar',
-            data: { labels: [], datasets: [{ label: '分鐘', data: [], backgroundColor: '#4ecdc4', borderRadius: 4 }] },
-            options: { ...commonOptions, plugins: { title: { display: true, text: '今日學習' }, legend: {display: false} } }
+        barChart = new Chart(document.getElementById('barChart'), {
+            type: 'bar', data: { labels: [], datasets: [{ label: '分', data: [], backgroundColor: '#a2d2ff', borderRadius: 10 }] },
+            options: { ...commonOpts, plugins: { title: { display: true, text: '今日學習' } }, scales: { x: { grid: { display: false } }, y: { grid: { borderDash: [5, 5] } } } }
         });
-
-        lineChart = new Chart(document.getElementById('lineChart').getContext('2d'), {
-            type: 'line',
-            data: { labels: [], datasets: [{ label: '分鐘', data: [], borderColor: '#ff6b6b', tension: 0.3, fill: true, backgroundColor: 'rgba(255, 107, 107, 0.1)' }] },
-            options: { ...commonOptions, plugins: { title: { display: true, text: '近7日趨勢' }, legend: {display: false} }, scales: { y: { beginAtZero: true } } }
+        lineChart = new Chart(document.getElementById('lineChart'), {
+            type: 'line', data: { labels: [], datasets: [{ label: '分', data: [], borderColor: '#ffafcc', backgroundColor: 'rgba(255, 175, 204, 0.2)', tension: 0.4, fill: true }] },
+            options: { ...commonOpts, plugins: { title: { display: true, text: '一週趨勢' } }, scales: { x: { grid: { display: false } }, y: { grid: { borderDash: [5, 5] }, beginAtZero: true } } }
         });
-
         updateCharts();
     }
 
     function updateCharts() {
-        // A. 圓餅圖
-        const subjectTotals = {};
-        records.forEach(r => subjectTotals[r.subject] = (subjectTotals[r.subject] || 0) + r.duration);
-        pieChart.data.labels = Object.keys(subjectTotals);
-        pieChart.data.datasets[0].data = Object.values(subjectTotals);
-        pieChart.update();
+        const subjectTotals = {}; records.forEach(r => subjectTotals[r.subject] = (subjectTotals[r.subject] || 0) + r.duration);
+        pieChart.data.labels = Object.keys(subjectTotals); pieChart.data.datasets[0].data = Object.values(subjectTotals); pieChart.update();
 
-        // B. 柱狀圖 (今日)
         const todayStr = new Date().toISOString().split('T')[0];
-        const todayTotals = {};
-        records.filter(r => r.date === todayStr).forEach(r => todayTotals[r.subject] = (todayTotals[r.subject] || 0) + r.duration);
-        barChart.data.labels = Object.keys(todayTotals);
-        barChart.data.datasets[0].data = Object.values(todayTotals);
-        barChart.update();
+        const todayTotals = {}; records.filter(r => r.date === todayStr).forEach(r => todayTotals[r.subject] = (todayTotals[r.subject] || 0) + r.duration);
+        barChart.data.labels = Object.keys(todayTotals); barChart.data.datasets[0].data = Object.values(todayTotals); barChart.update();
 
-        // C. 折線圖 (近7天)
-        const dailyTotals = {};
-        const dates = [];
-        for(let i=6; i>=0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            dates.push(d.toISOString().split('T')[0]);
-        }
+        const dailyTotals = {}; const dates = [];
+        for(let i=6; i>=0; i--) { const d = new Date(); d.setDate(d.getDate() - i); dates.push(d.toISOString().split('T')[0]); }
         dates.forEach(date => dailyTotals[date] = 0);
         records.forEach(r => { if (dailyTotals[r.date] !== undefined) dailyTotals[r.date] += r.duration; });
-        lineChart.data.labels = dates.map(d => d.slice(5));
-        lineChart.data.datasets[0].data = dates.map(d => dailyTotals[d]);
-        lineChart.update();
+        lineChart.data.labels = dates.map(d => d.slice(5)); lineChart.data.datasets[0].data = dates.map(d => dailyTotals[d]); lineChart.update();
     }
 
-    // --- 6. 待辦清單邏輯 ---
+    // --- 待辦清單 ---
     const taskInput = document.getElementById('task-input');
     const addBtn = document.getElementById('add-btn');
     const todoList = document.getElementById('todo-list');
@@ -452,41 +525,18 @@
         todoList.innerHTML = '';
         todoTasks.forEach((task, index) => {
             const li = document.createElement('li');
-            li.className = 'task-item' + (task.completed ? ' completed' : '');
-            li.innerHTML = `
-                <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
-                <span style="margin-left: 10px; flex:1;">${task.text}</span>
-                <button class="delete-btn" onclick="deleteTask(${index})">✕</button>
-            `;
+            if (task.completed) li.classList.add('completed');
+            li.innerHTML = `<input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})"><span style="flex:1;">${task.text}</span><button class="delete-btn" onclick="deleteTask(${index})">×</button>`;
             todoList.appendChild(li);
         });
         localStorage.setItem('todoTasks', JSON.stringify(todoTasks));
     }
-
-    addBtn.addEventListener('click', () => {
-        if (taskInput.value.trim()) {
-            todoTasks.push({ text: taskInput.value.trim(), completed: false });
-            taskInput.value = '';
-            renderTodos();
-        }
-    });
+    addBtn.addEventListener('click', () => { if (taskInput.value.trim()) { todoTasks.push({ text: taskInput.value.trim(), completed: false }); taskInput.value = ''; renderTodos(); } });
     taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addBtn.click(); });
+    window.toggleTask = (i) => { todoTasks[i].completed = !todoTasks[i].completed; renderTodos(); };
+    window.deleteTask = (i) => { todoTasks.splice(i, 1); renderTodos(); };
 
-    window.toggleTask = (index) => {
-        todoTasks[index].completed = !todoTasks[index].completed;
-        renderTodos();
-    };
-    window.deleteTask = (index) => {
-        todoTasks.splice(index, 1);
-        renderTodos();
-    };
-
-    // 啟動
-    loadCustomSubjects();
-    renderTodos();
-    renderHistory(); // 初始載入歷史列表
-    initCharts();
-
+    loadCustomSubjects(); renderTodos(); initCharts();
 </script>
 </body>
 </html>
