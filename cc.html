@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☁️ 專注小天地 (置中版)</title>
+    <title>☁️ 專注小天地 (大版面)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +17,6 @@
             --primary: #ffafcc;
             --primary-hover: #ff8fab;
             --secondary: #a2d2ff;
-            --accent: #cdb4db;
             --text-main: #6d6875;
             --text-light: #b5b0ba;
             --shadow: 0 10px 30px rgba(255, 175, 204, 0.15);
@@ -35,20 +34,19 @@
             align-items: center;
         }
 
-        /* ★ 修改重點：三欄佈局 (左側固定 - 中間自適應 - 右側固定) */
+        /* ★ 修改重點：1:1:1 均分三欄，讓左右兩邊變大 */
         .app-container {
             width: 95%;
-            height: 90vh;
+            height: 92vh; /* 稍微增加高度利用率 */
             display: grid;
-            /* 定義：左300px | 中間(自動填滿) | 右300px */
-            grid-template-columns: 300px 1fr 300px; 
+            grid-template-columns: 1fr 1fr 1fr; /* 三個欄位等寬 */
             gap: 25px;
         }
 
         .card {
             background: var(--card-bg);
-            border-radius: 30px;
-            padding: 20px;
+            border-radius: 35px; /* 更圓潤 */
+            padding: 25px; /* 內距加大 */
             box-shadow: var(--shadow);
             border: 2px solid #fff;
             display: flex;
@@ -59,13 +57,13 @@
         h3 {
             margin-top: 0;
             color: var(--text-main);
-            font-size: 1.1rem;
+            font-size: 1.3rem; /* 標題變大 */
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 20px;
             border-bottom: 2px dashed #f0f0f0;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
         }
 
         /* --- 左欄：待辦清單 --- */
@@ -76,72 +74,75 @@
 
         .input-group { 
             display: flex; 
-            margin-bottom: 15px; 
+            margin-bottom: 20px; 
             background: #fdf0f5; 
-            border-radius: 20px; 
-            padding: 5px;
+            border-radius: 25px; 
+            padding: 8px;
         }
         
         #task-input { 
-            flex: 1; padding: 8px 12px; border: none; 
+            flex: 1; padding: 10px 15px; border: none; 
             background: transparent; outline: none; 
             font-family: inherit; color: var(--text-main);
+            font-size: 1.1rem; /* 輸入文字變大 */
         }
 
         #add-btn { 
-            width: 35px; height: 35px; background: var(--primary); 
+            width: 45px; height: 45px; background: var(--primary); 
             color: white; border: none; border-radius: 50%; 
-            cursor: pointer; font-size: 1.2rem; display: flex; 
+            cursor: pointer; font-size: 1.5rem; display: flex; 
             justify-content: center; align-items: center; transition: 0.2s;
         }
         #add-btn:hover { background: var(--primary-hover); transform: rotate(90deg); }
 
         ul { list-style: none; padding: 0; overflow-y: auto; flex: 1; margin: 0; }
-        ul::-webkit-scrollbar { width: 0; } /* 隱藏捲軸 */
+        ul::-webkit-scrollbar { width: 0; }
 
         li { 
-            margin-bottom: 8px; padding: 10px; border-radius: 15px; 
+            margin-bottom: 12px; padding: 15px; border-radius: 20px; 
             display: flex; align-items: center; transition: 0.2s;
             background: #fff; border: 1px solid #f4f4f4;
+            font-size: 1.1rem; /* 清單文字變大 */
         }
-        li:hover { background: #fdf0f5; transform: translateX(3px); }
+        li:hover { background: #fdf0f5; transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
         
         li input[type="checkbox"] {
-            appearance: none; width: 18px; height: 18px;
+            appearance: none; width: 22px; height: 22px; /* 勾選框變大 */
             border: 2px solid var(--primary); border-radius: 50%;
-            margin-right: 10px; cursor: pointer; flex-shrink: 0; position: relative;
+            margin-right: 15px; cursor: pointer; flex-shrink: 0; position: relative;
         }
         li input[type="checkbox"]:checked { background-color: var(--primary); }
         li input[type="checkbox"]:checked::after {
-            content: '✔'; position: absolute; color: white; font-size: 10px; left: 3px; top: 0px;
+            content: '✔'; position: absolute; color: white; font-size: 14px; left: 4px; top: 1px;
         }
         li.completed span { text-decoration: line-through; color: var(--text-light); }
-        .delete-btn { margin-left: auto; color: #ffadad; cursor: pointer; border: none; background: none; }
+        .delete-btn { margin-left: auto; color: #ffadad; cursor: pointer; border: none; background: none; font-size: 1.2rem; }
 
-        /* --- 中間欄：番茄鐘 (主角) --- */
+        /* --- 中間欄：番茄鐘 --- */
         .col-timer {
             position: relative;
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
-            z-index: 2; /* 讓中間稍微浮起來的感覺 */
+            z-index: 2;
         }
 
-        .subject-wrapper { margin-bottom: 30px; text-align: center; z-index: 10; }
+        .subject-wrapper { margin-bottom: 30px; text-align: center; width: 100%; z-index: 10; }
         select {
-            padding: 10px 30px; font-size: 1.2rem; border-radius: 50px;
+            padding: 12px 30px; font-size: 1.2rem; border-radius: 50px; width: 80%;
             border: 2px solid var(--secondary); background: white; color: var(--text-main);
             outline: none; font-family: inherit; cursor: pointer; text-align: center;
             box-shadow: 0 5px 15px rgba(162, 210, 255, 0.2);
         }
 
-        /* 放大中間的計時器 */
+        /* 因為左右變大，中間稍微調整以適應各種螢幕 */
         .timer-wrapper {
             position: relative;
-            width: 380px; height: 380px;
+            width: 100%; max-width: 350px; /* 限制最大寬度 */
+            aspect-ratio: 1/1; /* 保持正圓 */
             display: flex; align-items: center; justify-content: center;
         }
-        .progress-ring { transform: rotate(-90deg); }
+        .progress-ring { transform: rotate(-90deg); width: 100%; height: 100%; }
         .progress-ring__circle {
             transition: stroke-dashoffset 0.35s;
             stroke: var(--primary);
@@ -150,17 +151,17 @@
 
         .timer-display {
             position: absolute;
-            font-size: 5.5rem;
+            font-size: 5rem; /* 稍微調整字體以防爆版 */
             font-weight: 700;
             color: var(--text-main);
             letter-spacing: 2px;
         }
 
-        .controls { margin-top: 35px; display: flex; gap: 15px; z-index: 10; }
+        .controls { margin-top: 30px; display: flex; gap: 15px; z-index: 10; flex-wrap: wrap; justify-content: center; }
         .btn {
-            padding: 12px 35px; font-size: 1.1rem; border: none; border-radius: 50px;
+            padding: 12px 30px; font-size: 1.1rem; border: none; border-radius: 50px;
             cursor: pointer; font-family: inherit; font-weight: bold; transition: all 0.2s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); min-width: 100px;
         }
         .btn:active { transform: scale(0.95); }
         .btn-start { background: var(--primary); color: white; }
@@ -168,10 +169,10 @@
         .btn-reset { background: #f0f0f0; color: #aaa; }
 
         .quote-bubble {
-            margin-top: 30px;
-            background: white; padding: 12px 25px; border-radius: 20px;
+            margin-top: 25px;
+            background: white; padding: 15px; border-radius: 20px;
             border: 2px dashed var(--secondary); color: var(--text-main);
-            font-size: 1rem; max-width: 80%; text-align: center;
+            font-size: 1rem; width: 90%; text-align: center;
             opacity: 0; transform: translateY(10px); transition: all 0.5s ease;
         }
         .quote-bubble.show { opacity: 1; transform: translateY(0); }
@@ -181,43 +182,41 @@
             padding: 10px 25px; border-radius: 50px; text-decoration: none; font-size: 0.9rem;
             transition: 0.2s;
         }
-        #calendar-btn:hover { background: #480ca8; }
 
-        /* --- 右欄：圖表 --- */
+        /* --- 右欄：圖表 (放大版) --- */
         .col-stats {
             overflow-y: auto;
-            gap: 15px;
-            padding-right: 5px; /* 預留一點空間給捲軸 */
+            gap: 20px; /* 圖表間距加大 */
+            padding-right: 5px;
         }
         .col-stats::-webkit-scrollbar { width: 0; } 
         
         .chart-container { 
             position: relative; 
-            height: 160px; /* 圖表高度稍微縮小以容納三個 */
+            height: 220px; /* ★ 高度增加：讓圖表更大更清楚 */
             width: 100%; 
             background: #fafafa;
-            border-radius: 20px;
-            padding: 10px;
+            border-radius: 25px;
+            padding: 15px;
             box-sizing: border-box;
-            margin-bottom: 10px;
+            border: 1px solid #f0f0f0;
         }
 
-        /* 響應式：手機版變回垂直排列 */
-        @media (max-width: 1100px) {
+        /* 響應式：平板與手機 */
+        @media (max-width: 1200px) {
             .app-container {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* 變回單欄垂直排列 */
                 display: flex; flex-direction: column;
                 overflow-y: auto; height: auto; padding-bottom: 50px;
             }
             body { overflow: auto; height: auto; padding: 20px 0; }
             
-            /* 手機版順序：計時器第一 -> 待辦第二 -> 圖表第三 */
-            .col-timer { order: 1; height: 500px; flex-shrink: 0; }
-            .col-todo { order: 2; height: 350px; flex-shrink: 0; }
-            .col-stats { order: 3; height: 500px; flex-shrink: 0; }
+            /* 手機版順序 */
+            .col-timer { order: 1; height: 550px; flex-shrink: 0; }
+            .col-todo { order: 2; height: 500px; flex-shrink: 0; }
+            .col-stats { order: 3; height: 600px; flex-shrink: 0; }
             
-            .timer-wrapper { width: 280px; height: 280px; }
-            .timer-display { font-size: 3.5rem; }
+            .timer-display { font-size: 4rem; }
         }
     </style>
 </head>
@@ -250,7 +249,7 @@
         </div>
 
         <div class="timer-wrapper">
-            <svg class="progress-ring" width="380" height="380">
+            <svg class="progress-ring" viewBox="0 0 380 380">
                 <circle class="progress-ring__bg" stroke-width="15" fill="transparent" r="170" cx="190" cy="190"/>
                 <circle class="progress-ring__circle" stroke-width="15" stroke-linecap="round" fill="transparent" r="170" cx="190" cy="190"/>
             </svg>
@@ -305,7 +304,8 @@
     
     // 圓形進度條
     const circle = document.querySelector('.progress-ring__circle');
-    const radius = circle.r.baseVal.value;
+    // 因為 SVG 使用 viewBox，這裡需要固定半徑計算
+    const radius = 170; 
     const circumference = radius * 2 * Math.PI;
     circle.style.strokeDasharray = `${circumference} ${circumference}`;
     circle.style.strokeDashoffset = 0;
