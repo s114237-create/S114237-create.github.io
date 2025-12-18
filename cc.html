@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☁️ 專注小天地 (時鐘版)</title>
+    <title>☁️ 專注小天地 (等級+自訂時間版)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -62,59 +62,34 @@
             margin-bottom: 15px; border-bottom: 2px dashed #f0f0f0; padding-bottom: 10px;
         }
 
-        /* --- 翻頁時鐘樣式 (新增部分) --- */
+        /* --- 翻頁時鐘 --- */
         .flip-clock-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            background: #fff0f5; /* 淡粉底色 */
-            padding: 15px;
-            border-radius: 25px;
-            margin-bottom: 20px;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            background: #fff0f5; padding: 15px; border-radius: 25px; margin-bottom: 15px;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
         }
-
         .flip-card {
-            background: white;
-            width: 50px;
-            height: 60px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--text-main);
-            box-shadow: 0 4px 0px rgba(0,0,0,0.05); /* 底部陰影製造立體感 */
-            position: relative;
-            overflow: hidden;
+            background: white; width: 45px; height: 55px; border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem; font-weight: bold; color: var(--text-main);
+            box-shadow: 0 4px 0px rgba(0,0,0,0.05); position: relative; overflow: hidden;
         }
-
-        /* 模擬翻頁的中間線 */
-        .flip-card::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background: rgba(0,0,0,0.08);
-            box-shadow: 0 1px 0 rgba(255,255,255,0.5);
-        }
-
-        .clock-colon {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary);
-            animation: blink 1s infinite;
-            margin-top: -5px;
-        }
-
+        .flip-card::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: rgba(0,0,0,0.08); box-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+        .clock-colon { font-size: 2rem; font-weight: bold; color: var(--primary); animation: blink 1s infinite; margin-top: -5px; }
         @keyframes blink { 50% { opacity: 0; } }
 
+        /* --- 等級區塊 (新增) --- */
+        .level-badge {
+            background: linear-gradient(135deg, #a2d2ff 0%, #bde0fe 100%);
+            color: white; padding: 10px; border-radius: 20px;
+            text-align: center; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(162, 210, 255, 0.4);
+        }
+        .level-title { font-weight: bold; font-size: 1.1rem; }
+        .level-info { font-size: 0.9rem; opacity: 0.9; margin-top: 5px; }
 
-        /* --- 左欄：待辦清單 --- */
+
+        /* --- 左欄 --- */
         .col-todo { display: flex; flex-direction: column; }
         .input-group { display: flex; margin-bottom: 15px; background: #fdf0f5; border-radius: 25px; padding: 5px; }
         #task-input { flex: 1; padding: 10px 15px; border: none; background: transparent; outline: none; font-family: inherit; color: var(--text-main); font-size: 1.1rem; }
@@ -130,24 +105,37 @@
         li.completed span { text-decoration: line-through; color: var(--text-light); }
         .delete-btn { margin-left: auto; color: #ffadad; cursor: pointer; border: none; background: none; font-size: 1.2rem; }
 
-        /* --- 中間欄：番茄鐘 --- */
+        /* --- 中間欄 --- */
         .col-timer { align-items: center; background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%); z-index: 2; overflow-y: auto; }
         .col-timer::-webkit-scrollbar { width: 0; }
         .subject-wrapper { margin-bottom: 20px; text-align: center; width: 100%; }
         select { padding: 10px 30px; font-size: 1.1rem; border-radius: 50px; width: 80%; border: 2px solid var(--secondary); background: white; color: var(--text-main); outline: none; font-family: inherit; cursor: pointer; text-align: center; }
+        
         .timer-wrapper { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; flex-shrink: 0; }
         .progress-ring { transform: rotate(-90deg); width: 100%; height: 100%; }
         .progress-ring__circle { transition: stroke-dashoffset 0.35s; stroke: var(--primary); filter: drop-shadow(0 0 8px rgba(255, 175, 204, 0.6)); }
-        .timer-display { position: absolute; font-size: 4rem; font-weight: 700; color: var(--text-main); }
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        /* 時間可點擊樣式 */
+        .timer-display { 
+            position: absolute; font-size: 4rem; font-weight: 700; color: var(--text-main); 
+            cursor: pointer; transition: 0.2s;
+        }
+        .timer-display:hover { transform: scale(1.05); color: var(--primary); }
+        .timer-hint { position: absolute; bottom: 60px; font-size: 0.8rem; color: #ccc; pointer-events: none; }
+
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
         .btn { padding: 10px 25px; font-size: 1rem; border: none; border-radius: 50px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .btn:active { transform: scale(0.95); }
         .btn-start { background: var(--primary); color: white; }
         .btn-pause { background: #ffe5d9; color: var(--text-main); }
         .btn-reset { background: #f0f0f0; color: #aaa; }
+        /* 靜音按鈕 */
+        .btn-mute { width: 45px; height: 45px; padding: 0; display: flex; justify-content: center; align-items: center; background: white; border: 2px solid #eee; color: #888; border-radius: 50%; }
+        .btn-mute.muted { background: #eee; color: #aaa; text-decoration: line-through; }
+
         .spotify-container { width: 100%; margin-top: auto; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
 
-        /* --- 右欄：圖表 --- */
+        /* --- 右欄 --- */
         .col-stats { overflow-y: auto; gap: 20px; padding-right: 5px; }
         .col-stats::-webkit-scrollbar { width: 0; }
         .chart-container { position: relative; height: 220px; width: 100%; background: #fafafa; border-radius: 25px; padding: 15px; box-sizing: border-box; border: 1px solid #f0f0f0; }
@@ -179,6 +167,11 @@
 <div class="app-container">
     
     <div class="card col-todo">
+        <div class="level-badge">
+            <div class="level-title" id="user-level-title">🌱 專注新手</div>
+            <div class="level-info">累積專注: <span id="total-focus-time">0</span> 分鐘</div>
+        </div>
+
         <div class="flip-clock-wrapper">
             <div class="flip-card" id="clock-h">12</div>
             <div class="clock-colon">:</div>
@@ -215,17 +208,19 @@
                 <circle class="progress-ring__bg" stroke-width="15" fill="transparent" r="170" cx="190" cy="190"/>
                 <circle class="progress-ring__circle" stroke-width="15" stroke-linecap="round" fill="transparent" r="170" cx="190" cy="190"/>
             </svg>
-            <div class="timer-display" id="time">25:00</div>
+            <div class="timer-display" id="time" onclick="editTime()">25:00</div>
+            <div class="timer-hint">👆 點擊時間可修改</div>
         </div>
         
         <div class="controls">
             <button class="btn btn-start" onclick="startTimer()">開始</button>
             <button class="btn btn-pause" onclick="pauseTimer()">暫停</button>
             <button class="btn btn-reset" onclick="resetTimer()">重置</button>
+            <button class="btn btn-mute" id="mute-btn" onclick="toggleMute()">🔊</button>
         </div>
 
         <div class="spotify-container">
-            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/0vvXsWCC9xrXsKd4FyS8kM?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe style="border-radius:12px" src="http://googleusercontent.com/spotify.com/3" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         </div>
     </div>
 
@@ -253,28 +248,32 @@
     const soundAlarm = new Audio('https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg');
     const pastelColors = ['#ffafcc', '#a2d2ff', '#cdb4db', '#ffc8dd', '#bde0fe', '#ffdfd3'];
     
-    // --- 實時時鐘邏輯 (新增) ---
+    // 靜音控制
+    let isMuted = false;
+    function toggleMute() {
+        isMuted = !isMuted;
+        const btn = document.getElementById('mute-btn');
+        if(isMuted) { btn.innerText = '🔇'; btn.classList.add('muted'); }
+        else { btn.innerText = '🔊'; btn.classList.remove('muted'); }
+    }
+    function playSound(audio) { if(!isMuted) audio.play(); }
+
+    // 實時時鐘
     function updateRealTimeClock() {
         const now = new Date();
-        const h = String(now.getHours()).padStart(2, '0');
-        const m = String(now.getMinutes()).padStart(2, '0');
-        const s = String(now.getSeconds()).padStart(2, '0');
-        
-        document.getElementById('clock-h').innerText = h;
-        document.getElementById('clock-m').innerText = m;
-        document.getElementById('clock-s').innerText = s;
+        document.getElementById('clock-h').innerText = String(now.getHours()).padStart(2,'0');
+        document.getElementById('clock-m').innerText = String(now.getMinutes()).padStart(2,'0');
+        document.getElementById('clock-s').innerText = String(now.getSeconds()).padStart(2,'0');
     }
-    // 立即執行一次，避免剛打開網頁有一秒空白
-    updateRealTimeClock();
-    // 每秒更新
-    setInterval(updateRealTimeClock, 1000);
+    setInterval(updateRealTimeClock, 1000); updateRealTimeClock();
 
-    // --- 以下為原有邏輯 ---
     let records = JSON.parse(localStorage.getItem('studyRecords')) || [];
     let todoTasks = JSON.parse(localStorage.getItem('todoTasks')) || [];
     let customSubjects = JSON.parse(localStorage.getItem('customSubjects')) || [];
 
-    let timer; let isRunning = false; let workTime = 25 * 60; let timeLeft = workTime;
+    let timer; let isRunning = false; 
+    let workTime = 25 * 60; 
+    let timeLeft = workTime;
     
     const timeDisplay = document.getElementById('time');
     const subjectSelect = document.getElementById('subject-select');
@@ -305,22 +304,37 @@
         }
     }
 
+    // 🆕 自訂時間邏輯
+    function editTime() {
+        if(isRunning) return; // 執行中不能改
+        const newMin = prompt("請輸入專注分鐘數 (例如 25, 50, 5):", Math.floor(workTime/60));
+        if(newMin && !isNaN(newMin) && newMin > 0) {
+            workTime = Math.floor(newMin) * 60;
+            timeLeft = workTime;
+            updateDisplay();
+        }
+    }
+
     function updateDisplay() {
         const minutes = Math.floor(timeLeft / 60); const seconds = timeLeft % 60;
         timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         document.title = isRunning ? `(${timeDisplay.textContent}) 專注ing` : "專注小天地";
         setProgress((timeLeft / workTime) * 100);
     }
-    function startTimer() { if (isRunning) return; soundClick.play(); isRunning = true; timer = setInterval(() => { if (timeLeft > 0) { timeLeft--; updateDisplay(); } else { completeSession(); } }, 1000); }
-    function pauseTimer() { soundClick.play(); clearInterval(timer); isRunning = false; }
-    function resetTimer() { soundClick.play(); pauseTimer(); timeLeft = workTime; updateDisplay(); }
+    function startTimer() { if (isRunning) return; playSound(soundClick); isRunning = true; timer = setInterval(() => { if (timeLeft > 0) { timeLeft--; updateDisplay(); } else { completeSession(); } }, 1000); }
+    function pauseTimer() { playSound(soundClick); clearInterval(timer); isRunning = false; }
+    function resetTimer() { playSound(soundClick); pauseTimer(); timeLeft = workTime; updateDisplay(); }
 
     function completeSession() {
-        pauseTimer(); soundAlarm.play(); fireConfetti();
+        pauseTimer(); playSound(soundAlarm); fireConfetti();
         const subject = subjectSelect.value; const now = new Date();
-        records.push({ subject: subject, duration: workTime / 60, date: now.toISOString().split('T')[0], timestamp: now.getTime() });
+        const durationMins = workTime / 60; // 這次專注了多久
+        records.push({ subject: subject, duration: durationMins, date: now.toISOString().split('T')[0], timestamp: now.getTime() });
         localStorage.setItem('studyRecords', JSON.stringify(records));
+        
         updateCharts();
+        updateLevel(); // 更新等級
+
         const start = new Date(now.getTime()); const end = new Date(now.getTime() + workTime * 1000);
         const formatTime = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, "");
         const url = new URL("https://www.google.com/calendar/render");
@@ -328,7 +342,7 @@
         url.searchParams.append("text", `✨ 專注時光：${subject}`);
         url.searchParams.append("dates", `${formatTime(start)}/${formatTime(end)}`);
         calendarBtnModal.href = url.toString();
-        modalMsg.textContent = `你剛剛完成了 ${(workTime/60)} 分鐘的 ${subject} 學習！`;
+        modalMsg.textContent = `你剛剛完成了 ${durationMins} 分鐘的 ${subject} 學習！`;
         victoryModal.classList.add('active');
         timeLeft = workTime; updateDisplay();
     }
@@ -340,6 +354,26 @@
             confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: pastelColors });
             if (Date.now() < end) requestAnimationFrame(frame);
         }());
+    }
+
+    // 🆕 等級系統邏輯
+    function updateLevel() {
+        // 計算總分鐘數
+        const totalMinutes = records.reduce((acc, curr) => acc + curr.duration, 0);
+        document.getElementById('total-focus-time').innerText = Math.floor(totalMinutes);
+        
+        const levelTitle = document.getElementById('user-level-title');
+        if (totalMinutes < 60) {
+            levelTitle.innerText = "🌱 專注新手";
+        } else if (totalMinutes < 300) {
+            levelTitle.innerText = "🌿 學習學徒";
+        } else if (totalMinutes < 1000) {
+            levelTitle.innerText = "🌳 知識探索者";
+        } else if (totalMinutes < 3000) {
+            levelTitle.innerText = "🔥 專注大師";
+        } else {
+            levelTitle.innerText = "👑 時間的王者";
+        }
     }
 
     let pieChart, barChart, lineChart;
@@ -374,7 +408,7 @@
     window.toggleTask = (i) => { todoTasks[i].completed = !todoTasks[i].completed; renderTodos(); };
     window.deleteTask = (i) => { todoTasks.splice(i, 1); renderTodos(); };
 
-    loadCustomSubjects(); renderTodos(); initCharts();
+    loadCustomSubjects(); renderTodos(); initCharts(); updateLevel();
 </script>
 </body>
 </html>
