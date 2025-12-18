@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☁️ 專注小天地 (Spotify 版)</title>
+    <title>☁️ 專注小天地 (時鐘版)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,7 +34,6 @@
             align-items: center;
         }
 
-        /* 三欄佈局 */
         .app-container {
             width: 95%;
             height: 92vh;
@@ -60,18 +59,70 @@
             color: var(--text-main);
             font-size: 1.3rem;
             display: flex; align-items: center; gap: 10px;
-            margin-bottom: 20px; border-bottom: 2px dashed #f0f0f0; padding-bottom: 15px;
+            margin-bottom: 15px; border-bottom: 2px dashed #f0f0f0; padding-bottom: 10px;
         }
+
+        /* --- 翻頁時鐘樣式 (新增部分) --- */
+        .flip-clock-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            background: #fff0f5; /* 淡粉底色 */
+            padding: 15px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .flip-card {
+            background: white;
+            width: 50px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-main);
+            box-shadow: 0 4px 0px rgba(0,0,0,0.05); /* 底部陰影製造立體感 */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 模擬翻頁的中間線 */
+        .flip-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(0,0,0,0.08);
+            box-shadow: 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        .clock-colon {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            animation: blink 1s infinite;
+            margin-top: -5px;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
 
         /* --- 左欄：待辦清單 --- */
         .col-todo { display: flex; flex-direction: column; }
-        .input-group { display: flex; margin-bottom: 20px; background: #fdf0f5; border-radius: 25px; padding: 8px; }
+        .input-group { display: flex; margin-bottom: 15px; background: #fdf0f5; border-radius: 25px; padding: 5px; }
         #task-input { flex: 1; padding: 10px 15px; border: none; background: transparent; outline: none; font-family: inherit; color: var(--text-main); font-size: 1.1rem; }
         #add-btn { width: 45px; height: 45px; background: var(--primary); color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.5rem; transition: 0.2s; display: flex; justify-content: center; align-items: center; }
         #add-btn:hover { background: var(--primary-hover); transform: rotate(90deg); }
         ul { list-style: none; padding: 0; overflow-y: auto; flex: 1; margin: 0; }
         ul::-webkit-scrollbar { width: 0; }
-        li { margin-bottom: 12px; padding: 15px; border-radius: 20px; display: flex; align-items: center; transition: 0.2s; background: #fff; border: 1px solid #f4f4f4; font-size: 1.1rem; }
+        li { margin-bottom: 10px; padding: 12px; border-radius: 20px; display: flex; align-items: center; transition: 0.2s; background: #fff; border: 1px solid #f4f4f4; font-size: 1.1rem; }
         li:hover { background: #fdf0f5; transform: translateX(5px); }
         li input[type="checkbox"] { appearance: none; width: 22px; height: 22px; border: 2px solid var(--primary); border-radius: 50%; margin-right: 15px; cursor: pointer; position: relative; flex-shrink: 0; }
         li input[type="checkbox"]:checked { background-color: var(--primary); }
@@ -79,85 +130,39 @@
         li.completed span { text-decoration: line-through; color: var(--text-light); }
         .delete-btn { margin-left: auto; color: #ffadad; cursor: pointer; border: none; background: none; font-size: 1.2rem; }
 
-        /* --- 中間欄：番茄鐘 + Spotify --- */
-        .col-timer {
-            align-items: center;
-            background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
-            z-index: 2;
-            overflow-y: auto; /* 允許中間內容捲動 */
-        }
+        /* --- 中間欄：番茄鐘 --- */
+        .col-timer { align-items: center; background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%); z-index: 2; overflow-y: auto; }
         .col-timer::-webkit-scrollbar { width: 0; }
-
         .subject-wrapper { margin-bottom: 20px; text-align: center; width: 100%; }
         select { padding: 10px 30px; font-size: 1.1rem; border-radius: 50px; width: 80%; border: 2px solid var(--secondary); background: white; color: var(--text-main); outline: none; font-family: inherit; cursor: pointer; text-align: center; }
-
-        .timer-wrapper {
-            position: relative; width: 280px; height: 280px; /* 稍微縮小以容納播放器 */
-            display: flex; align-items: center; justify-content: center; margin-bottom: 20px; flex-shrink: 0;
-        }
+        .timer-wrapper { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; flex-shrink: 0; }
         .progress-ring { transform: rotate(-90deg); width: 100%; height: 100%; }
         .progress-ring__circle { transition: stroke-dashoffset 0.35s; stroke: var(--primary); filter: drop-shadow(0 0 8px rgba(255, 175, 204, 0.6)); }
         .timer-display { position: absolute; font-size: 4rem; font-weight: 700; color: var(--text-main); }
-
         .controls { display: flex; gap: 10px; margin-bottom: 20px; }
         .btn { padding: 10px 25px; font-size: 1rem; border: none; border-radius: 50px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .btn:active { transform: scale(0.95); }
         .btn-start { background: var(--primary); color: white; }
         .btn-pause { background: #ffe5d9; color: var(--text-main); }
         .btn-reset { background: #f0f0f0; color: #aaa; }
-
-        /* Spotify 容器樣式 */
-        .spotify-container {
-            width: 100%;
-            margin-top: auto; /* 推到底部 */
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
+        .spotify-container { width: 100%; margin-top: auto; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
 
         /* --- 右欄：圖表 --- */
         .col-stats { overflow-y: auto; gap: 20px; padding-right: 5px; }
         .col-stats::-webkit-scrollbar { width: 0; }
         .chart-container { position: relative; height: 220px; width: 100%; background: #fafafa; border-radius: 25px; padding: 15px; box-sizing: border-box; border: 1px solid #f0f0f0; }
 
-        /* --- 勝利彈跳視窗 (Modal) --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center;
-            z-index: 1000;
-            opacity: 0; transition: opacity 0.3s ease;
-        }
+        /* --- Modal --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
-        
-        .modal-content {
-            background: white;
-            padding: 40px;
-            border-radius: 40px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(255, 175, 204, 0.4);
-            border: 4px solid #fff;
-            transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            max-width: 400px;
-        }
+        .modal-content { background: white; padding: 40px; border-radius: 40px; text-align: center; box-shadow: 0 20px 60px rgba(255, 175, 204, 0.4); border: 4px solid #fff; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 400px; }
         .modal-overlay.active .modal-content { transform: scale(1); }
-
         .modal-icon { font-size: 5rem; margin-bottom: 20px; display: block; animation: bounce 1s infinite; }
         .modal-title { font-size: 1.8rem; color: var(--text-main); margin-bottom: 10px; font-weight: bold; }
         .modal-text { color: #888; margin-bottom: 30px; font-size: 1.1rem; }
-        
-        .modal-btn {
-            background: var(--primary); color: white; border: none; padding: 12px 30px;
-            font-size: 1.1rem; border-radius: 50px; cursor: pointer; font-family: inherit;
-            box-shadow: 0 5px 15px rgba(255, 175, 204, 0.4); transition: 0.2s;
-            text-decoration: none; display: inline-block;
-        }
+        .modal-btn { background: var(--primary); color: white; border: none; padding: 12px 30px; font-size: 1.1rem; border-radius: 50px; cursor: pointer; font-family: inherit; box-shadow: 0 5px 15px rgba(255, 175, 204, 0.4); transition: 0.2s; text-decoration: none; display: inline-block; }
         .modal-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
-        .modal-close {
-            background: #f0f0f0; color: #888; margin-top: 10px;
-        }
-
+        .modal-close { background: #f0f0f0; color: #888; margin-top: 10px; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         @media (max-width: 1200px) {
@@ -174,6 +179,14 @@
 <div class="app-container">
     
     <div class="card col-todo">
+        <div class="flip-clock-wrapper">
+            <div class="flip-card" id="clock-h">12</div>
+            <div class="clock-colon">:</div>
+            <div class="flip-card" id="clock-m">30</div>
+            <div class="clock-colon">:</div>
+            <div class="flip-card" id="clock-s">45</div>
+        </div>
+
         <h3>📝 待辦小清單</h3>
         <div class="input-group">
             <input type="text" id="task-input" placeholder="輸入任務...">
@@ -212,7 +225,7 @@
         </div>
 
         <div class="spotify-container">
-            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWQRwui0ExPn?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/0vvXsWCC9xrXsKd4FyS8kM?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         </div>
     </div>
 
@@ -228,8 +241,7 @@
     <div class="modal-content">
         <span class="modal-icon">🏆</span>
         <h2 class="modal-title">太棒了！專注完成！</h2>
-        <p class="modal-text" id="modal-msg">你剛剛完成了 25 分鐘的專注。</p>
-        
+        <p class="modal-text" id="modal-msg">你剛剛完成了專注。</p>
         <a id="calendar-btn-modal" class="modal-btn" target="_blank" href="#">📅 記錄到日曆</a>
         <br><br>
         <button class="modal-btn modal-close" onclick="closeModal()">關閉視窗</button>
@@ -241,14 +253,28 @@
     const soundAlarm = new Audio('https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg');
     const pastelColors = ['#ffafcc', '#a2d2ff', '#cdb4db', '#ffc8dd', '#bde0fe', '#ffdfd3'];
     
+    // --- 實時時鐘邏輯 (新增) ---
+    function updateRealTimeClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        
+        document.getElementById('clock-h').innerText = h;
+        document.getElementById('clock-m').innerText = m;
+        document.getElementById('clock-s').innerText = s;
+    }
+    // 立即執行一次，避免剛打開網頁有一秒空白
+    updateRealTimeClock();
+    // 每秒更新
+    setInterval(updateRealTimeClock, 1000);
+
+    // --- 以下為原有邏輯 ---
     let records = JSON.parse(localStorage.getItem('studyRecords')) || [];
     let todoTasks = JSON.parse(localStorage.getItem('todoTasks')) || [];
     let customSubjects = JSON.parse(localStorage.getItem('customSubjects')) || [];
 
-    let timer;
-    let isRunning = false;
-    let workTime = 25 * 60; 
-    let timeLeft = workTime;
+    let timer; let isRunning = false; let workTime = 25 * 60; let timeLeft = workTime;
     
     const timeDisplay = document.getElementById('time');
     const subjectSelect = document.getElementById('subject-select');
@@ -257,31 +283,22 @@
     const calendarBtnModal = document.getElementById('calendar-btn-modal');
     
     const circle = document.querySelector('.progress-ring__circle');
-    const radius = 170; 
-    const circumference = radius * 2 * Math.PI;
+    const radius = 170; const circumference = radius * 2 * Math.PI;
     circle.style.strokeDasharray = `${circumference} ${circumference}`;
     circle.style.strokeDashoffset = 0;
+    function setProgress(percent) { circle.style.strokeDashoffset = circumference - (percent / 100) * circumference; }
 
-    function setProgress(percent) {
-        const offset = circumference - (percent / 100) * circumference;
-        circle.style.strokeDashoffset = offset;
-    }
-
-    // 自訂科目
     function loadCustomSubjects() { customSubjects.forEach(sub => addOptionToSelect(sub)); }
     function addOptionToSelect(name) {
         for (let i = 0; i < subjectSelect.options.length; i++) { if (subjectSelect.options[i].value === name) return; }
-        const newOption = document.createElement('option');
-        newOption.value = name; newOption.text = "✏️ " + name;
-        const divider = subjectSelect.querySelector('option[disabled]');
-        subjectSelect.insertBefore(newOption, divider);
+        const newOption = document.createElement('option'); newOption.value = name; newOption.text = "✏️ " + name;
+        const divider = subjectSelect.querySelector('option[disabled]'); subjectSelect.insertBefore(newOption, divider);
     }
     function checkCustomSubject(select) {
         if (select.value === 'custom_add') {
             const newSubject = prompt("✨ 請輸入新科目名稱：");
             if (newSubject && newSubject.trim() !== "") {
-                const name = newSubject.trim();
-                customSubjects.push(name);
+                const name = newSubject.trim(); customSubjects.push(name);
                 localStorage.setItem('customSubjects', JSON.stringify(customSubjects));
                 addOptionToSelect(name); select.value = name;
             } else { select.value = "國文"; }
@@ -289,73 +306,35 @@
     }
 
     function updateDisplay() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
+        const minutes = Math.floor(timeLeft / 60); const seconds = timeLeft % 60;
         timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         document.title = isRunning ? `(${timeDisplay.textContent}) 專注ing` : "專注小天地";
         setProgress((timeLeft / workTime) * 100);
     }
+    function startTimer() { if (isRunning) return; soundClick.play(); isRunning = true; timer = setInterval(() => { if (timeLeft > 0) { timeLeft--; updateDisplay(); } else { completeSession(); } }, 1000); }
+    function pauseTimer() { soundClick.play(); clearInterval(timer); isRunning = false; }
+    function resetTimer() { soundClick.play(); pauseTimer(); timeLeft = workTime; updateDisplay(); }
 
-    function startTimer() {
-        if (isRunning) return;
-        soundClick.play();
-        isRunning = true;
-        timer = setInterval(() => {
-            if (timeLeft > 0) { timeLeft--; updateDisplay(); } 
-            else { completeSession(); }
-        }, 1000);
-    }
-
-    function pauseTimer() {
-        soundClick.play();
-        clearInterval(timer);
-        isRunning = false;
-    }
-
-    function resetTimer() {
-        soundClick.play();
-        pauseTimer();
-        timeLeft = workTime;
-        updateDisplay();
-    }
-
-    // --- 完成專注的核心邏輯 ---
     function completeSession() {
-        pauseTimer();
-        soundAlarm.play(); // 播放音效
-        fireConfetti(); // 播放彩帶
-        
-        const subject = subjectSelect.value;
-        const now = new Date();
+        pauseTimer(); soundAlarm.play(); fireConfetti();
+        const subject = subjectSelect.value; const now = new Date();
         records.push({ subject: subject, duration: workTime / 60, date: now.toISOString().split('T')[0], timestamp: now.getTime() });
         localStorage.setItem('studyRecords', JSON.stringify(records));
-        
         updateCharts();
-        
-        // 設定日曆按鈕連結
-        const start = new Date(now.getTime());
-        const end = new Date(now.getTime() + workTime * 1000);
+        const start = new Date(now.getTime()); const end = new Date(now.getTime() + workTime * 1000);
         const formatTime = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, "");
         const url = new URL("https://www.google.com/calendar/render");
         url.searchParams.append("action", "TEMPLATE");
         url.searchParams.append("text", `✨ 專注時光：${subject}`);
         url.searchParams.append("dates", `${formatTime(start)}/${formatTime(end)}`);
         calendarBtnModal.href = url.toString();
-
-        // 顯示彈跳視窗
         modalMsg.textContent = `你剛剛完成了 ${(workTime/60)} 分鐘的 ${subject} 學習！`;
         victoryModal.classList.add('active');
-        
-        timeLeft = workTime;
-        updateDisplay();
+        timeLeft = workTime; updateDisplay();
     }
-
-    function closeModal() {
-        victoryModal.classList.remove('active');
-    }
-
+    function closeModal() { victoryModal.classList.remove('active'); }
     function fireConfetti() {
-        var duration = 3000; var end = Date.now() + duration;
+        var end = Date.now() + 3000;
         (function frame() {
             confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: pastelColors });
             confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: pastelColors });
@@ -363,45 +342,32 @@
         }());
     }
 
-    // Chart.js & Todo List Logic (Same as before)
     let pieChart, barChart, lineChart;
     function initCharts() {
-        Chart.defaults.font.family = "'Zen Maru Gothic', sans-serif";
-        Chart.defaults.color = '#6d6875';
+        Chart.defaults.font.family = "'Zen Maru Gothic', sans-serif"; Chart.defaults.color = '#6d6875';
         const commonOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
-
         pieChart = new Chart(document.getElementById('pieChart'), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: pastelColors }] }, options: { ...commonOpts, plugins: { title: { display: true, text: '總時長分佈' }, legend: { position: 'right' } } } });
         barChart = new Chart(document.getElementById('barChart'), { type: 'bar', data: { labels: [], datasets: [{ label: '分', data: [], backgroundColor: '#a2d2ff', borderRadius: 8 }] }, options: { ...commonOpts, plugins: { title: { display: true, text: '今日學習' } }, scales: { x: { grid: { display: false } }, y: { grid: { borderDash: [5, 5] } } } } });
         lineChart = new Chart(document.getElementById('lineChart'), { type: 'line', data: { labels: [], datasets: [{ label: '分', data: [], borderColor: '#ffafcc', backgroundColor: 'rgba(255, 175, 204, 0.2)', tension: 0.4, fill: true }] }, options: { ...commonOpts, plugins: { title: { display: true, text: '一週趨勢' } }, scales: { x: { grid: { display: false } }, y: { grid: { borderDash: [5, 5] }, beginAtZero: true } } } });
         updateCharts();
     }
-
     function updateCharts() {
         const subjectTotals = {}; records.forEach(r => subjectTotals[r.subject] = (subjectTotals[r.subject] || 0) + r.duration);
         pieChart.data.labels = Object.keys(subjectTotals); pieChart.data.datasets[0].data = Object.values(subjectTotals); pieChart.update();
-        const todayStr = new Date().toISOString().split('T')[0];
-        const todayTotals = {}; records.filter(r => r.date === todayStr).forEach(r => todayTotals[r.subject] = (todayTotals[r.subject] || 0) + r.duration);
+        const todayStr = new Date().toISOString().split('T')[0]; const todayTotals = {}; records.filter(r => r.date === todayStr).forEach(r => todayTotals[r.subject] = (todayTotals[r.subject] || 0) + r.duration);
         barChart.data.labels = Object.keys(todayTotals); barChart.data.datasets[0].data = Object.values(todayTotals); barChart.update();
-        const dailyTotals = {}; const dates = [];
-        for(let i=6; i>=0; i--) { const d = new Date(); d.setDate(d.getDate() - i); dates.push(d.toISOString().split('T')[0]); }
-        dates.forEach(date => dailyTotals[date] = 0);
-        records.forEach(r => { if (dailyTotals[r.date] !== undefined) dailyTotals[r.date] += r.duration; });
+        const dailyTotals = {}; const dates = []; for(let i=6; i>=0; i--) { const d = new Date(); d.setDate(d.getDate() - i); dates.push(d.toISOString().split('T')[0]); }
+        dates.forEach(date => dailyTotals[date] = 0); records.forEach(r => { if (dailyTotals[r.date] !== undefined) dailyTotals[r.date] += r.duration; });
         lineChart.data.labels = dates.map(d => d.slice(5)); lineChart.data.datasets[0].data = dates.map(d => dailyTotals[d]); lineChart.update();
     }
 
-    const taskInput = document.getElementById('task-input');
-    const addBtn = document.getElementById('add-btn');
-    const todoList = document.getElementById('todo-list');
-
+    const taskInput = document.getElementById('task-input'); const addBtn = document.getElementById('add-btn'); const todoList = document.getElementById('todo-list');
     function renderTodos() {
-        todoList.innerHTML = '';
-        todoTasks.forEach((task, index) => {
-            const li = document.createElement('li');
-            if (task.completed) li.classList.add('completed');
+        todoList.innerHTML = ''; todoTasks.forEach((task, index) => {
+            const li = document.createElement('li'); if (task.completed) li.classList.add('completed');
             li.innerHTML = `<input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})"><span style="flex:1;">${task.text}</span><button class="delete-btn" onclick="deleteTask(${index})">×</button>`;
             todoList.appendChild(li);
-        });
-        localStorage.setItem('todoTasks', JSON.stringify(todoTasks));
+        }); localStorage.setItem('todoTasks', JSON.stringify(todoTasks));
     }
     addBtn.addEventListener('click', () => { if (taskInput.value.trim()) { todoTasks.push({ text: taskInput.value.trim(), completed: false }); taskInput.value = ''; renderTodos(); } });
     taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addBtn.click(); });
