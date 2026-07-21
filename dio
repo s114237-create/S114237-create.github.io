@@ -1,0 +1,537 @@
+  <!DOCTYPE html>
+  <html lang="zh-TW">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>小恐龍大冒險</title>
+      <!-- 引入 Google Fonts 的可愛字體 -->
+      <link href="https://fonts.googleapis.com/css2?family=Cute+Font&display=swap" rel="stylesheet">
+      <!-- 引入遊戲樣式 -->
+      <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+      <!-- 遊戲容器：包含所有遊戲元素 -->
+      <div class="game-container">
+          <!-- 玩家名稱輸入框（遊戲開始前顯示） -->
+          <div id="player-name-container" class="name-container">
+              <h1>小恐龍大冒險</h1>
+              <!-- 玩家名稱輸入框（最多 10 個字） -->
+              <input type="text" id="player-name" placeholder="輸入你的名字" maxlength="10">
+              <!-- 開始遊戲按鈕 -->
+              <button id="start-button">開始遊戲</button>
+          </div>
+
+          <!-- 遊戲畫布：用於繪製恐龍、障礙物等 -->
+          <canvas id="game-canvas" width="800" height="400"></canvas>
+
+          <!-- 分數顯示（置於畫面中間最上方） -->
+          <div id="score-display">0</div>
+
+          <!-- 排名顯示（置於畫面左上方） -->
+          <div id="leaderboard">
+              <h3>即時排名</h3>
+              <ol id="leaderboard-list"></ol>
+          </div>
+      </div>
+
+      <!-- 引入遊戲邏輯 -->
+      <script src="game.js"></script>
+  </body>
+  </html>
+
+  ---
+  2. games/dino-jump/styles.css
+
+  以下是完整的 styles.css 程式碼，包含詳細註解：
+
+  /* 定義可愛風格的色彩變數 */
+  :root {
+      --primary-color: #ff9aa2;       /* 粉紅色（主色） */
+      --secondary-color: #b5ead7;     /* 薄荷綠（次色） */
+      --accent-color: #ffb7b2;        /* 淺粉紅（強調色） */
+      --text-color: #333;             /* 深灰色（文字） */
+      --background-color: #fff9f9;   /* 淺粉白（背景） */
+      --font-family: 'Cute Font', cursive; /* 可愛字體 */
+  }
+
+  /* 全局樣式：設定字體和背景 */
+  body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+      background-color: var(--background-color);
+      overflow: hidden; /* 防止滾動條出現 */
+  }
+
+  /* 遊戲容器：置中並設定高度 */
+  .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      position: relative;
+  }
+
+  /* 玩家名稱輸入框：可愛風格的彈出框 */
+  .name-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+  }
+
+  /* 標題樣式 */
+  .name-container h1 {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 玩家名稱輸入框樣式 */
+  #player-name {
+      padding: 12px;
+      font-size: 1.2em;
+      border: 3px solid var(--primary-color);
+      border-radius: 15px;
+      text-align: center;
+      margin-bottom: 20px;
+      width: 200px;
+      outline: none;
+      transition: border-color 0.3s;
+  }
+
+  #player-name:focus {
+      border-color: var(--accent-color);
+  }
+
+  /* 開始按鈕樣式 */
+  #start-button {
+      padding: 12px 30px;
+      font-size: 1.2em;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.2s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  #start-button:hover {
+      transform: scale(1.05);
+      background-color: #ff8a92;
+  }
+
+  /* 遊戲畫布樣式 */
+  #game-canvas {
+      border: 6px solid var(--primary-color);
+      border-radius: 15px;
+      background-color: var(--secondary-color);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      display: none; /* 初始隱藏，遊戲開始後顯示 */
+  }
+
+  /* 分數顯示樣式（置於畫面中間最上方） */
+  #score-display {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5em;
+      color: var(--primary-color);
+      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+      z-index: 5;
+      animation: score-pulse 0.5s ease-out; /* 分數增加時跳動 */
+  }
+
+  /* 分數跳動動畫 */
+  @keyframes score-pulse {
+      0% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.2); }
+      100% { transform: translateX(-50%) scale(1); }
+  }
+
+  /* 排名顯示樣式（置於畫面左上方） */
+  #leaderboard {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: white;
+      padding: 15px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 180px;
+      text-align: left;
+      z-index: 5;
+  }
+
+  #leaderboard h3 {
+      color: var(--primary-color);
+      margin-top: 0;
+      font-size: 1.3em;
+      text-align: center;
+  }
+
+  #leaderboard-list {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 1em;
+  }
+
+  /* 恐龍眨眼動畫 */
+  @keyframes blink {
+      0%, 49%, 100% { opacity: 1; }
+      50%, 99% { opacity: 0; }
+  }
+
+  ---
+  3. games/dino-jump/game.js
+
+  以下是完整的 game.js 程式碼，包含詳細註解：
+
+  // 遊戲狀態變數
+  const game = {
+      canvas: null,          // 畫布元素
+      ctx: null,             // 畫布繪圖上下文
+      dinosaur: {            // 恐龍角色屬性
+          x: 50,             // X 座標（固定）
+          y: 0,              // Y 座標（跳躍時變化）
+          width: 60,         // 寬度（可愛風格：較胖）
+          height: 60,        // 高度
+          velocityY: 0,      // 垂直速度（跳躍用）
+          isJumping: false,  // 是否正在跳躍
+          isDucking: false,  // 是否正在蹲下
+          eyesClosed: false, // 恐龍眨眼動畫
+          blinkTimer: 0      // 眨眼計時器
+      },
+      obstacles: [],         // 障礙物陣列（存放仙人掌、飛機、隕石等）
+      score: 0,              // 遊戲分數
+      gameSpeed: 5,          // 遊戲速度（障礙物移動速度）
+      gameRunning: false,    // 遊戲是否正在進行
+      animationId: null,     // 動畫幀 ID
+      playerName: "",        // 玩家名稱
+      leaderboard: [],       // 排名資料
+      isPaused: false        // 是否暫停遊戲
+  };
+
+  // 初始化遊戲
+  function initGame() {
+      // 獲取畫布元素並設定繪圖上下文
+      game.canvas = document.getElementById('game-canvas');
+      game.ctx = game.canvas.getContext('2d');
+
+      // 設定恐龍初始 Y 座標（畫布底部）
+      game.dinosaur.y = game.canvas.height - game.dinosaur.height - 20;
+
+      // 監聽鍵盤事件（跳躍/蹲下/暫停）
+      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener('keyup', handleKeyUp);
+
+      // 監聽開始按鈕點擊事件
+      document.getElementById('start-button').addEventListener('click', startGame);
+
+      // 載入排名資料
+      loadLeaderboard();
+  }
+
+  // 處理鍵盤按下事件
+  function handleKeyDown(e) {
+      if (!game.gameRunning || game.isPaused) return; // 遊戲未開始或暫停時忽略
+
+      // 空白鍵：跳躍
+      if (e.code === 'Space' && !game.dinosaur.isJumping) {
+          game.dinosaur.velocityY = -15; // 可愛風格：跳得更高
+          game.dinosaur.isJumping = true;
+          playSound('jump'); // 播放跳躍音效
+      }
+      // 下方向鍵：蹲下
+      else if (e.code === 'ArrowDown') {
+          game.dinosaur.isDucking = true;
+      }
+      // P 鍵：暫停遊戲
+      else if (e.code === 'KeyP') {
+          togglePause();
+      }
+  }
+
+  // 處理鍵盤釋放事件
+  function handleKeyUp(e) {
+      if (e.code === 'ArrowDown') {
+          game.dinosaur.isDucking = false;
+      }
+  }
+
+  // 開始遊戲
+  function startGame() {
+      // 獲取玩家名稱
+      game.playerName = document.getElementById('player-name').value.trim();
+      if (!game.playerName) {
+          alert('請輸入你的名字！');
+          return;
+      }
+
+      // 顯示遊戲畫布
+      document.getElementById('game-canvas').style.display = 'block';
+
+      // 隱藏玩家名稱輸入框
+      document.getElementById('player-name-container').style.display = 'none';
+
+      // 重置遊戲狀態
+      game.score = 0;
+      game.obstacles = [];
+      game.gameRunning = true;
+      game.isPaused = false;
+      document.getElementById('score-display').textContent = game.score;
+
+      // 開始遊戲循環
+      gameLoop();
+  }
+
+  // 遊戲主循環
+  function gameLoop() {
+      if (game.isPaused) {
+          game.animationId = requestAnimationFrame(gameLoop);
+          return;
+      }
+
+      // 清除畫布
+      game.ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
+
+      // 更新遊戲狀態
+      updateGame();
+
+      // 繪製遊戲元素
+      drawGame();
+
+      // 繼續下一幀動畫
+      game.animationId = requestAnimationFrame(gameLoop);
+  }
+
+  // 更新遊戲狀態
+  function updateGame() {
+      // 更新恐龍狀態（跳躍/重力/眨眼動畫）
+      updateDinosaur();
+
+      // 生成障礙物
+      generateObstacles();
+
+      // 更新障礙物位置
+      updateObstacles();
+
+      // 碰撞偵測
+      checkCollisions();
+
+      // 更新分數
+      updateScore();
+
+      // 更新排名
+      updateLeaderboard();
+  }
+
+  // 更新恐龍狀態
+  function updateDinosaur() {
+      // 應用重力
+      game.dinosaur.velocityY += 0.8;
+      game.dinosaur.y += game.dinosaur.velocityY;
+
+      // 眨眼動畫（每 100 幀眨眼一次）
+      game.dinosaur.blinkTimer++;
+      if (game.dinosaur.blinkTimer > 100) {
+          game.dinosaur.eyesClosed = !game.dinosaur.eyesClosed;
+          game.dinosaur.blinkTimer = 0;
+      }
+
+      // 防止恐龍掉出畫布底部
+      if (game.dinosaur.y > game.canvas.height - game.dinosaur.height - 20) {
+          game.dinosaur.y = game.canvas.height - game.dinosaur.height - 20;
+          game.dinosaur.isJumping = false;
+      }
+  }
+
+  // 生成障礙物
+  function generateObstacles() {
+      // 每 80 幀生成一個新障礙物
+      if (Math.random() < 0.0125) {
+          const obstacleTypes = ['cactus', 'airplane', 'meteor', 'floor-crack'];
+          const type = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+
+          switch (type) {
+              case 'cactus':
+                  game.obstacles.push({
+                      type: 'cactus',
+                      x: game.canvas.width,
+                      y: game.canvas.height - 50,
+                      width: 30,
+                      height: 50,
+                      passed: false
+                  });
+                  break;
+              case 'airplane':
+                  game.obstacles.push({
+                      type: 'airplane',
+                      x: game.canvas.width,
+                      y: 100 + Math.random() * 100, // 隨機高度
+                      width: 60,
+                      height: 30,
+                      passed: false
+                  });
+                  break;
+              case 'meteor':
+                  game.obstacles.push({
+                      type: 'meteor',
+                      x: Math.random() * game.canvas.width, // 隨機 X 座標
+                      y: -30, // 從畫面上方掉落
+                      width: 30,
+                      height: 30,
+                      velocityY: 5 + Math.random() * 5, // 隨機掉落速度
+                      passed: false
+                  });
+                  break;
+              case 'floor-crack':
+                  game.obstacles.push({
+                      type: 'floor-crack',
+                      x: game.canvas.width,
+                      y: game.canvas.height - 20,
+                      width: 40,
+                      height: 20,
+                      passed: false
+                  });
+                  break;
+          }
+      }
+  }
+
+  // 更新障礙物位置
+  function updateObstacles() {
+      for (let i = game.obstacles.length - 1; i >= 0; i--) {
+          const obstacle = game.obstacles[i];
+
+          // 不同障礙物有不同的移動方式
+          switch (obstacle.type) {
+              case 'cactus':
+              case 'airplane':
+              case 'floor-crack':
+                  obstacle.x -= game.gameSpeed; // 向左移動
+                  break;
+              case 'meteor':
+                  obstacle.y += obstacle.velocityY; // 向下掉落
+                  break;
+          }
+
+          // 移除超出畫布的障礙物
+          if (
+              (obstacle.x < -obstacle.width) ||
+              (obstacle.type === 'meteor' && obstacle.y > game.canvas.height)
+          ) {
+              game.obstacles.splice(i, 1);
+          }
+      }
+  }
+
+  // 碰撞偵測
+  function checkCollisions() {
+      for (const obstacle of game.obstacles) {
+          // 簡化碰撞偵測：檢查恐龍和障礙物是否重疊
+          if (
+              game.dinosaur.x < obstacle.x + obstacle.width &&
+              game.dinosaur.x + game.dinosaur.width > obstacle.x &&
+              game.dinosaur.y < obstacle.y + obstacle.height &&
+              game.dinosaur.y + game.dinosaur.height > obstacle.y
+          ) {
+              gameOver(); // 遊戲結束
+              playSound('crash'); // 播放碰撞音效
+              break;
+          }
+      }
+  }
+
+  // 更新分數
+  function updateScore() {
+      if (game.gameRunning && !game.isPaused) {
+          game.score++;
+          document.getElementById('score-display').textContent = game.score;
+          playSound('score'); // 播放分數音效
+      }
+  }
+
+  // 更新排名
+  function updateLeaderboard() {
+      // 更新即時排名（前 5 名）
+      const leaderboardList = document.getElementById('leaderboard-list');
+      leaderboardList.innerHTML = '';
+
+      // 更新本地排名資料
+      game.leaderboard.push({ name: game.playerName, score: game.score });
+      game.leaderboard.sort((a, b) => b.score - a.score); // 按分數降序排序
+      game.leaderboard = game.leaderboard.slice(0, 5); // 只保留前 5 名
+
+      // 顯示排名
+      game.leaderboard.forEach((player, index) => {
+          const li = document.createElement('li');
+          li.textContent = `${index + 1}. ${player.name}: ${player.score}`;
+          leaderboardList.appendChild(li);
+      });
+
+      // 儲存排名資料
+      saveLeaderboard();
+  }
+
+  // 儲存排名資料
+  function saveLeaderboard() {
+      localStorage.setItem('dinoJumpLeaderboard', JSON.stringify(game.leaderboard));
+  }
+
+  // 載入排名資料
+  function loadLeaderboard() {
+      const savedLeaderboard = localStorage.getItem('dinoJumpLeaderboard');
+      if (savedLeaderboard) {
+          game.leaderboard = JSON.parse(savedLeaderboard);
+      }
+  }
+
+  // 遊戲結束
+  function gameOver() {
+      game.gameRunning = false;
+      cancelAnimationFrame(game.animationId);
+
+      // 顯示開始按鈕（改為「重新開始」）
+      document.getElementById('player-name-container').style.display = 'flex';
+      document.getElementById('start-button').textContent = '重新開始';
+      document.getElementById('player-name').value = game.playerName; // 保留玩家名稱
+      document.getElementById('game-canvas').style.display = 'none'; // 隱藏畫布
+  }
+
+  // 暫停遊戲
+  function togglePause() {
+      game.isPaused = !game.isPaused;
+      if (!game.isPaused) {
+          gameLoop(); // 恢復遊戲循環
+      }
+  }
+
+  // 播放音效（簡化版：使用瀏覽器內建音效）
+  function playSound(name) {
+      const sounds = {
+          jump: new
+  Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3'),
+          crash: new
+  Audio('https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-2759.mp3'),
+          score: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3')
+      };
+      sounds[name].currentTime = 0;
+  }
+
+  // 初始化遊戲
+  initGame();
+
+  ---
