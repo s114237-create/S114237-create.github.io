@@ -7,37 +7,90 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
+    :root {
+      --bg-primary: #F5F3EF;
+      --bg-card: #FFFFFF;
+      --text-primary: #5D5D5D;
+      --text-secondary: #9A9A9A;
+      --accent-sage: #A8B5A0;
+      --accent-warm: #C9A97A;
+      --border-color: #E8E4DD;
+      --hover-bg: #F0EDE8;
+    }
+    [data-theme="dark"] {
+      --bg-primary: #2D2D2D;
+      --bg-card: #3A3A3A;
+      --text-primary: #E8E4DD;
+      --text-secondary: #9A9A9A;
+      --accent-sage: #8B9A7D;
+      --accent-warm: #B8956A;
+      --border-color: #4A4A4A;
+      --hover-bg: #454545;
+    }
     body {
       font-family: 'M PLUS Rounded 1c', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #F8FAF9;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.3s, color 0.3s;
     }
+    .card {
+      background-color: var(--bg-card);
+      border-color: var(--border-color);
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    .text-morandi { color: var(--text-primary); }
+    .text-secondary { color: var(--text-secondary); }
+    .bg-morandi-sage { background-color: var(--accent-sage); }
+    .bg-morandi-warm { background-color: var(--accent-warm); }
+    .border-morandi { border-color: var(--border-color); }
+    .hover-morandi:hover { background-color: var(--hover-bg); }
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
   </style>
 </head>
-<body class="text-slate-700 min-h-screen flex">
+<body class="min-h-screen flex">
 
-  <aside class="w-64 bg-white border-r border-slate-100 p-6 flex flex-col justify-between shrink-0 hidden md:flex">
-    <div class="space-y-8">
-      <div class="text-lg font-bold tracking-wide text-slate-800 flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
-        學習工作台
+  <aside id="sidebar" class="w-64 bg-[var(--bg-card)] border-r border-[var(--border-color)] p-6 flex flex-col justify-between shrink-0 hidden md:flex transition-colors duration-300">
+    <div class="space-y-6">
+      <div class="flex justify-between items-center">
+        <div class="text-lg font-bold tracking-wide flex items-center gap-2" style="color: var(--text-primary)">
+          <span class="w-3 h-3 rounded-full bg-[var(--accent-sage)]"></span>
+          學習工作台
+        </div>
+        <button onclick="toggleDarkMode()" id="themeToggle" class="w-8 h-8 rounded-lg flex items-center justify-center hover-morandi transition-colors" title="切換深色模式">
+          <i class="fa-solid fa-moon text-sm" style="color: var(--text-secondary)"></i>
+        </button>
       </div>
 
       <nav class="space-y-1 text-sm font-medium">
-        <button onclick="switchView('main')" id="nav-main" class="w-full text-left px-4 py-2.5 rounded-xl bg-slate-100 text-slate-800 font-bold transition flex items-center gap-3">
-          <i class="fa-solid fa-border-all text-slate-400"></i> 主儀表板
+        <button onclick="switchView('main')" id="nav-main" class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 transition" style="background-color: var(--hover-bg); color: var(--text-primary)">
+          <i class="fa-solid fa-border-all text-sm" style="color: var(--text-secondary)"></i> 主儀表板
         </button>
-        <button onclick="switchView('analytics')" id="nav-analytics" class="w-full text-left px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3">
-          <i class="fa-solid fa-chart-line text-slate-400"></i> 達成率資料庫 & AI
+        <button onclick="switchView('analytics')" id="nav-analytics" class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 transition hover-morandi" style="color: var(--text-secondary)">
+          <i class="fa-solid fa-chart-line text-sm" style="color: var(--text-secondary)"></i> 達成率資料庫
         </button>
+        <button onclick="toggleHistoryNav()" id="nav-history" class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 transition hover-morandi" style="color: var(--text-secondary)">
+          <i class="fa-solid fa-clock-rotate-left text-sm" style="color: var(--text-secondary)"></i> 歷史計畫
+          <i class="fa-solid fa-chevron-down text-xs ml-auto transition-transform" id="historyArrow"></i>
+        </button>
+        <div id="historyList" class="hidden pl-4 space-y-1 text-xs"></div>
       </nav>
+
+      <!-- Spotify 播放區 -->
+      <div class="p-4 rounded-2xl" style="background-color: var(--hover-bg)">
+        <div class="flex items-center gap-2 mb-2">
+          <i class="fa-brands fa-spotify text-sm" style="color: var(--accent-sage)"></i>
+          <span class="text-xs font-bold" style="color: var(--text-primary)">專注音樂</span>
+        </div>
+        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX9sIOQeT5aTj?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
     </div>
 
-    <div class="text-xs text-slate-400 font-light">
+    <div class="text-xs font-light" style="color: var(--text-secondary)">
       Minimalist Study Planner v2.0
     </div>
   </aside>
@@ -46,27 +99,68 @@
 
     <div id="view-main" class="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <div class="lg:col-span-3 space-y-6">
-        
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <div class="text-4xl font-extrabold text-slate-800 tracking-tight font-mono" id="clockDisplay">00:00:00</div>
-          <div class="text-lg font-bold text-slate-400 mt-1" id="dateDisplay">----/--/-- (一)</div>
-          
-          <hr class="my-4 border-slate-50">
-          
-          <div>
-            <div class="text-xs font-bold text-rose-400 uppercase tracking-wider mb-1">⚠️ 重要提醒</div>
-            <div class="text-base font-bold text-rose-500 bg-rose-50/60 p-3.5 rounded-2xl border border-rose-100 leading-snug" id="urgentAlert">
-              無即將到期任務
+      <!-- 統計概覽含圓餅圖 -->
+      <div class="lg:col-span-12">
+        <div class="card p-6 rounded-3xl border shadow-sm">
+          <div class="flex flex-col lg:flex-row lg:items-center gap-6">
+            <div class="flex-1">
+              <h2 class="text-sm font-bold mb-4 flex items-center gap-2" style="color: var(--text-primary)">
+                <i class="fa-solid fa-chart-pie text-sm" style="color: var(--accent-sage)"></i> 任務統計概覽
+              </h2>
+              <div class="flex flex-wrap gap-4">
+                <div class="px-4 py-3 rounded-2xl" style="background-color: var(--hover-bg)">
+                  <div class="text-2xl font-bold" style="color: var(--text-primary)" id="statTotal">0</div>
+                  <div class="text-xs" style="color: var(--text-secondary)">總任務數</div>
+                </div>
+                <div class="px-4 py-3 rounded-2xl" style="background-color: var(--hover-bg)">
+                  <div class="text-2xl font-bold" style="color: var(--accent-sage)" id="statCompleted">0</div>
+                  <div class="text-xs" style="color: var(--text-secondary)">已完成</div>
+                </div>
+                <div class="px-4 py-3 rounded-2xl" style="background-color: var(--hover-bg)">
+                  <div class="text-2xl font-bold" style="color: var(--accent-warm)" id="statPending">0</div>
+                  <div class="text-xs" style="color: var(--text-secondary)">進行中</div>
+                </div>
+              </div>
+            </div>
+            <div class="w-full lg:w-64 h-48">
+              <canvas id="subjectChart"></canvas>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
-          <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-plus text-xs text-slate-400"></i> 新增學習任務
-          </h2>
-          <form id="taskForm" class="space-y-3 text-xs">
+      <div class="lg:col-span-3 space-y-6">
+
+        <!-- 時鐘與提醒卡片 -->
+        <details class="card p-6 rounded-3xl border shadow-sm group" open>
+          <summary class="list-none cursor-pointer">
+            <div class="flex justify-between items-start">
+              <div class="text-4xl font-extrabold tracking-tight font-mono" style="color: var(--text-primary)" id="clockDisplay">00:00:00</div>
+              <i class="fa-solid fa-chevron-down text-xs transition-transform group-open:rotate-180" style="color: var(--text-secondary)"></i>
+            </div>
+            <div class="text-lg font-bold mt-1" style="color: var(--text-secondary)" id="dateDisplay">----/--/-- (一)</div>
+          </summary>
+
+          <hr class="my-4 border-[var(--border-color)]">
+
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider mb-1" style="color: var(--accent-warm)">⚠️ 重要提醒</div>
+            <div class="text-base font-bold p-3.5 rounded-2xl border leading-snug" style="background-color: var(--hover-bg); color: var(--text-primary); border-color: var(--border-color)" id="urgentAlert">
+              無即將到期任務
+            </div>
+          </div>
+        </details>
+
+        <!-- 任務表單 -->
+        <details class="card p-6 rounded-3xl border shadow-sm group" open>
+          <summary class="list-none cursor-pointer">
+            <h2 class="text-sm font-bold flex items-center gap-2" style="color: var(--text-primary)">
+              <i class="fa-solid fa-plus text-xs" style="color: var(--accent-sage)"></i> 新增學習任務
+              <i class="fa-solid fa-chevron-down text-xs ml-auto transition-transform group-open:rotate-180" style="color: var(--text-secondary)"></i>
+            </h2>
+          </summary>
+
+          <form id="taskForm" class="space-y-3 text-xs mt-4">
             <div>
               <label class="block font-medium mb-1 text-slate-500">科目</label>
               <select id="subjectSelect" onchange="toggleCustomSubject()" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white outline-none">
@@ -172,7 +266,15 @@
               <option value="category">依屬性排序</option>
               <option value="progress">依進度排序</option>
               <option value="time">依開始時間排序</option>
+              <option value="deadline">依期限分類排序</option>
             </select>
+          </div>
+
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button onclick="filterDeadline('all')" id="deadline-all" class="px-3 py-1.5 rounded-xl bg-slate-800 text-white text-xs font-bold">全部</button>
+            <button onclick="filterDeadline('short')" id="deadline-short" class="px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 text-xs font-bold">短期 (≤7天)</button>
+            <button onclick="filterDeadline('medium')" id="deadline-medium" class="px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 text-xs font-bold">中期 (8-30天)</button>
+            <button onclick="filterDeadline('long')" id="deadline-long" class="px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 text-xs font-bold">長期 (>30天)</button>
           </div>
 
           <div class="overflow-x-auto">
@@ -308,8 +410,35 @@
     let historyDB = JSON.parse(localStorage.getItem('my_study_history')) || {};
     
     let currentPlanTab = 'week';
+    let currentDeadlineTab = 'all';
     let calDate = new Date();
     let editingTaskId = null;
+
+    // 123.html 的期限分類邏輯
+    function getDeadlineCategory(endTime) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(endTime);
+      target.setHours(0, 0, 0, 0);
+      const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+      if (diffDays <= 0) return 'overdue'; // 已過期
+      if (diffDays <= 7) return 'short';
+      if (diffDays <= 30) return 'medium';
+      return 'long';
+    }
+
+    function filterDeadline(type) {
+      currentDeadlineTab = type;
+      ['all', 'short', 'medium', 'long'].forEach(t => {
+        const btn = document.getElementById(`deadline-${t}`);
+        if (t === type) {
+          btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 text-white text-xs font-bold";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 text-xs font-bold";
+        }
+      });
+      renderTasks();
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       startClock();
@@ -394,14 +523,28 @@
     function renderTasks() {
       const tbody = document.getElementById('taskTableBody');
       tbody.innerHTML = '';
-      
+
       let filtered = tasks.filter(t => t.planType === currentPlanTab);
+
+      // 加入期限分類篩選 (來自 123.html 融合)
+      if (currentDeadlineTab !== 'all') {
+        filtered = filtered.filter(t => {
+          const deadlineCat = getDeadlineCategory(t.endTime);
+          return deadlineCat === currentDeadlineTab;
+        });
+      }
 
       const sortBy = document.getElementById('sortSelect').value;
       if(sortBy === 'subject') filtered.sort((a,b) => a.subject.localeCompare(b.subject));
       else if(sortBy === 'category') filtered.sort((a,b) => a.category.localeCompare(b.category));
       else if(sortBy === 'progress') filtered.sort((a,b) => b.progress - a.progress);
       else if(sortBy === 'time') filtered.sort((a,b) => new Date(a.startTime) - new Date(b.startTime));
+      else if(sortBy === 'deadline') {
+        filtered.sort((a,b) => {
+          const catOrder = { short: 1, medium: 2, long: 3, overdue: 0 };
+          return catOrder[getDeadlineCategory(a.endTime)] - catOrder[getDeadlineCategory(b.endTime)];
+        });
+      }
 
       if(filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-300">目前無任務</td></tr>`;
@@ -409,6 +552,10 @@
       }
 
       filtered.forEach(t => {
+        const deadlineCat = getDeadlineCategory(t.endTime);
+        const deadlineLabel = { short: '短期', medium: '中期', long: '長期', overdue: '過期' };
+        const deadlineColor = { short: 'bg-rose-100 text-rose-600', medium: 'bg-amber-100 text-amber-600', long: 'bg-emerald-100 text-emerald-600', overdue: 'bg-red-100 text-red-600' };
+
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50/60 transition";
         tr.innerHTML = `
@@ -422,6 +569,7 @@
             </button>
           </td>
           <td class="py-3">
+            <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold ${deadlineColor[deadlineCat]}">${deadlineLabel[deadlineCat]}</span>
             <input type="number" min="0" max="100" value="${t.progress}" onchange="updateProgress(${t.id}, this.value)" class="w-12 p-1 border border-slate-100 rounded-lg text-center font-bold"> %
           </td>
         `;
