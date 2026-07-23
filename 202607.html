@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notion 風格 - 讀書計畫儀表板</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .calendar-day { min-height: 75px; }
+    /* 自訂極簡捲動條 (Notion Style) */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-[#F7F6F3] text-slate-800 min-h-screen pb-10">
+
+  <header class="max-w-7xl mx-auto px-6 pt-8 pb-4">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-3xl">📖</span>
+      <h1 class="text-3xl font-bold tracking-tight text-slate-800">Study Dashboard</h1>
+    </div>
+    <p class="text-slate-500 text-sm">追蹤你的長中短期目標與每日小時學習進度</p>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <div class="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+          <i class="fa-regular fa-calendar-check"></i>
+        </div>
+        <div>
+          <div class="text-xs text-slate-400 font-medium">TODAY</div>
+          <div class="text-lg font-bold text-slate-700" id="currentDateDisplay">----/--/--</div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs text-slate-400 font-medium">今日小時進度達成率</span>
+          <span class="text-sm font-bold text-indigo-600" id="dailyProgressPercent">0%</span>
+        </div>
+        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+          <div id="dailyProgressBar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+        <div class="w-12 h-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="overflow-hidden">
+          <div class="text-xs text-slate-400 font-medium">近期重點 (7天內)</div>
+          <div class="text-sm font-semibold text-slate-700 truncate" id="urgentTaskAlert">尚無即將到期任務</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="lg:col-span-7 space-y-6">
+
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm">
+        <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-plus text-xs"></i> 新增學習任務
+        </h2>
+        <form id="taskForm" class="space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="subjectName" placeholder="科目 / 任務名稱" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" required>
+            <input type="datetime-local" id="dueDate" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition" required>
+          </div>
+          <textarea id="taskNote" rows="2" placeholder="備註說明（例如：章節重點、頁數）" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"></textarea>
+          <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium py-2 rounded-lg transition shadow-sm">
+            加入計畫卡片
+          </button>
+        </form>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-xs"></i> 目標分類清單
+          </h2>
+          <div class="flex bg-slate-100 p-1 rounded-lg text-xs font-medium">
+            <button onclick="switchTab('short')" id="tab-short" class="px-3 py-1 rounded-md bg-white shadow-sm text-slate-800">短期 (&lt;7天)</button>
+            <button onclick="switchTab('mid')" id="tab-mid" class="px-3 py-1 rounded-md text-slate-500">中期 (&lt;30天)</button>
+            <button onclick="switchTab('long')" id="tab-long" class="px-3 py-1 rounded-md text-slate-500">長期 (&gt;30天)</button>
+          </div>
+        </div>
+
+        <div id="taskList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+          </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-regular fa-calendar text-xs"></i> 月曆檢視
+          </h2>
+          <div class="flex items-center gap-2 text-sm font-semibold text-slate-700">
+            <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+            <span id="calendarMonthYear"></span>
+            <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1 text-center font-semibold text-slate-400 text-xs mb-2">
+          <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+        </div>
+        <div id="calendarGrid" class="grid grid-cols-7 gap-1">
+          </div>
+      </div>
+
+    </div>
+
+    <div class="lg:col-span-5 space-y-6">
+
+      <div class="bg-white p-5 rounded-xl border border-slate-200/80 shadow-sm">
+        <div class="mb-4">
+          <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-regular fa-clock text-xs"></i> 每日 1 小時時間軸
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">規劃並追蹤當天 24 小時的執行狀況</p>
+        </div>
+
+        <div id="hourlySchedule" class="space-y-2 max-h-[680px] overflow-y-auto pr-1">
+          </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('study_tasks')) || [];
+    let hourlyData = JSON.parse(localStorage.getItem('study_hourly')) || {};
+    let currentTab = 'short';
+    let currentDate = new Date();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('currentDateDisplay').textContent = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      renderTasks();
+      renderCalendar();
+      renderHourlySchedule();
+
+      document.getElementById('taskForm').addEventListener('submit', handleAddTask);
+    });
+
+    function handleAddTask(e) {
+      e.preventDefault();
+      const subject = document.getElementById('subjectName').value;
+      const dueDate = document.getElementById('dueDate').value;
+      const note = document.getElementById('taskNote').value;
+
+      const newTask = { id: Date.now(), subject, dueDate, note };
+      tasks.push(newTask);
+      localStorage.setItem('study_tasks', JSON.stringify(tasks));
+
+      document.getElementById('taskForm').reset();
+      renderTasks();
+      renderCalendar();
+    }
+
+    function getTaskCategory(dueDateStr) {
+      const now = new Date();
+      const due = new Date(dueDateStr);
+      const diffDays = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 7) return 'short';
+      if (diffDays <= 30) return 'mid';
+      return 'long';
+    }
+
+    function switchTab(type) {
+      currentTab = type;
+      ['short', 'mid', 'long'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === type) {
+          btn.className = "px-3 py-1 rounded-md bg-white shadow-sm text-slate-800 font-medium";
+        } else {
+          btn.className = "px-3 py-1 rounded-md text-slate-500 font-medium hover:text-slate-700";
+        }
+      });
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const taskList = document.getElementById('taskList');
+      taskList.innerHTML = '';
+
+      const filteredTasks = tasks.filter(task => getTaskCategory(task.dueDate) === currentTab);
+      
+      // 更新頂部緊急提醒
+      const urgentTasks = tasks.filter(task => getTaskCategory(task.dueDate) === 'short');
+      const urgentAlert = document.getElementById('urgentTaskAlert');
+      if (urgentTasks.length > 0) {
+        urgentAlert.textContent = `${urgentTasks[0].subject} (${urgentTasks[0].dueDate.split('T')[0]})`;
+      } else {
+        urgentAlert.textContent = '尚無即將到期任務';
+      }
+
+      if (filteredTasks.length === 0) {
+        taskList.innerHTML = `<p class="text-slate-400 text-xs text-center py-6">此分類無任務</p>`;
+        return;
+      }
+
+      filteredTasks.forEach(task => {
+        const div = document.createElement('div');
+        div.className = "p-3 bg-slate-50/80 rounded-lg border border-slate-200/60 flex justify-between items-start hover:border-slate-300 transition";
+        div.innerHTML = `
+          <div>
+            <div class="font-semibold text-slate-700 text-sm">${task.subject}</div>
+            <div class="text-[11px] text-indigo-500 mt-0.5"><i class="fa-regular fa-clock"></i> ${task.dueDate.replace('T', ' ')}</div>
+            ${task.note ? `<div class="text-xs text-slate-400 mt-1">${task.note}</div>` : ''}
+          </div>
+          <button onclick="deleteTask(${task.id})" class="text-slate-300 hover:text-red-500 text-xs transition">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        `;
+        taskList.appendChild(div);
+      });
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      localStorage.setItem('study_tasks', JSON.stringify(tasks));
+      renderTasks();
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const calendarGrid = document.getElementById('calendarGrid');
+      const calendarMonthYear = document.getElementById('calendarMonthYear');
+      calendarGrid.innerHTML = '';
+
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      calendarMonthYear.textContent = `${year} 年 ${month + 1} 月`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = "calendar-day bg-slate-50/30 rounded-lg";
+        calendarGrid.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayTasks = tasks.filter(t => t.dueDate.startsWith(dateStr));
+
+        const dayCell = document.createElement('div');
+        dayCell.className = "calendar-day p-1.5 bg-slate-50/60 border border-slate-100 rounded-lg text-xs overflow-hidden";
+        
+        let taskBadges = dayTasks.map(t => `<div class="bg-indigo-100 text-indigo-700 text-[10px] px-1 py-0.5 rounded truncate mt-1" title="${t.subject}">${t.subject}</div>`).join('');
+
+        dayCell.innerHTML = `
+          <div class="font-bold text-slate-500 text-[11px]">${day}</div>
+          <div class="space-y-0.5">${taskBadges}</div>
+        `;
+        calendarGrid.appendChild(dayCell);
+      }
+    }
+
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function renderHourlySchedule() {
+      const container = document.getElementById('hourlySchedule');
+      container.innerHTML = '';
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (!hourlyData[todayStr]) {
+        hourlyData[todayStr] = Array(24).fill({ content: '', status: 'none' });
+      }
+
+      let completedCount = 0;
+      let totalPlannedCount = 0;
+
+      for (let hour = 0; hour < 24; hour++) {
+        const hourLabel = `${String(hour).padStart(2, '0')}:00`;
+        const item = hourlyData[todayStr][hour] || { content: '', status: 'none' };
+
+        if (item.content.trim() !== '') totalPlannedCount++;
+        if (item.status === 'done') completedCount++;
+
+        const div = document.createElement('div');
+        div.className = "flex items-center gap-2 text-xs";
+        div.innerHTML = `
+          <span class="w-12 text-slate-400 font-mono text-[11px]">${hourLabel}</span>
+          <input type="text" value="${item.content || ''}" onchange="updateHourlyContent(${hour}, this.value)" placeholder="點擊填寫預計讀書項目..." class="flex-1 px-2.5 py-1.5 bg-slate-50 border border-slate-200/80 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-700">
+          <select onchange="updateHourlyStatus(${hour}, this.value)" class="px-2 py-1.5 border border-slate-200/80 rounded-md bg-slate-50 text-slate-600 focus:outline-none">
+            <option value="none" ${item.status === 'none' ? 'selected' : ''}>未完成</option>
+            <option value="doing" ${item.status === 'doing' ? 'selected' : ''}>進行中</option>
+            <option value="done" ${item.status === 'done' ? 'selected' : ''}>已完成</option>
+          </select>
+        `;
+        container.appendChild(div);
+      }
+
+      const percent = totalPlannedCount > 0 ? Math.round((completedCount / totalPlannedCount) * 100) : 0;
+      document.getElementById('dailyProgressBar').style.width = `${percent}%`;
+      document.getElementById('dailyProgressPercent').textContent = `${percent}%`;
+    }
+
+    function updateHourlyContent(hour, val) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (!hourlyData[todayStr]) hourlyData[todayStr] = Array(24).fill({ content: '', status: 'none' });
+      hourlyData[todayStr][hour] = { ...hourlyData[todayStr][hour], content: val };
+      localStorage.setItem('study_hourly', JSON.stringify(hourlyData));
+      renderHourlySchedule();
+    }
+
+    function updateHourlyStatus(hour, status) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (!hourlyData[todayStr]) hourlyData[todayStr] = Array(24).fill({ content: '', status: 'none' });
+      hourlyData[todayStr][hour] = { ...hourlyData[todayStr][hour], status: status };
+      localStorage.setItem('study_hourly', JSON.stringify(hourlyData));
+      renderHourlySchedule();
+    }
+  </script>
+</body>
+</html>
