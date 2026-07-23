@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>終極讀書計畫系統</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary-color: #3b82f6; /* OKR 藍色 */
+            --review-color: #f97316;  /* 複習橘色 */
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 1. OKR 儀表板 */
+        .okr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .countdown {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            background: #eff6ff;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background: #e5e7eb;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        /* 輸入表單 */
+        .form-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-group input, .form-group select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .form-group input[type="text"] {
+            grid-column: span 2;
+        }
+
+        button.btn-add {
+            grid-column: span 2;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* 列表樣式 */
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 10px;
+        }
+
+        .task-item.completed span.title {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .tag-new { background-color: var(--primary-color); }
+        .tag-review { background-color: var(--review-color); }
+
+        .time-badge {
+            font-size: 0.8rem;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="card full-width">
+        <div class="okr-header">
+            <div>
+                <h2 style="margin:0;">🎯 目標：大考進度與總覽</h2>
+                <small id="today-date"></small>
+            </div>
+            <div class="countdown" id="countdown-display">計算中...</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem;">
+            <span>整體進度達成率</span>
+            <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📅 排定時間塊 (Time-Block)</h2>
+        <div class="form-group">
+            <input type="text" id="task-title" placeholder="輸入研讀章節 (例：物理 Ch3 聚變)">
+            <input type="date" id="task-date">
+            <select id="task-timeblock">
+                <option value="08:00 - 10:00">早晨塊 (08:00-10:00)</option>
+                <option value="10:00 - 12:00">上午塊 (10:00-12:00)</option>
+                <option value="14:00 - 16:00">下午塊 (14:00-16:00)</option>
+                <option value="19:00 - 21:00">晚間塊 (19:00-21:00)</option>
+            </select>
+            <button class="btn-add" onclick="addNewTask()">加入時間塊計畫</button>
+        </div>
+
+        <h3>已排定新進度</h3>
+        <ul class="task-list" id="new-task-list"></ul>
+    </div>
+
+    <div class="card">
+        <h2>🧠 艾賓浩斯今日複習區</h2>
+        <p style="font-size:0.85rem; color:#6b7280; margin-top:-8px;">
+            當你在左側勾選完成項目時，系統會自動在 D+1, D+3, D+7 安排複習！
+        </p>
+        <ul class="task-list" id="review-task-list"></ul>
+    </div>
+
+</div>
+
+<script>
+    // 初始化資料庫
+    let tasks = JSON.parse(localStorage.getItem('myStudyTasks')) || [];
+    
+    // 設定大考預設日期（例如設定為一個月後，可自行修改）
+    const targetExamDate = new Date();
+    targetExamDate.setDate(targetExamDate.getDate() + 90); 
+
+    document.getElementById('today-date').innerText = `今天是：${new Date().toISOString().split('T')[0]}`;
+    document.getElementById('task-date').value = new Date().toISOString().split('T')[0];
+
+    function saveData() {
+        localStorage.setItem('myStudyTasks', JSON.stringify(tasks));
+        render();
+    }
+
+    // 新增自訂讀書項目
+    function addNewTask() {
+        const title = document.getElementById('task-title').value.trim();
+        const date = document.getElementById('task-date').value;
+        const timeblock = document.getElementById('task-timeblock').value;
+
+        if (!title || !date) return alert('請填寫完整項目名稱與預定日期');
+
+        tasks.push({
+            id: Date.now(),
+            title: title,
+            date: date,
+            timeblock: timeblock,
+            type: 'new', // new 代表新進度, review 代表艾賓浩斯生成的複習
+            completed: false
+        });
+
+        document.getElementById('task-title').value = '';
+        saveData();
+    }
+
+    // 勾選完成狀態（触发艾賓浩斯邏輯）
+    function toggleTask(id) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        tasks = tasks.map(task => {
+            if (task.id === id) {
+                const updatedStatus = !task.completed;
+                
+                // 如果是「新進度」被勾選完成，觸發艾賓浩斯引擎生成 D+1, D+3, D+7 複習
+                if (updatedStatus && task.type === 'new') {
+                    generateEbbinghausReviews(task.title);
+                }
+                return { ...task, completed: updatedStatus };
+            }
+            return task;
+        });
+
+        saveData();
+    }
+
+    // 艾賓浩斯自動排程引擎
+    function generateEbbinghausReviews(title) {
+        const intervals = [1, 3, 7]; // 複習間隔 (天)
+        
+        intervals.forEach(days => {
+            const reviewDate = new Date();
+            reviewDate.setDate(reviewDate.getDate() + days);
+            const dateStr = reviewDate.toISOString().split('T')[0];
+
+            tasks.push({
+                id: Date.now() + Math.random(),
+                title: `[複習] ${title}`,
+                date: dateStr,
+                timeblock: '複習時段',
+                type: 'review',
+                completed: false
+            });
+        });
+    }
+
+    function deleteTask(id) {
+        tasks = tasks.filter(t => t.id !== id);
+        saveData();
+    }
+
+    function render() {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const newTaskList = document.getElementById('new-task-list');
+        const reviewTaskList = document.getElementById('review-task-list');
+        
+        newTaskList.innerHTML = '';
+        reviewTaskList.innerHTML = '';
+
+        let totalTasks = tasks.length;
+        let completedTasks = tasks.filter(t => t.completed).length;
+
+        tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.className = `task-item ${task.completed ? 'completed' : ''}`;
+            
+            li.innerHTML = `
+                <div>
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                    <span class="tag ${task.type === 'new' ? 'tag-new' : 'tag-review'}">${task.type === 'new' ? '新讀' : '複習'}</span>
+                    <span class="title">${task.title}</span>
+                </div>
+                <div>
+                    <span class="time-badge">${task.date} (${task.timeblock})</span>
+                    <button class="delete-btn" onclick="deleteTask(${task.id})">✕</button>
+                </div>
+            `;
+
+            // 分流顯示：新計畫 vs 艾賓浩斯複習（只顯示今天或之前的複習）
+            if (task.type === 'new') {
+                newTaskList.appendChild(li);
+            } else if (task.date <= todayStr) {
+                reviewTaskList.appendChild(li);
+            }
+        });
+
+        // 更新進度條
+        const percent = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+        document.getElementById('progress-bar').style.width = percent + '%';
+        document.getElementById('progress-percent').innerText = percent + '%';
+
+        // 更新倒數日
+        const diffTime = Math.abs(targetExamDate - new Date());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        document.getElementById('countdown-display').innerText = `距離目標剩餘 ${diffDays} 天`;
+    }
+
+    // 首次載入渲染
+    render();
+</script>
+
+</body>
+</html>
