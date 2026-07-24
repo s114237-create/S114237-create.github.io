@@ -7,163 +7,96 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    :root {
-      --bg-primary: #F5F3EF;
-      --bg-card: #FFFFFF;
-      --text-primary: #5D5D5D;
-      --text-secondary: #9A9A9A;
-      --accent-sage: #A8B5A0;
-      --accent-warm: #C9A97A;
-      --border-color: #E8E4DD;
-      --hover-bg: #F0EDE8;
-    }
-    [data-theme="dark"] {
-      --bg-primary: #2D2D2D;
-      --bg-card: #3A3A3A;
-      --text-primary: #E8E4DD;
-      --text-secondary: #9A9A9A;
-      --accent-sage: #8B9A7D;
-      --accent-warm: #B8956A;
-      --border-color: #4A4A4A;
-      --hover-bg: #454545;
-    }
     body {
       font-family: 'M PLUS Rounded 1c', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      transition: background-color 0.3s, color 0.3s;
+      background-color: #F8FAF9;
     }
-    .card {
-      background-color: var(--bg-card);
-      border-color: var(--border-color);
-      transition: background-color 0.3s, border-color 0.3s;
-    }
-    .text-morandi { color: var(--text-primary); }
-    .text-secondary { color: var(--text-secondary); }
-    .bg-morandi-sage { background-color: var(--accent-sage); }
-    .bg-morandi-warm { background-color: var(--accent-warm); }
-    .border-morandi { border-color: var(--border-color); }
-    .hover-morandi:hover { background-color: var(--hover-bg); }
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+    ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+    
+    /* 側邊欄平滑過渡動畫 */
+    .sidebar-transition {
+      transition: width 0.3s ease, padding 0.3s ease;
+    }
   </style>
 </head>
-<body class="min-h-screen flex">
+<body class="text-slate-700 min-h-screen flex">
 
-  <aside id="sidebar" class="w-64 bg-[var(--bg-card)] border-r border-[var(--border-color)] p-6 flex flex-col justify-between shrink-0 hidden md:flex transition-colors duration-300">
+  <aside id="sidebar" class="sidebar-transition w-64 bg-white border-r border-slate-100 p-6 flex flex-col justify-between shrink-0 relative">
     <div class="space-y-6">
-      <div class="flex justify-between items-center">
-        <div class="text-lg font-bold tracking-wide flex items-center gap-2" style="color: var(--text-primary)">
-          <span class="w-3 h-3 rounded-full bg-[var(--accent-sage)]"></span>
+      
+      <div class="flex items-center justify-between">
+        <div class="sidebar-text text-base font-bold tracking-wide text-slate-800 flex items-center gap-2 overflow-hidden whitespace-nowrap">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
           學習工作台
         </div>
-        <button onclick="toggleDarkMode()" id="themeToggle" class="w-8 h-8 rounded-lg flex items-center justify-center hover-morandi transition-colors" title="切換深色模式">
-          <i class="fa-solid fa-moon text-sm" style="color: var(--text-secondary)"></i>
+        <button onclick="toggleSidebar()" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center transition shrink-0" title="切換側邊欄">
+          <i class="fa-solid fa-bars text-sm"></i>
         </button>
       </div>
 
-      <nav class="space-y-1 text-sm font-medium">
-        <button onclick="switchView('main')" id="nav-main" class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 transition" style="background-color: var(--hover-bg); color: var(--text-primary)">
-          <i class="fa-solid fa-border-all text-sm" style="color: var(--text-secondary)"></i> 主儀表板
+      <nav class="space-y-1.5 text-xs font-medium">
+        <button onclick="switchView('main')" id="nav-main" class="w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-800 text-white font-bold transition flex items-center gap-3 overflow-hidden whitespace-nowrap" title="主儀表板">
+          <i class="fa-solid fa-border-all text-sm shrink-0"></i> 
+          <span class="sidebar-text">主儀表板</span>
         </button>
-        <button onclick="switchView('analytics')" id="nav-analytics" class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 transition hover-morandi" style="color: var(--text-secondary)">
-          <i class="fa-solid fa-chart-line text-sm" style="color: var(--text-secondary)"></i> 達成率資料庫
+        <button onclick="switchView('analytics')" id="nav-analytics" class="w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap" title="達成率資料庫 & AI">
+          <i class="fa-solid fa-chart-line text-sm shrink-0"></i> 
+          <span class="sidebar-text">達成率資料庫 & AI</span>
         </button>
-        <button onclick="toggleHistoryNav()" id="nav-history" class="w-full text-left px-4 py-2.5 rounded-xl flex items-center gap-3 transition hover-morandi" style="color: var(--text-secondary)">
-          <i class="fa-solid fa-clock-rotate-left text-sm" style="color: var(--text-secondary)"></i> 歷史計畫
-          <i class="fa-solid fa-chevron-down text-xs ml-auto transition-transform" id="historyArrow"></i>
-        </button>
-        <div id="historyList" class="hidden pl-4 space-y-1 text-xs"></div>
       </nav>
-
-      <!-- Spotify 播放區 -->
-      <div class="p-4 rounded-2xl" style="background-color: var(--hover-bg)">
-        <div class="flex items-center gap-2 mb-2">
-          <i class="fa-brands fa-spotify text-sm" style="color: var(--accent-sage)"></i>
-          <span class="text-xs font-bold" style="color: var(--text-primary)">專注音樂</span>
-        </div>
-        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX9sIOQeT5aTj?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-      </div>
     </div>
 
-    <div class="text-xs font-light" style="color: var(--text-secondary)">
-      Minimalist Study Planner v2.0
+    <div class="sidebar-text text-[10px] text-slate-300 font-light overflow-hidden whitespace-nowrap">
+      Minimalist Study Planner v2.1
     </div>
   </aside>
 
-  <div class="flex-1 p-4 md:p-8 overflow-y-auto">
+  <div class="flex-1 p-4 md:p-6 overflow-y-auto">
 
-    <div id="view-main" class="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div id="view-main" class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-      <!-- 統計概覽含圓餅圖 -->
-      <div class="lg:col-span-12">
-        <div class="card p-6 rounded-3xl border shadow-sm">
-          <div class="flex flex-col lg:flex-row lg:items-center gap-6">
-            <div class="flex-1">
-              <h2 class="text-sm font-bold mb-4 flex items-center gap-2" style="color: var(--text-primary)">
-                <i class="fa-solid fa-chart-pie text-sm" style="color: var(--accent-sage)"></i> 任務統計概覽
-              </h2>
-              <div class="flex flex-wrap gap-4">
-                <div class="px-4 py-3 rounded-2xl" style="background-color: var(--hover-bg)">
-                  <div class="text-2xl font-bold" style="color: var(--text-primary)" id="statTotal">0</div>
-                  <div class="text-xs" style="color: var(--text-secondary)">總任務數</div>
-                </div>
-                <div class="px-4 py-3 rounded-2xl" style="background-color: var(--hover-bg)">
-                  <div class="text-2xl font-bold" style="color: var(--accent-sage)" id="statCompleted">0</div>
-                  <div class="text-xs" style="color: var(--text-secondary)">已完成</div>
-                </div>
-                <div class="px-4 py-3 rounded-2xl" style="background-color: var(--hover-bg)">
-                  <div class="text-2xl font-bold" style="color: var(--accent-warm)" id="statPending">0</div>
-                  <div class="text-xs" style="color: var(--text-secondary)">進行中</div>
-                </div>
-              </div>
-            </div>
-            <div class="w-full lg:w-64 h-48">
-              <canvas id="subjectChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="lg:col-span-3 space-y-6">
-
-        <!-- 時鐘與提醒卡片 -->
-        <details class="card p-6 rounded-3xl border shadow-sm group" open>
-          <summary class="list-none cursor-pointer">
-            <div class="flex justify-between items-start">
-              <div class="text-4xl font-extrabold tracking-tight font-mono" style="color: var(--text-primary)" id="clockDisplay">00:00:00</div>
-              <i class="fa-solid fa-chevron-down text-xs transition-transform group-open:rotate-180" style="color: var(--text-secondary)"></i>
-            </div>
-            <div class="text-lg font-bold mt-1" style="color: var(--text-secondary)" id="dateDisplay">----/--/-- (一)</div>
-          </summary>
-
-          <hr class="my-4 border-[var(--border-color)]">
-
+      <div class="lg:col-span-3 space-y-5">
+        
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+          <div class="text-3xl font-extrabold text-slate-800 tracking-tight font-mono" id="clockDisplay">00:00:00</div>
+          <div class="text-sm font-bold text-slate-400 mt-0.5" id="dateDisplay">----/--/-- (一)</div>
+          
+          <hr class="my-3 border-slate-50">
+          
           <div>
-            <div class="text-xs font-bold uppercase tracking-wider mb-1" style="color: var(--accent-warm)">⚠️ 重要提醒</div>
-            <div class="text-base font-bold p-3.5 rounded-2xl border leading-snug" style="background-color: var(--hover-bg); color: var(--text-primary); border-color: var(--border-color)" id="urgentAlert">
+            <div class="text-[10px] font-bold text-rose-400 uppercase tracking-wider mb-1">⚠️ 重要提醒</div>
+            <div class="text-xs font-bold text-rose-500 bg-rose-50/60 p-2.5 rounded-xl border border-rose-100 leading-relaxed" id="urgentAlert">
               無即將到期任務
             </div>
           </div>
-        </details>
+        </div>
 
-        <!-- 任務表單 -->
-        <details class="card p-6 rounded-3xl border shadow-sm group" open>
-          <summary class="list-none cursor-pointer">
-            <h2 class="text-sm font-bold flex items-center gap-2" style="color: var(--text-primary)">
-              <i class="fa-solid fa-plus text-xs" style="color: var(--accent-sage)"></i> 新增學習任務
-              <i class="fa-solid fa-chevron-down text-xs ml-auto transition-transform group-open:rotate-180" style="color: var(--text-secondary)"></i>
-            </h2>
-          </summary>
+        <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+          <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">任務統計概覽</div>
+          <div class="grid grid-cols-2 gap-2 text-center">
+            <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+              <div class="text-[10px] text-slate-400">總計畫項目</div>
+              <div class="text-lg font-extrabold text-slate-800 mt-0.5" id="statTotalTasks">0</div>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+              <div class="text-[10px] text-slate-400">平均進度</div>
+              <div class="text-lg font-extrabold text-slate-800 mt-0.5" id="statAvgProgress">0%</div>
+            </div>
+          </div>
+        </div>
 
-          <form id="taskForm" class="space-y-3 text-xs mt-4">
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+          <h2 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-plus text-[10px] text-slate-400"></i> 新增學習任務
+          </h2>
+          <form id="taskForm" class="space-y-2.5 text-xs">
             <div>
-              <label class="block font-medium mb-1 text-slate-500">科目</label>
-              <select id="subjectSelect" onchange="toggleCustomSubject()" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:bg-white outline-none">
+              <label class="block font-medium mb-1 text-slate-500 text-[11px]">科目</label>
+              <select id="subjectSelect" onchange="toggleCustomSubject()" class="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none">
                 <option value="國文">國文</option>
                 <option value="英文">英文</option>
                 <option value="數學">數學</option>
@@ -171,18 +104,18 @@
                 <option value="自然">自然</option>
                 <option value="custom">其他 (自填)</option>
               </select>
-              <input type="text" id="customSubjectInput" placeholder="請輸入科目名稱" class="hidden w-full mt-2 p-2.5 bg-slate-50 border rounded-xl outline-none">
+              <input type="text" id="customSubjectInput" placeholder="請輸入科目" class="hidden w-full mt-1.5 p-2 bg-slate-50 border rounded-xl outline-none">
             </div>
 
             <div>
-              <label class="block font-medium mb-1 text-slate-500">任務名稱</label>
-              <input type="text" id="taskName" placeholder="例：講義練習" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl outline-none" required>
+              <label class="block font-medium mb-1 text-slate-500 text-[11px]">任務名稱</label>
+              <input type="text" id="taskName" placeholder="例：講義練習" class="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none" required>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block font-medium mb-1 text-slate-500">屬性</label>
-                <select id="taskCategory" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl outline-none">
+                <label class="block font-medium mb-1 text-slate-500 text-[11px]">屬性</label>
+                <select id="taskCategory" class="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none">
                   <option value="作業">作業</option>
                   <option value="考試">考試</option>
                   <option value="自主學習">自主學習</option>
@@ -190,8 +123,8 @@
                 </select>
               </div>
               <div>
-                <label class="block font-medium mb-1 text-slate-500">計畫層級</label>
-                <select id="planType" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl outline-none">
+                <label class="block font-medium mb-1 text-slate-500 text-[11px]">層級</label>
+                <select id="planType" class="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none">
                   <option value="week">週計畫</option>
                   <option value="month">月計畫</option>
                   <option value="long">長期計畫</option>
@@ -200,81 +133,73 @@
             </div>
 
             <div>
-              <label class="block font-medium mb-1 text-slate-500">預計執行時間</label>
-              <input type="datetime-local" id="startTime" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl outline-none mb-1" required>
-              <input type="datetime-local" id="endTime" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl outline-none" required>
+              <label class="block font-medium mb-1 text-slate-500 text-[11px]">執行時間</label>
+              <input type="datetime-local" id="startTime" class="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none mb-1 text-[11px]" required>
+              <input type="datetime-local" id="endTime" class="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none text-[11px]" required>
             </div>
 
             <div>
-              <label class="block font-medium mb-1 text-slate-500">備註</label>
-              <input type="text" id="taskNote" placeholder="例如：頁數或重點概念" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl outline-none">
+              <label class="block font-medium mb-1 text-slate-500 text-[11px]">備註</label>
+              <input type="text" id="taskNote" placeholder="範圍或重點" class="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none">
             </div>
 
             <div>
-              <div class="flex justify-between font-medium mb-1 text-slate-500">
+              <div class="flex justify-between font-medium mb-1 text-slate-500 text-[11px]">
                 <span>初始進度</span>
                 <span id="progressVal">0%</span>
               </div>
               <input type="range" id="taskProgress" min="0" max="100" value="0" oninput="document.getElementById('progressVal').textContent = this.value + '%'" class="w-full accent-slate-700">
             </div>
 
-            <button type="submit" class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition">
-              建立計畫卡片
+            <button type="submit" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl transition">
+              建立計畫
             </button>
           </form>
         </div>
 
       </div>
 
-      <div class="lg:col-span-5 space-y-6">
+      <div class="lg:col-span-5 space-y-5">
         
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <div class="flex justify-between items-center mb-3">
-            <span class="text-sm font-bold text-slate-700">今日時段達成率</span>
-            <span class="text-2xl font-extrabold text-slate-800" id="dailyRateText">0%</span>
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+          <div class="flex justify-between items-center mb-2.5">
+            <span class="text-xs font-bold text-slate-700">今日時段達成率</span>
+            <span class="text-xl font-extrabold text-slate-800" id="dailyRateText">0%</span>
           </div>
-          <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+          <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
             <div id="dailyRateBar" class="bg-slate-700 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <div class="flex justify-between items-center mb-4">
-            <span class="text-sm font-bold text-slate-700" id="calMonthYear">---- 年 -- 月</span>
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs font-bold text-slate-700" id="calMonthYear">---- 年 -- 月</span>
             <div class="space-x-1">
-              <button onclick="changeMonth(-1)" class="w-7 h-7 bg-slate-50 rounded-lg hover:bg-slate-100 text-xs font-bold">‹</button>
-              <button onclick="changeMonth(1)" class="w-7 h-7 bg-slate-50 rounded-lg hover:bg-slate-100 text-xs font-bold">›</button>
+              <button onclick="changeMonth(-1)" class="w-6 h-6 bg-slate-50 rounded-lg hover:bg-slate-100 text-xs font-bold">‹</button>
+              <button onclick="changeMonth(1)" class="w-6 h-6 bg-slate-50 rounded-lg hover:bg-slate-100 text-xs font-bold">›</button>
             </div>
           </div>
-          <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-300 mb-2">
+          <div class="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-slate-300 mb-1">
             <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
           </div>
           <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
             <div class="flex gap-1 text-xs">
-              <button onclick="filterPlan('week')" id="tab-week" class="px-3 py-1.5 rounded-xl bg-slate-800 text-white font-bold">週計畫</button>
-              <button onclick="filterPlan('month')" id="tab-month" class="px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 font-bold">月計畫</button>
-              <button onclick="filterPlan('long')" id="tab-long" class="px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 font-bold">長期計畫</button>
+              <button onclick="filterPlan('week')" id="tab-week" class="px-3 py-1 rounded-xl bg-slate-800 text-white font-bold">週計畫</button>
+              <button onclick="filterPlan('month')" id="tab-month" class="px-3 py-1 rounded-xl text-slate-400 hover:bg-slate-50 font-bold">月計畫</button>
+              <button onclick="filterPlan('long')" id="tab-long" class="px-3 py-1 rounded-xl text-slate-400 hover:bg-slate-50 font-bold">長期計畫</button>
             </div>
 
-            <select id="sortSelect" onchange="renderTasks()" class="text-xs p-1.5 bg-slate-50 border border-slate-100 rounded-lg outline-none text-slate-600">
+            <select id="sortSelect" onchange="renderTasks()" class="text-[11px] p-1 bg-slate-50 border border-slate-100 rounded-lg outline-none text-slate-600">
               <option value="default">預設排序</option>
               <option value="subject">依科目排序</option>
               <option value="category">依屬性排序</option>
               <option value="progress">依進度排序</option>
-              <option value="time">依開始時間排序</option>
-              <option value="deadline">依期限分類排序</option>
+              <option value="time">依時間排序</option>
             </select>
-          </div>
-
-          <div class="flex flex-wrap gap-2 mb-4">
-            <button onclick="filterDeadline('all')" id="deadline-all" class="px-3 py-1.5 rounded-xl bg-slate-800 text-white text-xs font-bold">全部</button>
-            <button onclick="filterDeadline('short')" id="deadline-short" class="px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 text-xs font-bold">短期 (≤7天)</button>
-            <button onclick="filterDeadline('medium')" id="deadline-medium" class="px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 text-xs font-bold">中期 (8-30天)</button>
-            <button onclick="filterDeadline('long')" id="deadline-long" class="px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 text-xs font-bold">長期 (>30天)</button>
           </div>
 
           <div class="overflow-x-auto">
@@ -297,37 +222,37 @@
 
       </div>
 
-      <div class="lg:col-span-4 space-y-6">
+      <div class="lg:col-span-4 space-y-5">
         
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <i class="fa-solid fa-graduation-cap text-slate-400"></i> 近期重點考試
             </h2>
-            <button onclick="openExamModal()" class="w-7 h-7 bg-slate-800 hover:bg-slate-900 text-white rounded-full flex items-center justify-center text-xs transition shadow-sm">
+            <button onclick="openExamModal()" class="w-6 h-6 bg-slate-800 hover:bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] transition shadow-sm">
               <i class="fa-solid fa-plus"></i>
             </button>
           </div>
-          <div id="examList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <div id="examList" class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
-          <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+          <h2 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
             <i class="fa-regular fa-clock text-slate-400"></i> 每日直條式時間安排
           </h2>
 
-          <div class="p-4 bg-slate-50 rounded-2xl space-y-3 text-xs">
-            <div class="font-bold text-slate-700">⚡ 批次安排時段內容</div>
-            <div class="grid grid-cols-2 gap-2">
-              <select id="batchStartHour" class="p-2 border border-slate-100 rounded-xl bg-white outline-none"></select>
-              <select id="batchEndHour" class="p-2 border border-slate-100 rounded-xl bg-white outline-none"></select>
+          <div class="p-3 bg-slate-50 rounded-2xl space-y-2 text-xs">
+            <div class="font-bold text-slate-700 text-[11px]">⚡ 批次安排時段內容</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <select id="batchStartHour" class="p-1.5 border border-slate-100 rounded-xl bg-white outline-none text-[11px]"></select>
+              <select id="batchEndHour" class="p-1.5 border border-slate-100 rounded-xl bg-white outline-none text-[11px]"></select>
             </div>
-            <input type="text" id="batchContent" placeholder="輸入預計讀書/活動項目..." class="w-full p-2.5 border border-slate-100 rounded-xl bg-white outline-none">
-            <button onclick="applyBatchHourly()" class="w-full py-2 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition">更新至時間表</button>
+            <input type="text" id="batchContent" placeholder="輸入預計讀書/活動項目..." class="w-full p-2 border border-slate-100 rounded-xl bg-white outline-none text-[11px]">
+            <button onclick="applyBatchHourly()" class="w-full py-1.5 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition text-[11px]">更新至時間表</button>
           </div>
 
-          <div id="hourlyTimeline" class="space-y-1.5 max-h-[500px] overflow-y-auto pr-1 text-xs">
+          <div id="hourlyTimeline" class="space-y-1 max-h-[460px] overflow-y-auto pr-1 text-xs">
             </div>
         </div>
 
@@ -335,34 +260,34 @@
 
     </div>
 
-    <div id="view-analytics" class="max-w-[1200px] mx-auto space-y-6 hidden">
-      <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
+    <div id="view-analytics" class="max-w-[1200px] mx-auto space-y-5 hidden">
+      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-slate-800">歷史達成率與 AI 分析儀表板</h1>
-          <p class="text-xs text-slate-400 mt-1">自動紀錄每日學習進度，並提供 AI 診斷改善建議</p>
+          <h1 class="text-xl font-bold text-slate-800">歷史達成率與 AI 分析儀表板</h1>
+          <p class="text-xs text-slate-400 mt-0.5">自動紀錄每日學習進度，並提供 AI 診斷改善建議</p>
         </div>
-        <button onclick="runAIAnalysis()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-bold text-xs flex items-center gap-2 shadow-sm">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> 執行 AI 進度診斷
+        <button onclick="runAIAnalysis()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> 執行 AI 診斷
         </button>
       </div>
 
-      <div id="aiCard" class="bg-slate-900 text-white p-6 rounded-3xl shadow-sm hidden space-y-3">
-        <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
+      <div id="aiCard" class="bg-slate-900 text-white p-5 rounded-3xl shadow-sm hidden space-y-2">
+        <div class="flex items-center gap-2 text-amber-400 font-bold text-xs">
           <i class="fa-solid fa-robot"></i> AI 學習建議診斷報告
         </div>
         <p id="aiReportText" class="text-xs leading-relaxed text-slate-300 font-light"></p>
       </div>
 
       <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-        <h2 class="text-sm font-bold text-slate-800 mb-4">歷史每日達成率紀錄庫</h2>
+        <h2 class="text-xs font-bold text-slate-800 mb-3">歷史每日達成率紀錄庫</h2>
         <table class="w-full text-left text-xs">
           <thead>
             <tr class="border-b border-slate-100 text-slate-400 font-medium">
-              <th class="pb-3">日期</th>
-              <th class="pb-3">總規劃時段</th>
-              <th class="pb-3">完成時段</th>
-              <th class="pb-3">當日達成率</th>
-              <th class="pb-3">未完成時段項目</th>
+              <th class="pb-2">日期</th>
+              <th class="pb-2">總規劃時段</th>
+              <th class="pb-2">完成時段</th>
+              <th class="pb-2">當日達成率</th>
+              <th class="pb-2">未完成項目</th>
             </tr>
           </thead>
           <tbody id="historyTableBody" class="divide-y divide-slate-50">
@@ -373,32 +298,32 @@
 
   </div>
 
-  <div id="examModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50">
-    <div class="bg-white p-6 rounded-3xl w-80 space-y-4 shadow-xl">
-      <h3 class="font-bold text-slate-800 text-sm">新增近期重點考試</h3>
-      <input type="text" id="modalExamName" placeholder="考試名稱 (例如：第一次模考)" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs outline-none">
-      <input type="date" id="modalExamDate" class="w-full p-2.5 bg-slate-50 border rounded-xl text-xs outline-none">
+  <div id="examModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center hidden z-50">
+    <div class="bg-white p-5 rounded-3xl w-72 space-y-3 shadow-xl">
+      <h3 class="font-bold text-slate-800 text-xs">新增近期重點考試</h3>
+      <input type="text" id="modalExamName" placeholder="考試名稱 (例如：段考)" class="w-full p-2 bg-slate-50 border rounded-xl text-xs outline-none">
+      <input type="date" id="modalExamDate" class="w-full p-2 bg-slate-50 border rounded-xl text-xs outline-none">
       <div class="flex gap-2">
-        <button onclick="closeExamModal()" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">取消</button>
-        <button onclick="saveExamFromModal()" class="flex-1 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold">新增</button>
+        <button onclick="closeExamModal()" class="flex-1 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">取消</button>
+        <button onclick="saveExamFromModal()" class="flex-1 py-1.5 bg-slate-800 text-white rounded-xl text-xs font-bold">新增</button>
       </div>
     </div>
   </div>
 
-  <div id="timeModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center hidden z-50">
-    <div class="bg-white p-6 rounded-3xl w-80 space-y-4 shadow-xl">
-      <h3 class="font-bold text-slate-800 text-sm">編輯預計執行時間</h3>
+  <div id="timeModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center hidden z-50">
+    <div class="bg-white p-5 rounded-3xl w-72 space-y-3 shadow-xl">
+      <h3 class="font-bold text-slate-800 text-xs">編輯預計執行時間</h3>
       <div>
-        <label class="text-[10px] text-slate-400 block mb-1">開始時間</label>
+        <label class="text-[10px] text-slate-400 block mb-0.5">開始時間</label>
         <input type="datetime-local" id="editStartTime" class="w-full p-2 bg-slate-50 border rounded-xl text-xs outline-none">
       </div>
       <div>
-        <label class="text-[10px] text-slate-400 block mb-1">結束時間</label>
+        <label class="text-[10px] text-slate-400 block mb-0.5">結束時間</label>
         <input type="datetime-local" id="editEndTime" class="w-full p-2 bg-slate-50 border rounded-xl text-xs outline-none">
       </div>
       <div class="flex gap-2">
-        <button onclick="closeTimeModal()" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">取消</button>
-        <button onclick="saveTimeModal()" class="flex-1 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold">儲存修改</button>
+        <button onclick="closeTimeModal()" class="flex-1 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">取消</button>
+        <button onclick="saveTimeModal()" class="flex-1 py-1.5 bg-slate-800 text-white rounded-xl text-xs font-bold">儲存</button>
       </div>
     </div>
   </div>
@@ -410,55 +335,47 @@
     let historyDB = JSON.parse(localStorage.getItem('my_study_history')) || {};
     
     let currentPlanTab = 'week';
-    let currentDeadlineTab = 'all';
     let calDate = new Date();
     let editingTaskId = null;
-
-    // 123.html 的期限分類邏輯
-    function getDeadlineCategory(endTime) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const target = new Date(endTime);
-      target.setHours(0, 0, 0, 0);
-      const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
-      if (diffDays <= 0) return 'overdue'; // 已過期
-      if (diffDays <= 7) return 'short';
-      if (diffDays <= 30) return 'medium';
-      return 'long';
-    }
-
-    function filterDeadline(type) {
-      currentDeadlineTab = type;
-      ['all', 'short', 'medium', 'long'].forEach(t => {
-        const btn = document.getElementById(`deadline-${t}`);
-        if (t === type) {
-          btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 text-white text-xs font-bold";
-        } else {
-          btn.className = "px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 text-xs font-bold";
-        }
-      });
-      renderTasks();
-    }
+    let isSidebarCollapsed = false;
 
     document.addEventListener('DOMContentLoaded', () => {
       startClock();
       initHourSelectors();
       renderAll();
-      recordDailyHistory(); // 自動記錄今日數據至歷史庫
+      recordDailyHistory();
     });
 
-    // 10. 頁面視圖切換
+    // 1. 折疊側邊欄邏輯
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const sidebarTexts = document.querySelectorAll('.sidebar-text');
+      
+      isSidebarCollapsed = !isSidebarCollapsed;
+
+      if(isSidebarCollapsed) {
+        sidebar.classList.remove('w-64', 'p-6');
+        sidebar.classList.add('w-20', 'p-4');
+        sidebarTexts.forEach(el => el.classList.add('hidden'));
+      } else {
+        sidebar.classList.remove('w-20', 'p-4');
+        sidebar.classList.add('w-64', 'p-6');
+        sidebarTexts.forEach(el => el.classList.remove('hidden'));
+      }
+    }
+
+    // 頁面視圖切換
     function switchView(view) {
       if(view === 'main') {
         document.getElementById('view-main').classList.remove('hidden');
         document.getElementById('view-analytics').classList.add('hidden');
-        document.getElementById('nav-main').className = "w-full text-left px-4 py-2.5 rounded-xl bg-slate-100 text-slate-800 font-bold transition flex items-center gap-3";
-        document.getElementById('nav-analytics').className = "w-full text-left px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3";
+        document.getElementById('nav-main').className = "w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-800 text-white font-bold transition flex items-center gap-3 overflow-hidden whitespace-nowrap";
+        document.getElementById('nav-analytics').className = "w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap";
       } else {
         document.getElementById('view-main').classList.add('hidden');
         document.getElementById('view-analytics').classList.remove('hidden');
-        document.getElementById('nav-analytics').className = "w-full text-left px-4 py-2.5 rounded-xl bg-slate-100 text-slate-800 font-bold transition flex items-center gap-3";
-        document.getElementById('nav-main').className = "w-full text-left px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3";
+        document.getElementById('nav-analytics').className = "w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-800 text-white font-bold transition flex items-center gap-3 overflow-hidden whitespace-nowrap";
+        document.getElementById('nav-main').className = "w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap";
         renderHistoryTable();
       }
     }
@@ -513,68 +430,53 @@
       currentPlanTab = type;
       ['week','month','long'].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
-        if(t === type) btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 text-white font-bold";
-        else btn.className = "px-3 py-1.5 rounded-xl text-slate-400 hover:bg-slate-50 font-bold";
+        if(t === type) btn.className = "px-3 py-1 rounded-xl bg-slate-800 text-white font-bold";
+        else btn.className = "px-3 py-1 rounded-xl text-slate-400 hover:bg-slate-50 font-bold";
       });
       renderTasks();
     }
 
-    // 7. 多屬性排序與任務清單渲染
+    // 任務清單與統計更新
     function renderTasks() {
       const tbody = document.getElementById('taskTableBody');
       tbody.innerHTML = '';
-
+      
       let filtered = tasks.filter(t => t.planType === currentPlanTab);
-
-      // 加入期限分類篩選 (來自 123.html 融合)
-      if (currentDeadlineTab !== 'all') {
-        filtered = filtered.filter(t => {
-          const deadlineCat = getDeadlineCategory(t.endTime);
-          return deadlineCat === currentDeadlineTab;
-        });
-      }
 
       const sortBy = document.getElementById('sortSelect').value;
       if(sortBy === 'subject') filtered.sort((a,b) => a.subject.localeCompare(b.subject));
       else if(sortBy === 'category') filtered.sort((a,b) => a.category.localeCompare(b.category));
       else if(sortBy === 'progress') filtered.sort((a,b) => b.progress - a.progress);
       else if(sortBy === 'time') filtered.sort((a,b) => new Date(a.startTime) - new Date(b.startTime));
-      else if(sortBy === 'deadline') {
-        filtered.sort((a,b) => {
-          const catOrder = { short: 1, medium: 2, long: 3, overdue: 0 };
-          return catOrder[getDeadlineCategory(a.endTime)] - catOrder[getDeadlineCategory(b.endTime)];
+
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-slate-300">目前無任務</td></tr>`;
+      } else {
+        filtered.forEach(t => {
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-50/60 transition";
+          tr.innerHTML = `
+            <td class="py-2.5 font-bold text-slate-800">${t.subject}</td>
+            <td class="py-2.5"><span class="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-lg text-[10px] font-bold">${t.category}</span></td>
+            <td class="py-2.5 font-medium">${t.name}</td>
+            <td class="py-2.5 text-slate-400 text-[10px]">${t.note || '-'}</td>
+            <td class="py-2.5">
+              <button onclick="openTimeModal(${t.id})" class="px-1.5 py-0.5 bg-slate-50 border border-slate-100 rounded-lg hover:bg-slate-100 text-[10px] text-slate-500 transition text-left">
+                ${t.startTime.replace('T',' ')}<br>~ ${t.endTime.split('T')[1]}
+              </button>
+            </td>
+            <td class="py-2.5">
+              <input type="number" min="0" max="100" value="${t.progress}" onchange="updateProgress(${t.id}, this.value)" class="w-10 p-0.5 border border-slate-100 rounded-lg text-center font-bold"> %
+            </td>
+          `;
+          tbody.appendChild(tr);
         });
       }
 
-      if(filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-300">目前無任務</td></tr>`;
-        return;
-      }
-
-      filtered.forEach(t => {
-        const deadlineCat = getDeadlineCategory(t.endTime);
-        const deadlineLabel = { short: '短期', medium: '中期', long: '長期', overdue: '過期' };
-        const deadlineColor = { short: 'bg-rose-100 text-rose-600', medium: 'bg-amber-100 text-amber-600', long: 'bg-emerald-100 text-emerald-600', overdue: 'bg-red-100 text-red-600' };
-
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50/60 transition";
-        tr.innerHTML = `
-          <td class="py-3 font-bold text-slate-800">${t.subject}</td>
-          <td class="py-3"><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-lg text-[10px] font-bold">${t.category}</span></td>
-          <td class="py-3 font-medium">${t.name}</td>
-          <td class="py-3 text-slate-400 text-[11px]">${t.note || '-'}</td>
-          <td class="py-3">
-            <button onclick="openTimeModal(${t.id})" class="px-2 py-1 bg-slate-50 border border-slate-100 rounded-lg hover:bg-slate-100 text-[10px] text-slate-500 transition text-left">
-              ${t.startTime.replace('T',' ')}<br>~ ${t.endTime.split('T')[1]}
-            </button>
-          </td>
-          <td class="py-3">
-            <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold ${deadlineColor[deadlineCat]}">${deadlineLabel[deadlineCat]}</span>
-            <input type="number" min="0" max="100" value="${t.progress}" onchange="updateProgress(${t.id}, this.value)" class="w-12 p-1 border border-slate-100 rounded-lg text-center font-bold"> %
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+      // 更新左側任務統計卡片
+      document.getElementById('statTotalTasks').textContent = tasks.length;
+      const avg = tasks.length > 0 ? Math.round(tasks.reduce((sum, t) => sum + t.progress, 0) / tasks.length) : 0;
+      document.getElementById('statAvgProgress').textContent = `${avg}%`;
 
       updateUrgentAlert();
     }
@@ -584,10 +486,10 @@
       if(task) {
         task.progress = Math.min(100, Math.max(0, parseInt(val) || 0));
         localStorage.setItem('my_study_tasks', JSON.stringify(tasks));
+        renderTasks();
       }
     }
 
-    // 8. 時間編輯彈窗控制
     function openTimeModal(id) {
       editingTaskId = id;
       const task = tasks.find(t => t.id === id);
@@ -646,11 +548,11 @@
         const dayTasks = tasks.filter(t => t.startTime.startsWith(dateStr));
 
         const cell = document.createElement('div');
-        cell.className = "p-1 bg-slate-50/50 border border-slate-100 rounded-xl text-xs min-h-[50px] flex flex-col justify-between";
-        let badges = dayTasks.map(t => `<div class="bg-slate-200/60 text-slate-600 text-[9px] px-1 rounded truncate">${t.subject}</div>`).join('');
+        cell.className = "p-1 bg-slate-50/50 border border-slate-100 rounded-xl text-xs min-h-[45px] flex flex-col justify-between";
+        let badges = dayTasks.map(t => `<div class="bg-slate-200/60 text-slate-600 text-[8px] px-1 rounded truncate">${t.subject}</div>`).join('');
 
         cell.innerHTML = `
-          <div class="font-bold text-slate-400 text-[10px]">${d}</div>
+          <div class="font-bold text-slate-400 text-[9px]">${d}</div>
           <div class="space-y-0.5">${badges}</div>
         `;
         grid.appendChild(cell);
@@ -662,7 +564,7 @@
       renderCalendar();
     }
 
-    // 9. 考試清單控制 (+按鈕與完成勾選)
+    // 考試清單
     function openExamModal() { document.getElementById('examModal').classList.remove('hidden'); }
     function closeExamModal() { document.getElementById('examModal').classList.add('hidden'); }
     
@@ -687,19 +589,19 @@
       const activeExams = exams.filter(e => !e.completed);
 
       if(activeExams.length === 0) {
-        list.innerHTML = `<p class="text-xs text-slate-300 py-2">目前尚無考試項目</p>`;
+        list.innerHTML = `<p class="text-xs text-slate-300 py-1">目前無考試項目</p>`;
         return;
       }
 
       activeExams.forEach(e => {
         const div = document.createElement('div');
-        div.className = "flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-100 text-xs";
+        div.className = "flex justify-between items-center bg-slate-50 p-2.5 rounded-2xl border border-slate-100 text-xs";
         div.innerHTML = `
           <div class="flex items-center gap-2">
-            <input type="checkbox" onchange="completeExam(${e.id})" class="w-4 h-4 accent-slate-800 rounded cursor-pointer">
+            <input type="checkbox" onchange="completeExam(${e.id})" class="w-3.5 h-3.5 accent-slate-800 rounded cursor-pointer">
             <div>
               <div class="font-bold text-slate-700">${e.name}</div>
-              <div class="text-[10px] text-slate-400">${e.date}</div>
+              <div class="text-[9px] text-slate-400">${e.date}</div>
             </div>
           </div>
         `;
@@ -707,7 +609,6 @@
       });
     }
 
-    // 9. 勾選後考試消失
     function completeExam(id) {
       const exam = exams.find(e => e.id === id);
       if(exam) {
@@ -717,7 +618,7 @@
       }
     }
 
-    // 5. 每日直條式時間安排
+    // 每日時間選擇器
     function initHourSelectors() {
       const s = document.getElementById('batchStartHour');
       const e = document.getElementById('batchEndHour');
@@ -745,13 +646,13 @@
         if(item.done) doneCount++;
 
         const div = document.createElement('div');
-        div.className = `p-3 rounded-2xl border flex items-center justify-between transition ${item.done ? 'bg-slate-100 border-slate-200 opacity-60' : 'bg-slate-50 border-slate-100'}`;
+        div.className = `p-2.5 rounded-2xl border flex items-center justify-between transition ${item.done ? 'bg-slate-100 border-slate-200 opacity-60' : 'bg-slate-50 border-slate-100'}`;
         div.innerHTML = `
-          <div class="flex items-center gap-3">
-            <span class="font-mono text-[11px] font-bold text-slate-400">${String(h).padStart(2,'0')}:00</span>
+          <div class="flex items-center gap-2.5">
+            <span class="font-mono text-[10px] font-bold text-slate-400">${String(h).padStart(2,'0')}:00</span>
             <span class="font-medium text-xs text-slate-700">${item.content || '<span class="text-slate-300 font-light">未規劃</span>'}</span>
           </div>
-          ${item.content.trim() ? `<input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleHourDone(${h})" class="w-4 h-4 accent-slate-800 cursor-pointer">` : ''}
+          ${item.content.trim() ? `<input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleHourDone(${h})" class="w-3.5 h-3.5 accent-slate-800 cursor-pointer">` : ''}
         `;
         container.appendChild(div);
       }
@@ -786,7 +687,7 @@
       renderHourlyTimeline();
     }
 
-    // 6. 紀錄每日歷史資料庫
+    // 歷史資料庫與 AI 分析
     function recordDailyHistory() {
       const today = new Date().toISOString().split('T')[0];
       const todayBlocks = hourlyData[today] || [];
@@ -814,7 +715,7 @@
       const dates = Object.keys(historyDB).sort().reverse();
 
       if(dates.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-300">尚無歷史數據紀錄</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-slate-300">尚無歷史數據紀錄</td></tr>`;
         return;
       }
 
@@ -823,17 +724,16 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50/60 transition";
         tr.innerHTML = `
-          <td class="py-3 font-mono font-bold text-slate-700">${d}</td>
-          <td class="py-3">${item.total} 個時段</td>
-          <td class="py-3">${item.done} 個時段</td>
-          <td class="py-3 font-bold text-slate-800">${item.rate}%</td>
-          <td class="py-3 text-slate-400">${item.uncompleted.length > 0 ? item.uncompleted.join(', ') : '無'}</td>
+          <td class="py-2.5 font-mono font-bold text-slate-700">${d}</td>
+          <td class="py-2.5">${item.total} 個時段</td>
+          <td class="py-2.5">${item.done} 個時段</td>
+          <td class="py-2.5 font-bold text-slate-800">${item.rate}%</td>
+          <td class="py-2.5 text-slate-400">${item.uncompleted.length > 0 ? item.uncompleted.join(', ') : '無'}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // 6. AI 診斷分析
     function runAIAnalysis() {
       const aiCard = document.getElementById('aiCard');
       const report = document.getElementById('aiReportText');
