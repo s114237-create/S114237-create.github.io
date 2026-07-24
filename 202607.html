@@ -17,9 +17,14 @@
     ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
     
-    /* 側邊欄平滑過渡動畫 */
     .sidebar-transition {
       transition: width 0.3s ease, padding 0.3s ease;
+    }
+
+    /* 時間軸直條卡片樣式 */
+    .timeline-hour-slot {
+      height: 48px;
+      border-bottom: 1px dashed #E2E8F0;
     }
   </style>
 </head>
@@ -33,29 +38,30 @@
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
           學習工作台
         </div>
-        <button onclick="toggleSidebar()" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center transition shrink-0" title="切換側邊欄">
+        <button onclick="toggleSidebar()" class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 flex items-center justify-center transition shrink-0">
           <i class="fa-solid fa-bars text-sm"></i>
         </button>
       </div>
 
       <nav class="space-y-1.5 text-xs font-medium">
-        <button onclick="openLoginModal()" id="nav-login" class="w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap" title="帳號登錄">
-          <i class="fa-solid fa-user text-sm shrink-0"></i>
-          <span class="sidebar-text">帳號登錄</span>
-        </button>
-        <button onclick="switchView('main')" id="nav-main" class="w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-800 text-white font-bold transition flex items-center gap-3 overflow-hidden whitespace-nowrap" title="主儀表板">
+        <button onclick="switchView('main')" id="nav-main" class="w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-800 text-white font-bold transition flex items-center gap-3 overflow-hidden whitespace-nowrap">
           <i class="fa-solid fa-border-all text-sm shrink-0"></i> 
           <span class="sidebar-text">主儀表板</span>
         </button>
-        <button onclick="switchView('analytics')" id="nav-analytics" class="w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap" title="達成率資料庫 & AI">
+        <button onclick="switchView('analytics')" id="nav-analytics" class="w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap">
           <i class="fa-solid fa-chart-line text-sm shrink-0"></i> 
           <span class="sidebar-text">達成率資料庫 & AI</span>
+        </button>
+
+        <button onclick="openMusicModal()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap">
+          <i class="fa-solid fa-music text-sm shrink-0 text-indigo-400"></i> 
+          <span class="sidebar-text">無版權音樂庫</span>
         </button>
       </nav>
     </div>
 
     <div class="sidebar-text text-[10px] text-slate-300 font-light overflow-hidden whitespace-nowrap">
-      Minimalist Study Planner v2.1
+      Minimalist Study Planner v3.0
     </div>
   </aside>
 
@@ -95,7 +101,29 @@
 
         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
           <h2 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <i class="fa-solid fa-plus text-[10px] text-slate-400"></i> 新增學習任務
+            <i class="fa-regular fa-calendar-plus text-xs text-emerald-500"></i> 新增日程規劃 (顯示於月曆)
+          </h2>
+          <form id="eventForm" class="space-y-2 text-xs">
+            <input type="text" id="eventName" placeholder="日程名稱 (如: 補習、模擬考)" class="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none" required>
+            <input type="date" id="eventDate" class="w-full p-2 bg-slate-50 border border-slate-100 rounded-xl outline-none" required>
+            <div class="flex gap-2 items-center">
+              <label class="text-[10px] text-slate-400 shrink-0">標籤顏色</label>
+              <select id="eventColor" class="w-full p-1.5 bg-slate-50 border border-slate-100 rounded-xl outline-none text-[11px]">
+                <option value="bg-indigo-500">藍紫色</option>
+                <option value="bg-emerald-500">翡翠綠</option>
+                <option value="bg-amber-500">琥珀黃</option>
+                <option value="bg-rose-500">玫瑰紅</option>
+              </select>
+            </div>
+            <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition">
+              加入月曆日程
+            </button>
+          </form>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+          <h2 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-plus text-[10px] text-slate-400"></i> 新增學習任務 (僅存清單)
           </h2>
           <form id="taskForm" class="space-y-2.5 text-xs">
             <div>
@@ -237,39 +265,46 @@
               <i class="fa-solid fa-plus"></i>
             </button>
           </div>
-          <div id="examList" class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+          <div id="examList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
             </div>
         </div>
 
         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
           <h2 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <i class="fa-regular fa-clock text-slate-400"></i> 每日直條式時間安排
+            <i class="fa-regular fa-clock text-slate-400"></i> 每日時間規劃 (可自訂時間區段)
           </h2>
 
           <div class="p-3 bg-slate-50 rounded-2xl space-y-2 text-xs">
-            <div class="font-bold text-slate-700 text-[11px]">⚡ 批次安排時段內容</div>
-            <div class="grid grid-cols-1 gap-1.5">
-              <div class="grid grid-cols-3 gap-1.5">
-                <select id="batchSubject" onchange="toggleBatchCustomSubject()" class="p-1.5 border border-slate-100 rounded-xl bg-white outline-none text-[11px]">
-                  <option value="">科目</option>
-                  <option value="國文">國文</option>
-                  <option value="英文">英文</option>
-                  <option value="數學">數學</option>
-                  <option value="社會">社會</option>
-                  <option value="自然">自然</option>
-                  <option value="custom">其他 (自填)</option>
-                </select>
-                <input type="text" id="batchCustomSubject" placeholder="自填科目" class="hidden p-1.5 border border-slate-100 rounded-xl bg-white outline-none text-[11px]">
-                <select id="batchStartHour" class="p-1.5 border border-slate-100 rounded-xl bg-white outline-none text-[11px]"></select>
-                <select id="batchEndHour" class="p-1.5 border border-slate-100 rounded-xl bg-white outline-none text-[11px]"></select>
+            <div class="font-bold text-slate-700 text-[11px]">⚡ 新增/安排時段計畫</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[9px] text-slate-400 block mb-0.5">開始時間</label>
+                <input type="time" id="customStartTime" value="08:00" class="w-full p-1.5 border border-slate-100 rounded-xl bg-white outline-none text-[11px]">
+              </div>
+              <div>
+                <label class="text-[9px] text-slate-400 block mb-0.5">結束時間</label>
+                <input type="time" id="customEndTime" value="09:00" class="w-full p-1.5 border border-slate-100 rounded-xl bg-white outline-none text-[11px]">
               </div>
             </div>
-            <input type="text" id="batchContent" placeholder="輸入預計讀書/活動項目..." class="w-full p-2 border border-slate-100 rounded-xl bg-white outline-none text-[11px]">
-            <button onclick="applyBatchHourly()" class="w-full py-1.5 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition text-[11px]">更新至時間表</button>
+            <input type="text" id="customContent" placeholder="輸入預計讀書/活動項目..." class="w-full p-2 border border-slate-100 rounded-xl bg-white outline-none text-[11px]">
+            
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-slate-400">直條顏色:</span>
+              <select id="customColor" class="p-1 border border-slate-100 rounded-lg bg-white text-[10px]">
+                <option value="bg-indigo-500">藍紫色</option>
+                <option value="bg-emerald-500">翡翠綠</option>
+                <option value="bg-amber-500">琥珀黃</option>
+                <option value="bg-rose-500">玫瑰紅</option>
+              </select>
+              <button onclick="addCustomHourlyItem()" class="flex-1 py-1.5 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition text-[11px]">加入時間表</button>
+            </div>
           </div>
 
-          <div id="hourlyTimeline" class="space-y-1 max-h-[460px] overflow-y-auto pr-1 text-xs">
+          <div class="relative bg-slate-50/50 rounded-2xl border border-slate-100 p-2 max-h-[500px] overflow-y-auto">
+            <div id="timelineContainer" class="relative min-h-[1152px]"> <div id="timelineGrid" class="absolute inset-0 pointer-events-none"></div>
+              <div id="timelineEvents" class="absolute inset-0"></div>
             </div>
+          </div>
         </div>
 
       </div>
@@ -306,18 +341,40 @@
               <th class="pb-2">未完成項目</th>
             </tr>
           </thead>
-          <tbody id="historyTableBody" class="divide-y divide-slate-50">
-            </tbody>
+          <tbody id="historyTableBody" class="divide-y divide-slate-50"></tbody>
         </table>
       </div>
     </div>
 
   </div>
 
+  <div id="musicModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center hidden z-50">
+    <div class="bg-white p-6 rounded-3xl w-80 space-y-4 shadow-xl">
+      <div class="flex justify-between items-center">
+        <h3 class="font-bold text-slate-800 text-xs flex items-center gap-2">
+          <i class="fa-solid fa-music text-indigo-500"></i> 無版權學習音樂資源
+        </h3>
+        <button onclick="closeMusicModal()" class="text-slate-400 hover:text-slate-600 text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p class="text-[11px] text-slate-400">點擊下方連結可前往免費無版權/專注學習背景音樂庫：</p>
+      <div class="space-y-2 text-xs">
+        <a href="https://lofigirl.com/" target="_blank" class="block p-2.5 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition text-center">
+          🎧 Lofi Girl (專注學習廣播)
+        </a>
+        <a href="https://freemusicarchive.org/" target="_blank" class="block p-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition text-center">
+          🎼 Free Music Archive (FMA)
+        </a>
+        <a href="https://studio.youtube.com/channel/uc/music" target="_blank" class="block p-2.5 bg-rose-50 text-rose-700 font-bold rounded-xl hover:bg-rose-100 transition text-center">
+          🎵 YouTube 音效庫 (免費音樂)
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div id="examModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center hidden z-50">
     <div class="bg-white p-5 rounded-3xl w-72 space-y-3 shadow-xl">
       <h3 class="font-bold text-slate-800 text-xs">新增近期重點考試</h3>
-      <input type="text" id="modalExamName" placeholder="考試名稱 (例如：段考)" class="w-full p-2 bg-slate-50 border rounded-xl text-xs outline-none">
+      <input type="text" id="modalExamName" placeholder="考試名稱" class="w-full p-2 bg-slate-50 border rounded-xl text-xs outline-none">
       <input type="date" id="modalExamDate" class="w-full p-2 bg-slate-50 border rounded-xl text-xs outline-none">
       <div class="flex gap-2">
         <button onclick="closeExamModal()" class="flex-1 py-1.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">取消</button>
@@ -344,292 +401,28 @@
     </div>
   </div>
 
-  <div id="loginModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center z-50">
-    <div class="bg-white p-5 rounded-3xl w-72 space-y-3 shadow-xl">
-      <h3 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-        <i class="fa-solid fa-user text-slate-400"></i> 會員登入
-      </h3>
-      <input type="text" id="loginUsername" placeholder="使用者名稱" class="w-full p-2 bg-slate-50 border rounded-xl text-xs outline-none">
-      <input type="password" id="loginPassword" placeholder="密碼" class="w-full p-2 bg-slate-50 border rounded-xl text-xs outline-none">
-      <div id="loginMsg" class="text-[10px] text-rose-500 hidden"></div>
-      <div class="flex gap-2">
-        <button onclick="submitLogin()" class="flex-1 py-1.5 bg-slate-800 text-white rounded-xl text-xs font-bold">登入</button>
-        <button onclick="submitRegister()" class="flex-1 py-1.5 bg-emerald-500 text-white rounded-xl text-xs font-bold">註冊</button>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // 當前用戶
-    let currentUser = localStorage.getItem('study_planner_user') || null;
-
-    // 用戶資料鍵值
-    function getUserKey(base) {
-      return currentUser ? `study_planner_${currentUser}_${base}` : null;
-    }
-
-    // 載入用戶資料
-    function loadUserData() {
-      if (!currentUser) return;
-      tasks = JSON.parse(localStorage.getItem(getUserKey('tasks'))) || [];
-      exams = JSON.parse(localStorage.getItem(getUserKey('exams'))) || [];
-      hourlyData = JSON.parse(localStorage.getItem(getUserKey('hourly'))) || {};
-      historyDB = JSON.parse(localStorage.getItem(getUserKey('history'))) || {};
-      customSubjects = JSON.parse(localStorage.getItem(getUserKey('custom_subjects'))) || [];
-    }
-
-    // 保存用戶資料
-    function saveUserData() {
-      if (!currentUser) return;
-      localStorage.setItem(getUserKey('tasks'), JSON.stringify(tasks));
-      localStorage.setItem(getUserKey('exams'), JSON.stringify(exams));
-      localStorage.setItem(getUserKey('hourly'), JSON.stringify(hourlyData));
-      localStorage.setItem(getUserKey('history'), JSON.stringify(historyDB));
-      localStorage.setItem(getUserKey('custom_subjects'), JSON.stringify(customSubjects));
-    }
-
-    // 全域任務等（用於未登入時的 UI 綁定）
-    let tasks = [];
-    let exams = [];
-    let hourlyData = {};
-    let historyDB = {};
-    let customSubjects = [];
-
+    let tasks = JSON.parse(localStorage.getItem('my_study_tasks')) || [];
+    let exams = JSON.parse(localStorage.getItem('my_study_exams')) || [];
+    let events = JSON.parse(localStorage.getItem('my_study_events')) || []; // 月曆專用日程
+    let timelineItems = JSON.parse(localStorage.getItem('my_study_timeline')) || {}; // 自訂時間表計畫
+    let historyDB = JSON.parse(localStorage.getItem('my_study_history')) || {};
+    
     let currentPlanTab = 'week';
     let calDate = new Date();
     let editingTaskId = null;
     let isSidebarCollapsed = false;
 
-    // 科目顏色對應表
-    const subjectColors = {
-      '國文': { bg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-200', badge: 'bg-amber-200/60 text-amber-700' },
-      '英文': { bg: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200', badge: 'bg-blue-200/60 text-blue-700' },
-      '數學': { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200', badge: 'bg-emerald-200/60 text-emerald-700' },
-      '社會': { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200', badge: 'bg-orange-200/60 text-orange-700' },
-      '自然': { bg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-200', badge: 'bg-purple-200/60 text-purple-700' }
-    };
-
-    // 取得科目顏色
-    function getSubjectColor(subject) {
-      if (subjectColors[subject]) {
-        return subjectColors[subject];
-      }
-      // 動態為自訂科目產生顏色
-      const customColors = ['bg-rose-100', 'bg-cyan-100', 'bg-lime-100', 'bg-fuchsia-100', 'bg-sky-100', 'bg-violet-100', 'bg-teal-100', 'bg-indigo-100'];
-      const hash = subject.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const colorClass = customColors[hash % customColors.length];
-      const colorName = colorClass.replace('bg-', '').replace('-100', '');
-      return {
-        bg: colorClass,
-        text: `text-${colorName}-700`,
-        border: `border-${colorName}-200`,
-        badge: `${colorClass.replace('100', '200/60')} text-${colorName}-700`
-      };
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-      loadUserData(); // 根據 currentUser 載入資料
       startClock();
-      initHourSelectors();
       renderAll();
-      recordDailyHistory();
-      initAuth();
-      checkAuth(); // 檢查是否已登入
     });
 
-    // 認證系統
-    function initAuth() {
-      updateLoginButton();
-      initCustomSubjects();
-    }
-
-    function checkAuth() {
-      if (!currentUser) {
-        openLoginModal();
-      }
-    }
-
-    function initCustomSubjects() {
-      customSubjects.forEach(subject => {
-        addCustomSubjectToSelect(subject, false);
-        addCustomSubjectToBatchSelect(subject);
-      });
-    }
-
-    function addCustomSubjectToSelect(subject, selectIt = true) {
-      const select = document.getElementById('subjectSelect');
-      // 檢查是否已存在
-      const existing = select.querySelector(`option[value="${subject}"]`);
-      if (existing) {
-        if (selectIt) select.value = subject;
-        return;
-      }
-      // 在 "其他 (自填)" 之前插入
-      const customOption = select.querySelector('option[value="custom"]');
-      const newOption = document.createElement('option');
-      newOption.value = subject;
-      newOption.textContent = subject;
-      select.insertBefore(newOption, customOption);
-      if (selectIt) select.value = subject;
-    }
-
-    function addCustomSubjectToBatchSelect(subject) {
-      const select = document.getElementById('batchSubject');
-      const existing = select.querySelector(`option[value="${subject}"]`);
-      if (existing) return;
-      const newOption = document.createElement('option');
-      newOption.value = subject;
-      newOption.textContent = subject;
-      select.insertBefore(newOption, select.firstChild);
-    }
-
-    function updateLoginButton() {
-      const btn = document.getElementById('nav-login');
-      if (currentUser) {
-        btn.innerHTML = `<i class="fa-solid fa-right-from-bracket text-sm shrink-0"></i><span class="sidebar-text">登出</span>`;
-        btn.onclick = logout;
-      } else {
-        btn.innerHTML = `<i class="fa-solid fa-user text-sm shrink-0"></i><span class="sidebar-text">帳號登錄</span>`;
-        btn.onclick = openLoginModal;
-      }
-    }
-
-    function openLoginModal() {
-      document.getElementById('loginModal').classList.remove('hidden');
-      document.getElementById('loginUsername').value = '';
-      document.getElementById('loginPassword').value = '';
-      document.getElementById('loginMsg').classList.add('hidden');
-    }
-
-    function closeLoginModal() {
-      document.getElementById('loginModal').classList.add('hidden');
-    }
-
-    function submitLogin() {
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const msg = document.getElementById('loginMsg');
-
-      if (!username || !password) {
-        msg.textContent = '請填寫所有欄位';
-        msg.classList.remove('hidden');
-        return;
-      }
-
-      // 取得用戶資料
-      const storedUser = localStorage.getItem(`study_planner_${username}_info`);
-      if (!storedUser) {
-        msg.textContent = '帳號不存在，請先註冊';
-        msg.classList.remove('hidden');
-        return;
-      }
-
-      const userInfo = JSON.parse(storedUser);
-      if (userInfo.password !== password) {
-        msg.textContent = '密碼錯誤';
-        msg.classList.remove('hidden');
-        return;
-      }
-
-      // 登入成功
-      currentUser = username;
-      localStorage.setItem('study_planner_user', username);
-      loadUserData();
-      initCustomSubjects();
-      renderAll();
-      updateLoginButton();
-      closeLoginModal();
-      showToast(`歡迎回來，${username}！`);
-    }
-
-    function submitRegister() {
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const msg = document.getElementById('loginMsg');
-
-      if (!username || !password) {
-        msg.textContent = '請填寫所有欄位';
-        msg.classList.remove('hidden');
-        return;
-      }
-
-      if (username.length < 2) {
-        msg.textContent = '使用者名稱至少需要 2 個字元';
-        msg.classList.remove('hidden');
-        return;
-      }
-
-      if (password.length < 4) {
-        msg.textContent = '密碼至少需要 4 個字元';
-        msg.classList.remove('hidden');
-        return;
-      }
-
-      // 檢查帳號是否已存在
-      const existingUser = localStorage.getItem(`study_planner_${username}_info`);
-      if (existingUser) {
-        msg.textContent = '此帳號已存在，請直接登入';
-        msg.classList.remove('hidden');
-        return;
-      }
-
-      // 建立新帳號
-      const userInfo = { username, password, createdAt: new Date().toISOString() };
-      localStorage.setItem(`study_planner_${username}_info`, JSON.stringify(userInfo));
-
-      // 初始化用戶資料
-      currentUser = username;
-      tasks = [];
-      exams = [];
-      hourlyData = {};
-      historyDB = {};
-      customSubjects = [];
-      saveUserData();
-
-      localStorage.setItem('study_planner_user', username);
-      initCustomSubjects();
-      renderAll();
-      updateLoginButton();
-      closeLoginModal();
-      showToast(`註冊成功，歡迎 ${username}！`);
-    }
-
-    function logout() {
-      const username = currentUser;
-      saveUserData(); // 登出前保存資料
-      currentUser = null;
-      localStorage.removeItem('study_planner_user');
-      tasks = [];
-      exams = [];
-      hourlyData = {};
-      historyDB = {};
-      customSubjects = [];
-      updateLoginButton();
-      renderAll();
-      showToast(`再見，${username}！`);
-      setTimeout(() => openLoginModal(), 500);
-    }
-
-    // Toast 通知
-    function showToast(message) {
-      const existing = document.getElementById('toast');
-      if (existing) existing.remove();
-
-      const toast = document.createElement('div');
-      toast.id = 'toast';
-      toast.className = 'fixed bottom-4 right-4 bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg z-[100]';
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-
-    // 1. 折疊側邊欄邏輯
+    // 側邊欄與視圖切換
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const sidebarTexts = document.querySelectorAll('.sidebar-text');
-      
       isSidebarCollapsed = !isSidebarCollapsed;
-
       if(isSidebarCollapsed) {
         sidebar.classList.remove('w-64', 'p-6');
         sidebar.classList.add('w-20', 'p-4');
@@ -641,7 +434,6 @@
       }
     }
 
-    // 頁面視圖切換
     function switchView(view) {
       if(view === 'main') {
         document.getElementById('view-main').classList.remove('hidden');
@@ -657,7 +449,9 @@
       }
     }
 
-    // 時間更新
+    function openMusicModal() { document.getElementById('musicModal').classList.remove('hidden'); }
+    function closeMusicModal() { document.getElementById('musicModal').classList.add('hidden'); }
+
     function startClock() {
       const update = () => {
         const now = new Date();
@@ -681,31 +475,25 @@
       }
     }
 
-    function toggleBatchCustomSubject() {
-      const select = document.getElementById('batchSubject');
-      const customInput = document.getElementById('batchCustomSubject');
-      if (select.value === 'custom' || select.value === '') {
-        customInput.classList.remove('hidden');
-      } else {
-        customInput.classList.add('hidden');
-      }
-    }
+    // 新增「日程規劃」(放進月曆)
+    document.getElementById('eventForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('eventName').value;
+      const date = document.getElementById('eventDate').value;
+      const color = document.getElementById('eventColor').value;
 
-    // 新增任務
+      events.push({ id: Date.now(), name, date, color });
+      localStorage.setItem('my_study_events', JSON.stringify(events));
+
+      e.target.reset();
+      renderCalendar();
+    });
+
+    // 新增「學習任務」(僅放清單)
     document.getElementById('taskForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const subSelect = document.getElementById('subjectSelect').value;
-      let subject = subSelect === 'custom' ? document.getElementById('customSubjectInput').value.trim() : subSelect;
-
-      // 如果是自訂科目，保存並添加到列表
-      if (subSelect === 'custom' && subject) {
-        if (!customSubjects.includes(subject)) {
-          customSubjects.push(subject);
-          saveUserData();
-          addCustomSubjectToSelect(subject);
-        }
-      }
-
+      const subject = subSelect === 'custom' ? document.getElementById('customSubjectInput').value : subSelect;
       const name = document.getElementById('taskName').value;
       const category = document.getElementById('taskCategory').value;
       const planType = document.getElementById('planType').value;
@@ -715,8 +503,8 @@
       const progress = parseInt(document.getElementById('taskProgress').value);
 
       tasks.push({ id: Date.now(), subject, name, category, planType, startTime, endTime, note, progress });
-      saveUserData();
-
+      localStorage.setItem('my_study_tasks', JSON.stringify(tasks));
+      
       e.target.reset();
       document.getElementById('progressVal').textContent = '0%';
       toggleCustomSubject();
@@ -733,11 +521,10 @@
       renderTasks();
     }
 
-    // 任務清單與統計更新
     function renderTasks() {
       const tbody = document.getElementById('taskTableBody');
       tbody.innerHTML = '';
-
+      
       let filtered = tasks.filter(t => t.planType === currentPlanTab);
 
       const sortBy = document.getElementById('sortSelect').value;
@@ -750,16 +537,15 @@
         tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-slate-300">目前無任務</td></tr>`;
       } else {
         filtered.forEach(t => {
-          const color = getSubjectColor(t.subject);
           const tr = document.createElement('tr');
-          tr.className = `hover:bg-slate-50/60 transition`;
+          tr.className = "hover:bg-slate-50/60 transition";
           tr.innerHTML = `
-            <td class="py-2.5"><span class="${color.badge} px-1.5 py-0.5 rounded-lg text-[10px] font-bold">${t.subject}</span></td>
+            <td class="py-2.5 font-bold text-slate-800">${t.subject}</td>
             <td class="py-2.5"><span class="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-lg text-[10px] font-bold">${t.category}</span></td>
             <td class="py-2.5 font-medium">${t.name}</td>
             <td class="py-2.5 text-slate-400 text-[10px]">${t.note || '-'}</td>
             <td class="py-2.5">
-              <button onclick="openTimeModal(${t.id})" class="px-1.5 py-0.5 ${color.bg} ${color.text} border ${color.border} rounded-lg hover:opacity-80 text-[10px] transition text-left">
+              <button onclick="openTimeModal(${t.id})" class="px-1.5 py-0.5 bg-slate-50 border border-slate-100 rounded-lg hover:bg-slate-100 text-[10px] text-slate-500 transition text-left">
                 ${t.startTime.replace('T',' ')}<br>~ ${t.endTime.split('T')[1]}
               </button>
             </td>
@@ -771,7 +557,6 @@
         });
       }
 
-      // 更新左側任務統計卡片
       document.getElementById('statTotalTasks').textContent = tasks.length;
       const avg = tasks.length > 0 ? Math.round(tasks.reduce((sum, t) => sum + t.progress, 0) / tasks.length) : 0;
       document.getElementById('statAvgProgress').textContent = `${avg}%`;
@@ -783,7 +568,7 @@
       const task = tasks.find(t => t.id === id);
       if(task) {
         task.progress = Math.min(100, Math.max(0, parseInt(val) || 0));
-        saveUserData();
+        localStorage.setItem('my_study_tasks', JSON.stringify(tasks));
         renderTasks();
       }
     }
@@ -803,9 +588,8 @@
       if(task) {
         task.startTime = document.getElementById('editStartTime').value;
         task.endTime = document.getElementById('editEndTime').value;
-        saveUserData();
+        localStorage.setItem('my_study_tasks', JSON.stringify(tasks));
         renderTasks();
-        renderCalendar();
       }
       closeTimeModal();
     }
@@ -826,7 +610,7 @@
       }
     }
 
-    // 月曆渲染
+    // 月曆渲染 (僅顯示「日程規劃」內容)
     function renderCalendar() {
       const grid = document.getElementById('calendarGrid');
       const title = document.getElementById('calMonthYear');
@@ -843,14 +627,11 @@
 
       for(let d=1; d<=days; d++) {
         const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const dayTasks = tasks.filter(t => t.startTime.startsWith(dateStr));
+        const dayEvents = events.filter(e => e.date === dateStr);
 
         const cell = document.createElement('div');
-        cell.className = "p-1 bg-slate-50/50 border border-slate-100 rounded-xl text-xs min-h-[45px] flex flex-col justify-between";
-        let badges = dayTasks.map(t => {
-          const color = getSubjectColor(t.subject);
-          return `<div class="${color.bg} ${color.text} text-[8px] px-1 rounded truncate border ${color.border}">${t.subject}</div>`;
-        }).join('');
+        cell.className = "p-1 bg-slate-50/50 border border-slate-100 rounded-xl text-xs min-h-[48px] flex flex-col justify-between";
+        let badges = dayEvents.map(e => `<div class="${e.color} text-white text-[8px] px-1 py-0.5 rounded truncate font-medium">${e.name}</div>`).join('');
 
         cell.innerHTML = `
           <div class="font-bold text-slate-400 text-[9px]">${d}</div>
@@ -875,7 +656,7 @@
       if(name && date) {
         exams.push({ id: Date.now(), name, date, completed: false });
         exams.sort((a,b) => new Date(a.date) - new Date(b.date));
-        saveUserData();
+        localStorage.setItem('my_study_exams', JSON.stringify(exams));
         document.getElementById('modalExamName').value = '';
         document.getElementById('modalExamDate').value = '';
         closeExamModal();
@@ -886,7 +667,6 @@
     function renderExams() {
       const list = document.getElementById('examList');
       list.innerHTML = '';
-
       const activeExams = exams.filter(e => !e.completed);
 
       if(activeExams.length === 0) {
@@ -906,7 +686,7 @@
             </div>
           </div>
         `;
-        list.appendChild(div);
+        list.appendChild(list.appendChild(div));
       });
     }
 
@@ -914,140 +694,134 @@
       const exam = exams.find(e => e.id === id);
       if(exam) {
         exam.completed = true;
-        saveUserData();
+        localStorage.setItem('my_study_exams', JSON.stringify(exams));
         renderExams();
       }
     }
 
-    // 每日時間選擇器
-    function initHourSelectors() {
-      const s = document.getElementById('batchStartHour');
-      const e = document.getElementById('batchEndHour');
-      s.innerHTML = ''; e.innerHTML = '';
-      for(let i=0; i<24; i++) {
-        const h = String(i).padStart(2,'0') + ':00';
-        s.innerHTML += `<option value="${i}">${h}</option>`;
-        e.innerHTML += `<option value="${i}">${h}</option>`;
+    // ================= 每日時間安排（彩色直條視圖） =================
+    function addCustomHourlyItem() {
+      const startTime = document.getElementById('customStartTime').value;
+      const endTime = document.getElementById('customEndTime').value;
+      const content = document.getElementById('customContent').value;
+      const color = document.getElementById('customColor').value;
+      const today = new Date().toISOString().split('T')[0];
+
+      if(!content.trim()) return;
+      if(startTime >= endTime) { alert('結束時間必須晚於開始時間！'); return; }
+
+      if(!timelineItems[today]) timelineItems[today] = [];
+
+      timelineItems[today].push({
+        id: Date.now(),
+        startTime,
+        endTime,
+        content,
+        color,
+        done: false
+      });
+
+      localStorage.setItem('my_study_timeline', JSON.stringify(timelineItems));
+      document.getElementById('customContent').value = '';
+      renderTimelineView();
+    }
+
+    function renderTimelineView() {
+      const grid = document.getElementById('timelineGrid');
+      const eventsContainer = document.getElementById('timelineEvents');
+      grid.innerHTML = '';
+      eventsContainer.innerHTML = '';
+
+      const today = new Date().toISOString().split('T')[0];
+      const todayItems = timelineItems[today] || [];
+
+      // 渲染 24 小時背景刻度線
+      for(let h = 0; h < 24; h++) {
+        const slot = document.createElement('div');
+        slot.className = "timeline-hour-slot flex items-start text-[10px] text-slate-300 font-mono pl-1 pt-0.5";
+        slot.textContent = `${String(h).padStart(2,'0')}:00`;
+        grid.appendChild(slot);
       }
-    }
 
-    // 取得本地日期字串 (格式：YYYY-MM-DD)
-    function getLocalDateString(date = new Date()) {
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, '0');
-      const d = String(date.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-
-    function renderHourlyTimeline() {
-      const container = document.getElementById('hourlyTimeline');
-      container.innerHTML = '';
-      const today = getLocalDateString();
-
-      if(!hourlyData[today]) hourlyData[today] = Array(24).fill({ content: '', done: false });
-
+      // 計算彩色直條並渲染 overlay
       let doneCount = 0;
-      let totalCount = 0;
+      let totalCount = todayItems.length;
 
-      for(let h=0; h<24; h++) {
-        const item = hourlyData[today][h] || { content: '', done: false };
-        if(item.content.trim()) totalCount++;
+      todayItems.forEach((item, index) => {
         if(item.done) doneCount++;
 
-        const div = document.createElement('div');
-        const color = item.subject ? getSubjectColor(item.subject) : null;
-        const bgColor = item.done ? 'bg-slate-100 border-slate-200 opacity-60' : (color ? color.bg + ' border ' + color.border : 'bg-slate-50 border-slate-100');
-        div.className = `p-2.5 rounded-2xl border flex items-center justify-between transition ${bgColor}`;
-        div.innerHTML = `
-          <div class="flex items-center gap-2.5">
-            <span class="font-mono text-[10px] font-bold text-slate-400">${String(h).padStart(2,'0')}:00</span>
-            <span class="font-medium text-xs ${color ? color.text : 'text-slate-700'}">${item.content || '<span class="text-slate-300 font-light">未規劃</span>'}</span>
+        const [startH, startM] = item.startTime.split(':').map(Number);
+        const [endH, endM] = item.endTime.split(':').map(Number);
+
+        const startMinutes = startH * 60 + startM;
+        const endMinutes = endH * 60 + endM;
+        const durationMinutes = Math.max(15, endMinutes - startMinutes);
+
+        // 每 60 分鐘 = 48px 像素高度
+        const topPx = (startMinutes / 60) * 48;
+        const heightPx = (durationMinutes / 60) * 48;
+
+        const card = document.createElement('div');
+        card.className = `absolute left-12 right-2 rounded-xl p-2 ${item.color} text-white shadow-sm flex items-center justify-between transition opacity-90 hover:opacity-100`;
+        card.style.top = `${topPx}px`;
+        card.style.height = `${heightPx}px`;
+
+        // 多項目重疊調整 margin 避開
+        if(index > 0) {
+          card.style.left = `${48 + (index % 3) * 10}px`;
+        }
+
+        card.innerHTML = `
+          <div class="overflow-hidden">
+            <div class="font-bold text-[11px] truncate">${item.content}</div>
+            <div class="text-[9px] opacity-80 font-mono">${item.startTime} - ${item.endTime}</div>
           </div>
-          ${item.content.trim() ? `<input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleHourDone(${h})" class="w-3.5 h-3.5 accent-slate-800 cursor-pointer">` : ''}
+          <div class="flex items-center gap-1">
+            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleTimelineDone(${item.id})" class="w-3.5 h-3.5 accent-white cursor-pointer">
+            <button onclick="deleteTimelineItem(${item.id})" class="text-white/70 hover:text-white text-[10px]"><i class="fa-solid fa-xmark"></i></button>
+          </div>
         `;
-        container.appendChild(div);
-      }
+        eventsContainer.appendChild(card);
+      });
 
       const rate = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
       document.getElementById('dailyRateBar').style.width = `${rate}%`;
       document.getElementById('dailyRateText').textContent = `${rate}%`;
 
-      recordDailyHistory();
+      recordDailyHistory(totalCount, doneCount, rate);
     }
 
-    function toggleHourDone(h) {
-      const today = getLocalDateString();
-      hourlyData[today][h].done = !hourlyData[today][h].done;
-      saveUserData();
-      renderHourlyTimeline();
+    function toggleTimelineDone(id) {
+      const today = new Date().toISOString().split('T')[0];
+      const item = (timelineItems[today] || []).find(i => i.id === id);
+      if(item) {
+        item.done = !item.done;
+        localStorage.setItem('my_study_timeline', JSON.stringify(timelineItems));
+        renderTimelineView();
+      }
     }
 
-    function applyBatchHourly() {
-      const select = document.getElementById('batchSubject');
-      const customInput = document.getElementById('batchCustomSubject');
-      let subject = select.value;
-
-      // 如果選擇了自訂欄位，使用自訂輸入的內容
-      if (customInput.value.trim()) {
-        subject = customInput.value.trim();
-      } else if (select.value === 'custom' || select.value === '') {
-        subject = '';
+    function deleteTimelineItem(id) {
+      const today = new Date().toISOString().split('T')[0];
+      if(timelineItems[today]) {
+        timelineItems[today] = timelineItems[today].filter(i => i.id !== id);
+        localStorage.setItem('my_study_timeline', JSON.stringify(timelineItems));
+        renderTimelineView();
       }
-
-      const start = parseInt(document.getElementById('batchStartHour').value);
-      const end = parseInt(document.getElementById('batchEndHour').value);
-      const content = document.getElementById('batchContent').value;
-      const today = getLocalDateString();
-
-      if(content.trim() === '') { alert('請輸入內容'); return; }
-      if(start > end) { alert('起始時間不得大於結束時間'); return; }
-
-      // 如果選擇了自訂科目，保存並添加到下拉選單
-      if (subject && !['國文', '英文', '數學', '社會', '自然'].includes(subject)) {
-        if (!customSubjects.includes(subject)) {
-          customSubjects.push(subject);
-          saveUserData();
-          addCustomSubjectToSelect(subject, false);
-          addCustomSubjectToBatchSelect(subject);
-        }
-      }
-
-      for(let i=start; i<=end; i++) {
-        hourlyData[today][i] = { content: content, subject: subject, done: false };
-      }
-      saveUserData();
-      document.getElementById('batchContent').value = '';
-      document.getElementById('batchSubject').value = '';
-      document.getElementById('batchCustomSubject').value = '';
-      document.getElementById('batchCustomSubject').classList.add('hidden');
-      renderHourlyTimeline();
     }
 
-    // 歷史資料庫與 AI 分析
-    function recordDailyHistory() {
-      const today = getLocalDateString();
-      const todayBlocks = hourlyData[today] || [];
+    function recordDailyHistory(total, done, rate) {
+      const today = new Date().toISOString().split('T')[0];
+      const todayItems = timelineItems[today] || [];
+      const uncompleted = todayItems.filter(i => !i.done).map(i => i.content);
 
-      const planned = todayBlocks.filter(b => b.content.trim() !== '');
-      const done = planned.filter(b => b.done);
-      const uncompleted = planned.filter(b => !b.done).map(b => b.content);
-
-      const rate = planned.length > 0 ? Math.round((done.length / planned.length) * 100) : 0;
-
-      historyDB[today] = {
-        total: planned.length,
-        done: done.length,
-        rate: rate,
-        uncompleted: uncompleted
-      };
-
-      saveUserData();
+      historyDB[today] = { total, done, rate, uncompleted };
+      localStorage.setItem('my_study_history', JSON.stringify(historyDB));
     }
 
     function renderHistoryTable() {
       const tbody = document.getElementById('historyTableBody');
       tbody.innerHTML = '';
-
       const dates = Object.keys(historyDB).sort().reverse();
 
       if(dates.length === 0) {
@@ -1075,19 +849,19 @@
       const report = document.getElementById('aiReportText');
       aiCard.classList.remove('hidden');
 
-      const today = getLocalDateString();
+      const today = new Date().toISOString().split('T')[0];
       const todayData = historyDB[today];
 
       if(!todayData || todayData.total === 0) {
-        report.textContent = "目前今日尚未設定任何小時時段計畫，請先至主儀表板規劃時段並執行！";
+        report.textContent = "目前今日尚未設定任何時段計畫，請先至主儀表板規劃時段並執行！";
         return;
       }
 
       if(todayData.rate >= 80) {
-        report.textContent = `🎉 太棒了！今日學習達成率高達 ${todayData.rate}%。你的時間管理非常有效，建議繼續保持當前的專注節奏！`;
+        report.textContent = `🎉 太棒了！今日學習達成率高達 ${todayData.rate}%。你的時間規劃執行得非常好，繼續保持！`;
       } else {
         const unDoneItems = todayData.uncompleted.join('、');
-        report.textContent = `📊 診斷分析報告：今日進度達成率為 ${todayData.rate}%。觀察到「${unDoneItems || '部分項目'}」未能如期完成。建議：1. 嘗試將此類項目的預計時間延長 30 分鐘；2. 避開下午注意力易分散的時段安排高難度科目。`;
+        report.textContent = `📊 診斷分析：今日達成率為 ${todayData.rate}%。未完成項目「${unDoneItems || '部分項目'}」。建議微調此類任務的時長或分散至明日執行。`;
       }
     }
 
@@ -1095,7 +869,7 @@
       renderTasks();
       renderCalendar();
       renderExams();
-      renderHourlyTimeline();
+      renderTimelineView();
     }
   </script>
 </body>
