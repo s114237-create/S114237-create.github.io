@@ -10,17 +10,17 @@
   <style>
     body {
       font-family: 'Noto Serif TC', '宋體', SimSun, serif;
-      background-color: #EEF2F7;
+      background-color: #F5F3EF;
       background-image:
-        radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 50% 80%, rgba(245, 158, 11, 0.02) 0%, transparent 50%);
+        radial-gradient(circle at 20% 50%, rgba(168, 181, 160, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(201, 169, 122, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(183, 180, 168, 0.1) 0%, transparent 50%);
       background-attachment: fixed;
     }
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    ::-webkit-scrollbar-thumb { background: #D4D0C8; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #B8B4AC; }
 
     .sidebar-transition {
       transition: width 0.3s ease, padding 0.3s ease;
@@ -29,7 +29,7 @@
     /* 時間軸直條卡片樣式 */
     .timeline-hour-slot {
       height: 48px;
-      border-bottom: 1px dashed #E2E8F0;
+      border-bottom: 1px dashed #E8E4DD;
     }
 
     /* 月曆格子確保填滿 */
@@ -46,28 +46,42 @@
       gap: 2px;
     }
 
-    /* 深色模式 */
-    .dark body { background-color: #0F172A; }
-    .dark { --bg-primary: #1E293B; --bg-secondary: #334155; --bg-card: #1E293B; --text-primary: #F1F5F9; --text-secondary: #94A3B8; --border-color: #334155; }
-    body.dark { background-color: #0F172A; }
-    body.dark aside { background-color: #1E293B; border-color: #334155; }
-    body.dark .bg-white { background-color: #1E293B !important; }
-    body.dark .bg-slate-50, body.dark .bg-slate-100 { background-color: #334155 !important; }
-    body.dark .bg-slate-800 { background-color: #475569 !important; }
-    body.dark .bg-slate-900 { background-color: #1E293B !important; }
-    body.dark .text-slate-700, body.dark .text-slate-800 { color: #F1F5F9 !important; }
-    body.dark .text-slate-400, body.dark .text-slate-500, body.dark .text-slate-600 { color: #94A3B8 !important; }
-    body.dark .text-rose-500 { color: #FB7185 !important; }
-    body.dark .border-slate-100, body.dark .border-slate-200 { border-color: #334155 !important; }
-    body.dark hr { border-color: #334155 !important; }
-    body.dark input, body.dark select, body.dark textarea { background-color: #334155 !important; color: #F1F5F9 !important; border-color: #475569 !important; }
-    body.dark ::-webkit-scrollbar-thumb { background: #475569; }
-    body.dark #urgentAlert { background-color: rgba(239, 68, 68, 0.2) !important; border-color: rgba(239, 68, 68, 0.3) !important; }
-    body.dark .bg-rose-50 { background-color: rgba(239, 68, 68, 0.2) !important; }
-    body.dark table th { color: #64748B !important; }
-    body.dark table td { color: #CBD5E1 !important; }
-    body.dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.15) !important; }
-    body.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.15) !important; }
+    /* 深色模式 - 莫蘭迪色調 */
+    .dark body { background-color: #2D2D2D; }
+    .dark { --bg-primary: #3A3A3A; --bg-secondary: #454545; --bg-card: #3A3A3A; --text-primary: #E8E4DD; --text-secondary: #9A9A9A; --border-color: #4A4A4A; }
+    body.dark { background-color: #2D2D2D; }
+    body.dark aside { background-color: #3A3A3A; border-color: #4A4A4A; }
+    body.dark .bg-white { background-color: #3A3A3A !important; }
+    body.dark .bg-slate-50, body.dark .bg-slate-100 { background-color: #454545 !important; }
+    body.dark .bg-slate-800 { background-color: #555555 !important; }
+    body.dark .bg-slate-900 { background-color: #3A3A3A !important; }
+    body.dark .text-slate-700, body.dark .text-slate-800 { color: #E8E4DD !important; }
+    body.dark .text-slate-400, body.dark .text-slate-500, body.dark .text-slate-600 { color: #9A9A9A !important; }
+    body.dark .text-rose-500 { color: #E8A0A0 !important; }
+    body.dark .border-slate-100, body.dark .border-slate-200 { border-color: #4A4A4A !important; }
+    body.dark hr { border-color: #4A4A4A !important; }
+    body.dark input, body.dark select, body.dark textarea { background-color: #454545 !important; color: #E8E4DD !important; border-color: #555555 !important; }
+    body.dark ::-webkit-scrollbar-thumb { background: #555555; }
+    body.dark #urgentAlert { background-color: rgba(200, 150, 120, 0.2) !important; border-color: rgba(200, 150, 120, 0.3) !important; }
+    body.dark .bg-rose-50 { background-color: rgba(200, 150, 150, 0.2) !important; }
+    body.dark table th { color: #9A9A9A !important; }
+    body.dark table td { color: #E8E4DD !important; }
+    body.dark .bg-emerald-50 { background-color: rgba(139, 154, 125, 0.2) !important; }
+    body.dark .bg-indigo-50 { background-color: rgba(139, 139, 170, 0.2) !important; }
+
+    /* 莫蘭迪色全域設定 */
+    .border-slate-100 { border-color: #E8E4DD !important; }
+    .border-slate-200 { border-color: #D4D0C8 !important; }
+    .bg-slate-50 { background-color: #F5F3EF !important; }
+    .bg-slate-100 { background-color: #EBE8E4 !important; }
+    .bg-slate-200 { background-color: #E0DDD8 !important; }
+    .text-slate-400 { color: #9A9A9A !important; }
+    .text-slate-500 { color: #7A7A7A !important; }
+    .text-slate-600 { color: #5D5D5D !important; }
+    .text-slate-700 { color: #4A4A4A !important; }
+    .bg-amber-50 { background-color: rgba(201, 169, 122, 0.15) !important; }
+    .bg-emerald-50 { background-color: rgba(168, 181, 160, 0.15) !important; }
+    .bg-rose-50 { background-color: rgba(201, 150, 150, 0.15) !important; }
   </style>
 </head>
 <body class="text-slate-700 min-h-screen flex">
@@ -140,16 +154,9 @@
           <span class="sidebar-text">任務資料庫</span>
         </button>
 
-        <button onclick="openMusicModal()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap">
-          <i class="fa-solid fa-music text-sm shrink-0 text-indigo-400"></i>
-          <span class="sidebar-text">無版權音樂庫</span>
-        </button>
-
-        <div class="border-t border-slate-100 pt-2 mt-2"></div>
-
-        <button onclick="toggleDarkMode()" id="darkModeBtn" class="w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap">
-          <i class="fa-solid fa-moon text-sm shrink-0" id="darkModeIcon"></i>
-          <span class="sidebar-text" id="darkModeText">深色模式</span>
+        <button onclick="switchView('examsdb')" id="nav-examsdb" class="w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap">
+          <i class="fa-solid fa-graduation-cap text-sm shrink-0 text-rose-500"></i>
+          <span class="sidebar-text">考試資料庫</span>
         </button>
 
         <button onclick="clearTasksAndEvents()" class="w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-red-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap">
@@ -436,17 +443,33 @@
 
       <div class="lg:col-span-4 space-y-5">
         
+        <div class="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+          <div class="flex items-center gap-2">
+            <button onclick="toggleDarkMode()" id="darkModeBtn2" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl transition font-bold text-xs">
+              <i class="fa-solid fa-moon text-[10px]" id="darkModeIcon2"></i>
+              <span id="darkModeText2">深色模式</span>
+            </button>
+            <button onclick="toggleMusic()" id="musicBtn2" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl transition font-bold text-xs">
+              <i class="fa-solid fa-play text-[10px]" id="musicIcon2"></i>
+              <span id="musicText2">舒緩音樂</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 音樂播放器 -->
+        <audio id="musicAudio" class="hidden"></audio>
+
         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
           <div class="flex justify-between items-center mb-3">
             <h2 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
               <i class="fa-solid fa-graduation-cap text-slate-400"></i> 近期重點考試
             </h2>
-            <button onclick="openExamModal()" class="w-6 h-6 bg-slate-800 hover:bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] transition shadow-sm">
-              <i class="fa-solid fa-plus"></i>
+            <button onclick="openExamModal()" class="w-7 h-7 bg-slate-800 hover:bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] transition shadow-sm">
+              <i class="fa-solid fa-plus text-[9px]"></i>
             </button>
           </div>
-          <div id="examList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-            </div>
+          <div id="examList" class="space-y-1.5 max-h-28 overflow-y-auto pr-1">
+          </div>
         </div>
 
         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
@@ -600,29 +623,29 @@
       </div>
     </div>
 
-  </div>
-
-  <div id="musicModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center hidden z-50">
-    <div class="bg-white p-6 rounded-3xl w-80 space-y-4 shadow-xl">
-      <div class="flex justify-between items-center">
-        <h3 class="font-bold text-slate-800 text-xs flex items-center gap-2">
-          <i class="fa-solid fa-music text-indigo-500"></i> 無版權學習音樂資源
-        </h3>
-        <button onclick="closeMusicModal()" class="text-slate-400 hover:text-slate-600 text-xs"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <p class="text-[11px] text-slate-400">點擊下方連結可前往免費無版權/專注學習背景音樂庫：</p>
-      <div class="space-y-2 text-xs">
-        <a href="https://lofigirl.com/" target="_blank" class="block p-2.5 bg-indigo-50 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition text-center">
-          🎧 Lofi Girl (專注學習廣播)
-        </a>
-        <a href="https://freemusicarchive.org/" target="_blank" class="block p-2.5 bg-slate-50 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition text-center">
-          🎼 Free Music Archive (FMA)
-        </a>
-        <a href="https://studio.youtube.com/channel/uc/music" target="_blank" class="block p-2.5 bg-rose-50 text-rose-700 font-bold rounded-xl hover:bg-rose-100 transition text-center">
-          🎵 YouTube 音效庫 (免費音樂)
-        </a>
+    <!-- 考試資料庫檢視 -->
+    <div id="view-examsdb" class="max-w-[1600px] mx-auto space-y-5 hidden">
+      <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h1 class="text-xl font-bold text-slate-800">考試資料庫</h1>
+            <p class="text-xs text-slate-400 mt-0.5">所有考試的完整記錄</p>
+          </div>
+          <div class="flex items-center gap-4 text-sm">
+            <div class="font-bold text-slate-500">總考試：<span id="examsTotalCount">0</span></div>
+            <div class="font-bold text-emerald-500">已完成：<span id="examsCompletedCount">0</span></div>
+            <div class="font-bold text-rose-500">未完成：<span id="examsPendingCount">0</span></div>
+          </div>
+        </div>
+        <div class="flex gap-2 mb-4">
+          <button onclick="filterExamsDb('all')" id="examsDbFilterAll" class="px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold">全部</button>
+          <button onclick="filterExamsDb('upcoming')" id="examsDbFilterUpcoming" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition">即將到來</button>
+          <button onclick="filterExamsDb('completed')" id="examsDbFilterCompleted" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition">已完成</button>
+        </div>
+        <div id="examsDbList" class="space-y-2 max-h-[500px] overflow-y-auto pr-2"></div>
       </div>
     </div>
+
   </div>
 
   <div id="examModal" class="fixed inset-0 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center hidden z-50">
@@ -886,21 +909,37 @@
       updateDarkModeUI(isDark);
     }
     function updateDarkModeUI(isDark) {
+      // 側邊欄按鈕
       const icon = document.getElementById('darkModeIcon');
       const text = document.getElementById('darkModeText');
       const btn = document.getElementById('darkModeBtn');
+      // 主面板按鈕
+      const icon2 = document.getElementById('darkModeIcon2');
+      const text2 = document.getElementById('darkModeText2');
+      const btn2 = document.getElementById('darkModeBtn2');
+
       if (isDark) {
         icon.classList.remove('fa-moon');
         icon.classList.add('fa-sun');
         text.textContent = '淺色模式';
         btn.classList.remove('text-slate-500', 'hover:bg-slate-50');
         btn.classList.add('text-amber-400', 'hover:bg-slate-700');
+        icon2.classList.remove('fa-moon');
+        icon2.classList.add('fa-sun');
+        text2.textContent = '淺色模式';
+        btn2.classList.remove('bg-indigo-500', 'hover:bg-indigo-600', 'text-white');
+        btn2.classList.add('bg-amber-500', 'hover:bg-amber-600', 'text-white');
       } else {
         icon.classList.remove('fa-sun');
         icon.classList.add('fa-moon');
         text.textContent = '深色模式';
         btn.classList.remove('text-amber-400', 'hover:bg-slate-700');
         btn.classList.add('text-slate-500', 'hover:bg-slate-50');
+        icon2.classList.remove('fa-sun');
+        icon2.classList.add('fa-moon');
+        text2.textContent = '深色模式';
+        btn2.classList.remove('bg-amber-500', 'hover:bg-amber-600', 'text-white');
+        btn2.classList.add('bg-indigo-500', 'hover:bg-indigo-600', 'text-white');
       }
     }
     function updateUserUI() {
@@ -1055,9 +1094,10 @@
       document.getElementById('view-weekdb').classList.add('hidden');
       document.getElementById('view-eventsdb').classList.add('hidden');
       document.getElementById('view-tasksdb').classList.add('hidden');
+      document.getElementById('view-examsdb').classList.add('hidden');
 
       // 重設所有導航按鈕
-      ['main','analytics','weekdb','eventsdb','tasksdb'].forEach(v => {
+      ['main','analytics','weekdb','eventsdb','tasksdb','examsdb'].forEach(v => {
         document.getElementById('nav-' + v).className = "w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap";
       });
 
@@ -1080,11 +1120,51 @@
         document.getElementById('view-tasksdb').classList.remove('hidden');
         document.getElementById('nav-tasksdb').className = "w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-800 text-white font-bold transition flex items-center gap-3 overflow-hidden whitespace-nowrap";
         renderTasksDb();
+      } else if(view === 'examsdb') {
+        document.getElementById('view-examsdb').classList.remove('hidden');
+        document.getElementById('nav-examsdb').className = "w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-800 text-white font-bold transition flex items-center gap-3 overflow-hidden whitespace-nowrap";
+        renderExamsDb();
       }
     }
 
-    function openMusicModal() { document.getElementById('musicModal').classList.remove('hidden'); }
-    function closeMusicModal() { document.getElementById('musicModal').classList.add('hidden'); }
+    // 音樂播放功能
+    let isMusicPlaying = false;
+    let currentTrack = 0;
+    const musicTracks = [
+      'file:///C:/Users/yachi/Downloads/alex-morgan-calm-piano-541028.mp3',
+      'file:///C:/Users/yachi/Downloads/smccleery-snowfall-ambient-music-258684.mp3'
+    ];
+    const musicNames = ['鋼琴音樂', '雪景音樂'];
+
+    function toggleMusic() {
+      const audio = document.getElementById('musicAudio');
+      const icon = document.getElementById('musicIcon2');
+      const text = document.getElementById('musicText2');
+      const btn = document.getElementById('musicBtn2');
+
+      if (isMusicPlaying) {
+        // 停止播放
+        audio.pause();
+        audio.currentTime = 0;
+        icon.classList.remove('fa-stop');
+        icon.classList.add('fa-play');
+        text.textContent = '舒緩音樂';
+        btn.classList.remove('bg-rose-600');
+        btn.classList.add('bg-rose-500');
+        isMusicPlaying = false;
+      } else {
+        // 切換到下一首並播放
+        currentTrack = (currentTrack + 1) % musicTracks.length;
+        audio.src = musicTracks[currentTrack];
+        audio.play();
+        icon.classList.remove('fa-play');
+        icon.classList.add('fa-stop');
+        text.textContent = musicNames[currentTrack];
+        btn.classList.remove('bg-rose-500');
+        btn.classList.add('bg-rose-600');
+        isMusicPlaying = true;
+      }
+    }
 
     function startClock() {
       const update = () => {
@@ -1456,6 +1536,111 @@
       renderTasks();
     }
 
+    // ================= 考試資料庫 =================
+    let currentExamsDbFilter = 'all';
+
+    function filterExamsDb(filter) {
+      currentExamsDbFilter = filter;
+      ['all','upcoming','completed'].forEach(f => {
+        const el = document.getElementById('examsDbFilter' + f.charAt(0).toUpperCase() + f.slice(1));
+        if (el) {
+          el.className = f === filter ? 'px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold' : 'px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition';
+        }
+      });
+      renderExamsDb();
+    }
+
+    function renderExamsDb() {
+      const container = document.getElementById('examsDbList');
+      exams = JSON.parse(localStorage.getItem('my_study_exams')) || [];
+
+      const total = exams.length;
+      const completed = exams.filter(e => e.completed).length;
+      document.getElementById('examsTotalCount').textContent = total;
+      document.getElementById('examsCompletedCount').textContent = completed;
+      document.getElementById('examsPendingCount').textContent = total - completed;
+
+      let filteredExams = [...exams];
+      const today = new Date().setHours(0,0,0,0);
+
+      if (currentExamsDbFilter === 'upcoming') {
+        filteredExams = exams.filter(e => !e.completed && new Date(e.date) >= today);
+      } else if (currentExamsDbFilter === 'completed') {
+        filteredExams = exams.filter(e => e.completed);
+      }
+
+      if (filteredExams.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-slate-300">尚無考試記錄</div>';
+        return;
+      }
+
+      // 按日期排序（即将到来的在前）
+      filteredExams.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      container.innerHTML = filteredExams.map(exam => {
+        const examDate = new Date(exam.date);
+        const isPast = examDate < new Date(today);
+        const isToday = examDate.getTime() === today;
+        const daysUntil = Math.ceil((examDate - new Date(today)) / (1000 * 60 * 60 * 24));
+
+        let dateBadge = '';
+        if (exam.completed) {
+          dateBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded">已完成</span>';
+        } else if (isToday) {
+          dateBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-rose-500 text-white rounded animate-pulse">今天</span>';
+        } else if (daysUntil > 0 && daysUntil <= 7) {
+          dateBadge = `<span class="text-[10px] font-bold px-2 py-0.5 bg-rose-100 text-rose-600 rounded">${daysUntil}天後</span>`;
+        } else if (isPast) {
+          dateBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-500 rounded">已過期</span>';
+        } else {
+          dateBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded">即將到來</span>';
+        }
+
+        return `
+          <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 ${exam.completed ? 'opacity-60' : ''} ${!exam.completed && isToday ? 'border-rose-300 bg-rose-50/50' : ''}">
+            <div class="w-10 h-10 ${exam.completed ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'} rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
+              ${exam.completed ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-graduation-cap"></i>'}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                ${dateBadge}
+                <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-100 text-amber-700 rounded">${exam.date}</span>
+              </div>
+              <div class="font-bold text-slate-700 text-sm ${exam.completed ? 'line-through' : ''}">${escapeHtml(exam.name)}</div>
+            </div>
+            <div class="flex items-center gap-1">
+              ${!exam.completed ? `
+                <button onclick="completeExamDb(${exam.id})" class="text-emerald-500 hover:text-emerald-700 text-xs px-2 py-1" title="標記完成">
+                  <i class="fa-solid fa-check"></i>
+                </button>
+              ` : ''}
+              <button onclick="deleteExamDb(${exam.id})" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-1" title="刪除">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function completeExamDb(id) {
+      const exam = exams.find(e => e.id === id);
+      if (exam) {
+        exam.completed = true;
+        localStorage.setItem('my_study_exams', JSON.stringify(exams));
+        renderExamsDb();
+        renderExams();
+      }
+    }
+
+    function deleteExamDb(id) {
+      if (!confirm('確定要刪除這個考試嗎？')) return;
+      exams = exams.filter(e => e.id !== id);
+      localStorage.setItem('my_study_exams', JSON.stringify(exams));
+      renderExamsDb();
+      renderExams();
+    }
+
     function openTimeModal(id) {
       editingTaskId = id;
       const task = tasks.find(t => t.id === id);
@@ -1508,6 +1693,7 @@
 
       // 確保重新讀取最新資料
       events = JSON.parse(localStorage.getItem('my_study_events')) || [];
+      const examList = JSON.parse(localStorage.getItem('my_study_exams')) || [];
 
       for(let i=0; i<firstDay; i++) {
         const empty = document.createElement('div');
@@ -1518,17 +1704,19 @@
       for(let d=1; d<=days; d++) {
         const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         const dayEvents = events.filter(e => e.date === dateStr);
+        const dayExams = examList.filter(e => e.date === dateStr);
 
         const cell = document.createElement('div');
         cell.className = "calendar-cell p-1.5 bg-slate-50/70 border border-slate-100 rounded-xl text-xs cursor-pointer hover:bg-slate-100 transition";
 
         const badges = dayEvents.map(e => `<div class="${e.color} text-white text-[8px] px-1.5 py-0.5 rounded-md truncate font-medium cursor-pointer hover:opacity-80" onclick="openEditEventModal(${e.id})" title="點擊編輯">${escapeHtml(e.name)}</div>`).join('');
+        const examBadges = dayExams.map(e => `<div class="bg-rose-500 text-white text-[8px] px-1.5 py-0.5 rounded-md truncate font-bold cursor-pointer hover:bg-rose-600 ${e.completed ? 'opacity-50' : ''}" onclick="openExamDbFromCalendar('${e.date}')" title="考試：${escapeHtml(e.name)}">📝 ${escapeHtml(e.name)}</div>`).join('');
         const isToday = dateStr === formatDate(new Date()).replace(/\//g, '-');
         const dayClass = isToday ? 'bg-emerald-500 text-white' : 'font-bold text-slate-400';
 
         cell.innerHTML = `
           <div class="${dayClass} text-[10px] mb-1">${d}</div>
-          <div class="day-badges">${badges}</div>
+          <div class="day-badges">${examBadges}${badges}</div>
         `;
         grid.appendChild(cell);
       }
@@ -1558,253 +1746,4 @@
         events[idx].name = document.getElementById('editEventName').value;
         events[idx].date = document.getElementById('editEventDate').value;
         events[idx].color = document.getElementById('editEventColor').value;
-        localStorage.setItem('my_study_events', JSON.stringify(events));
-        renderCalendar();
-        renderEventsDb();
-      }
-      closeEditEventModal();
-    }
-    function deleteEditEvent() {
-      const id = parseInt(document.getElementById('editEventId').value);
-      if (!confirm('確定要刪除這個日程嗎？')) return;
-      events = events.filter(e => e.id !== id);
-      localStorage.setItem('my_study_events', JSON.stringify(events));
-      renderCalendar();
-      renderEventsDb();
-      closeEditEventModal();
-    }
-
-    // 考試清單
-    function openExamModal() { document.getElementById('examModal').classList.remove('hidden'); }
-    function closeExamModal() { document.getElementById('examModal').classList.add('hidden'); }
-    
-    function saveExamFromModal() {
-      const name = document.getElementById('modalExamName').value;
-      const date = document.getElementById('modalExamDate').value;
-      if(name && date) {
-        exams.push({ id: Date.now(), name, date, completed: false });
-        exams.sort((a,b) => new Date(a.date) - new Date(b.date));
-        localStorage.setItem('my_study_exams', JSON.stringify(exams));
-        document.getElementById('modalExamName').value = '';
-        document.getElementById('modalExamDate').value = '';
-        closeExamModal();
-        renderExams();
-      }
-    }
-
-    function renderExams() {
-      const list = document.getElementById('examList');
-      list.innerHTML = '';
-      const activeExams = exams.filter(e => !e.completed);
-
-      if(activeExams.length === 0) {
-        list.innerHTML = `<p class="text-xs text-slate-300 py-1">目前無考試項目</p>`;
-        return;
-      }
-
-      activeExams.forEach(e => {
-        const div = document.createElement('div');
-        div.className = "flex justify-between items-center bg-slate-50 p-2.5 rounded-2xl border border-slate-100 text-xs";
-        div.innerHTML = `
-          <div class="flex items-center gap-2">
-            <input type="checkbox" onchange="completeExam(${e.id})" class="w-3.5 h-3.5 accent-slate-800 rounded cursor-pointer">
-            <div>
-              <div class="font-bold text-slate-700">${e.name}</div>
-              <div class="text-[9px] text-slate-400">${e.date}</div>
-            </div>
-          </div>
-        `;
-        list.appendChild(list.appendChild(div));
-      });
-    }
-
-    function completeExam(id) {
-      const exam = exams.find(e => e.id === id);
-      if(exam) {
-        exam.completed = true;
-        localStorage.setItem('my_study_exams', JSON.stringify(exams));
-        renderExams();
-      }
-    }
-
-    // ================= 每日時間安排（彩色直條視圖） =================
-    function addCustomHourlyItem() {
-      const startTime = document.getElementById('customStartTime').value;
-      const endTime = document.getElementById('customEndTime').value;
-      const content = document.getElementById('customContent').value;
-      const color = document.getElementById('customColor').value;
-      const today = formatDate(new Date());
-
-      if(!content.trim()) return;
-      if(startTime >= endTime) { alert('結束時間必須晚於開始時間！'); return; }
-
-      if(!timelineItems[today]) timelineItems[today] = [];
-
-      timelineItems[today].push({
-        id: Date.now(),
-        startTime,
-        endTime,
-        content,
-        color,
-        done: false
-      });
-
-      localStorage.setItem('my_study_timeline', JSON.stringify(timelineItems));
-      document.getElementById('customContent').value = '';
-      renderTimelineView();
-    }
-
-    function renderTimelineView() {
-      const grid = document.getElementById('timelineGrid');
-      const eventsContainer = document.getElementById('timelineEvents');
-      grid.innerHTML = '';
-      eventsContainer.innerHTML = '';
-
-      const today = formatDate(new Date());
-      const todayItems = timelineItems[today] || [];
-
-      // 渲染 24 小時背景刻度線
-      for(let h = 0; h < 24; h++) {
-        const slot = document.createElement('div');
-        slot.className = "timeline-hour-slot flex items-start text-[10px] text-slate-300 font-mono pl-1 pt-0.5";
-        slot.textContent = `${String(h).padStart(2,'0')}:00`;
-        grid.appendChild(slot);
-      }
-
-      // 計算彩色直條並渲染 overlay
-      let doneCount = 0;
-      let totalCount = todayItems.length;
-
-      todayItems.forEach((item, index) => {
-        if(item.done) doneCount++;
-
-        const [startH, startM] = item.startTime.split(':').map(Number);
-        const [endH, endM] = item.endTime.split(':').map(Number);
-
-        const startMinutes = startH * 60 + startM;
-        const endMinutes = endH * 60 + endM;
-        const durationMinutes = Math.max(15, endMinutes - startMinutes);
-
-        // 每 60 分鐘 = 48px 像素高度
-        const topPx = (startMinutes / 60) * 48;
-        const heightPx = (durationMinutes / 60) * 48;
-
-        const card = document.createElement('div');
-        card.className = `absolute left-12 right-2 rounded-xl p-2 ${item.color} text-white shadow-sm flex items-center justify-between transition opacity-90 hover:opacity-100`;
-        card.style.top = `${topPx}px`;
-        card.style.height = `${heightPx}px`;
-
-        // 多項目重疊調整 margin 避開
-        if(index > 0) {
-          card.style.left = `${48 + (index % 3) * 10}px`;
-        }
-
-        card.innerHTML = `
-          <div class="overflow-hidden">
-            <div class="font-bold text-[11px] truncate">${item.content}</div>
-            <div class="text-[9px] opacity-80 font-mono">${item.startTime} - ${item.endTime}</div>
-          </div>
-          <div class="flex items-center gap-1">
-            <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleTimelineDone(${item.id})" class="w-3.5 h-3.5 accent-white cursor-pointer">
-            <button onclick="deleteTimelineItem(${item.id})" class="text-white/70 hover:text-white text-[10px]"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-        `;
-        eventsContainer.appendChild(card);
-      });
-
-      const rate = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
-      document.getElementById('dailyRateBar').style.width = `${rate}%`;
-      document.getElementById('dailyRateText').textContent = `${rate}%`;
-
-      recordDailyHistory(totalCount, doneCount, rate);
-    }
-
-    function toggleTimelineDone(id) {
-      const today = formatDate(new Date());
-      const item = (timelineItems[today] || []).find(i => i.id === id);
-      if(item) {
-        item.done = !item.done;
-        localStorage.setItem('my_study_timeline', JSON.stringify(timelineItems));
-        renderTimelineView();
-      }
-    }
-
-    function deleteTimelineItem(id) {
-      const today = formatDate(new Date());
-      if(timelineItems[today]) {
-        timelineItems[today] = timelineItems[today].filter(i => i.id !== id);
-        localStorage.setItem('my_study_timeline', JSON.stringify(timelineItems));
-        renderTimelineView();
-      }
-    }
-
-    function recordDailyHistory(total, done, rate) {
-      const today = formatDate(new Date());
-      const todayItems = timelineItems[today] || [];
-      const uncompleted = todayItems.filter(i => !i.done).map(i => i.content);
-
-      historyDB[today] = { total, done, rate, uncompleted };
-      localStorage.setItem('my_study_history', JSON.stringify(historyDB));
-    }
-
-    function renderHistoryTable() {
-      const tbody = document.getElementById('historyTableBody');
-      tbody.innerHTML = '';
-      const dates = Object.keys(historyDB).sort().reverse();
-
-      if(dates.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-slate-300">尚無歷史數據紀錄</td></tr>`;
-        return;
-      }
-
-      dates.forEach(d => {
-        const item = historyDB[d];
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50/60 transition";
-        tr.innerHTML = `
-          <td class="py-2.5 font-mono font-bold text-slate-700">${d}</td>
-          <td class="py-2.5">${item.total} 個時段</td>
-          <td class="py-2.5">${item.done} 個時段</td>
-          <td class="py-2.5 font-bold text-slate-800">${item.rate}%</td>
-          <td class="py-2.5 text-slate-400">${item.uncompleted.length > 0 ? item.uncompleted.join(', ') : '無'}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function runAIAnalysis() {
-      const aiCard = document.getElementById('aiCard');
-      const report = document.getElementById('aiReportText');
-      aiCard.classList.remove('hidden');
-
-      const today = formatDate(new Date());
-      const todayData = historyDB[today];
-
-      if(!todayData || todayData.total === 0) {
-        report.textContent = "目前今日尚未設定任何時段計畫，請先至主儀表板規劃時段並執行！";
-        return;
-      }
-
-      if(todayData.rate >= 80) {
-        report.textContent = `🎉 太棒了！今日學習達成率高達 ${todayData.rate}%。你的時間規劃執行得非常好，繼續保持！`;
-      } else {
-        const unDoneItems = todayData.uncompleted.join('、');
-        report.textContent = `📊 診斷分析：今日達成率為 ${todayData.rate}%。未完成項目「${unDoneItems || '部分項目'}」。建議微調此類任務的時長或分散至明日執行。`;
-      }
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    function renderAll() {
-      renderTasks();
-      renderCalendar();
-      renderExams();
-      renderTimelineView();
-    }
-  </script>
-</body>
-</html>
+        loca
