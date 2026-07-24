@@ -676,7 +676,7 @@
           <input type="checkbox" id="rememberMe" class="w-3.5 h-3.5 accent-slate-700 rounded cursor-pointer">
           記住帳號密碼
         </label>
-        <button onclick="doLogin()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition">登入</button>
+        <button type="button" onclick="doLogin()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition">登入</button>
         <p class="text-center text-[10px] text-slate-400 mt-2">
           還沒有帳號？<a href="#" onclick="showRegister()" class="text-slate-600 hover:text-slate-800 font-bold">立即註冊</a>
         </p>
@@ -687,7 +687,7 @@
         <input type="text" id="regDisplayName" placeholder="顯示名稱" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none mb-2">
         <input type="password" id="regPassword" placeholder="設定密碼" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none mb-2">
         <input type="password" id="regPasswordConfirm" placeholder="確認密碼" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none mb-3">
-        <button onclick="doRegister()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">註冊</button>
+        <button type="button" onclick="doRegister()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition">註冊</button>
         <p class="text-center text-[10px] text-slate-400 mt-2">
           已有帳號？<a href="#" onclick="showLogin()" class="text-slate-600 hover:text-slate-800 font-bold">返回登入</a>
         </p>
@@ -722,7 +722,7 @@
         <input type="password" id="profileConfirmPassword" placeholder="確認新密碼" class="w-full p-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none mb-3">
       </div>
 
-      <button onclick="saveProfile()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition">儲存變更</button>
+      <button type="button" onclick="saveProfile()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition">儲存變更</button>
 
       <div id="profileMessage" class="hidden text-xs text-center"></div>
     </div>
@@ -1745,5 +1745,4 @@
       if (idx >= 0) {
         events[idx].name = document.getElementById('editEventName').value;
         events[idx].date = document.getElementById('editEventDate').value;
-        events[idx].color = document.getElementById('editEventColor').value;
-        loca
+        events[idx].color = document.getElement
