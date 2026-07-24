@@ -793,21 +793,18 @@
 
     // 用戶系統
     let currentUser = JSON.parse(localStorage.getItem('my_study_user')) || null;
-
-    function openLoginModal() {
-      const saved = JSON.parse(localStorage.getItem('my_study_remember'));
-      if (saved) {
-        document.getElementById('loginName').value = saved.name || '';
-        document.getElementById('loginPassword').value = saved.password || '';
-        document.getElementById('rememberMe').checked = true;
-      } else {
-        document.getElementById('loginName').value = '';
-        document.getElementById('loginPassword').value = '';
-        document.getElementById('rememberMe').checked = false;
-      }
-      resetLoginForm();
-      document.getElementById('loginModal').classList.remove('hidden');
+    
+    function openProfileModal() {
+      if (!currentUser) return;
+      document.getElementById('profileAccount').value = currentUser.name;
+      document.getElementById('profileDisplayName').value = currentUser.displayName;
+      document.getElementById('profileNewPassword').value = '';
+      document.getElementById('profileConfirmPassword').value = '';
+      document.getElementById('profileMessage').classList.add('hidden');
+      document.getElementById('profileModal').classList.remove('hidden');
     }
+
+
     function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
     function resetLoginForm() {
       document.getElementById('loginForm').classList.remove('hidden');
