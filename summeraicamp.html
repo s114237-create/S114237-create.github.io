@@ -4,7 +4,1189 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>學習計畫儀表板</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+  let tasks = JSON.parse(localStorage.getItem('my_study_tasks')) || [];
+  let exams = JSON.parse(localStorage.getItem('my_study_exams')) || [];
+  let events = JSON.parse(localStorage.getItem('my_study_events')) || [];
+  let timelineItems = JSON.parse(localStorage.getItem('my_study_timeline')) || {};
+  let historyDB = JSON.parse(localStorage.getItem('my_study_history')) || {};
+  
+  let currentPlanTab = 'week';
+  let calDate = new Date();
+  let editingTaskId = null;
+  let isSidebarCollapsed = false;
+
+  // 用戶系統
+  let currentUser = JSON.parse(localStorage.getItem('my_study_user')) || null;
+
+  // --- 登入與會員相關函式 ---
+  function openLoginModal() {
+    resetLoginForm();
+    const modal = document.getElementById('loginModal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeLoginModal() { 
+    const modal = document.getElementById('loginModal');
+    if (modal) modal.classList.add('hidden'); 
+  }
+
+  function resetLoginForm() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const loginError = document.getElementById('loginError');
+    const title = document.getElementById('loginModalTitle');
+    if (loginForm) loginForm.classList.remove('hidden');
+    if (registerForm) registerForm.classList.add('hidden');
+    if (loginError) loginError.classList.add('hidden');
+    if (title) title.textContent = '登入會員';
+
+    // 檢查是否有記住帳號密碼
+    const remembered = JSON.parse(localStorage.getItem('my_study_remember'));
+    if (remembered) {
+      document.getElementById('loginName').value = remembered.name || '';
+      document.getElementById('loginPassword').value = remembered.password || '';
+      document.getElementById('rememberMe').checked = true;
+    }
+  }
+
+  function showRegister() {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('registerForm').classList.remove('hidden');
+    document.getElementById('loginModalTitle').textContent = '註冊會員';
+    document.getElementById('loginError').classList.add('hidden');
+  }
+
+  function showLogin() {
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('registerForm').classList.add('hidden');
+    document.getElementById('loginModalTitle').textContent = '登入會員';
+    document.getElementById('loginError').classList.add('hidden');
+  }
+
+  function doLogin() {
+    const name = document.getElementById('loginName').value.trim();
+    const pw = document.getElementById('loginPassword').value;
+    const remember = document.getElementById('rememberMe').checked;
+    const users = JSON.parse(localStorage.getItem('my_study_users')) || [];
+    const user = users.find(u => u.name === name && u.password === pw);
+
+    if (!name || !pw) { showLoginError('請填寫帳號和密碼'); return; }
+    if (!user) { showLoginError('帳號或密碼錯誤'); return; }
+
+    currentUser = { name: user.name, displayName: user.displayName || user.name };
+    localStorage.setItem('my_study_user', JSON.stringify(currentUser));
+    
+    if (remember) {
+      localStorage.setItem('my_study_remember', JSON.stringify({ name, password: pw }));
+    } else {
+      localStorage.removeItem('my_study_remember');
+    }
+
+    closeLoginModal();
+    updateUserUI();
+    showLearningContent();
+  }
+
+  function doRegister() {
+    const name = document.getElementById('regName').value.trim();
+    const displayName = document.getElementById('regDisplayName').value.trim() || name;
+    const pw = document.getElementById('regPassword').value;
+    const pw2 = document.getElementById('regPasswordConfirm').value;
+
+    if (!name || !pw) { showLoginError('請填寫帳號和密碼'); return; }
+    if (pw !== pw2) { showLoginError('兩次密碼不一致'); return; }
+
+    const users = JSON.parse(localStorage.getItem('my_study_users')) || [];
+    if (users.find(u => u.name === name)) { showLoginError('帳號已存在'); return; }
+
+    users.push({ name, displayName, password: pw });
+    localStorage.setItem('my_study_users', JSON.stringify(users));
+
+    currentUser = { name, displayName };
+    localStorage.setItem('my_study_user', JSON.stringify(currentUser));
+
+    closeLoginModal();
+    updateUserUI();
+    showLearningContent();
+  }
+
+  function showLoginError(msg) {
+    const el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  function doLogout() {
+    currentUser = null;
+    localStorage.removeItem('my_study_user');
+    updateUserUI();
+    hideLearningContent();
+  }
+
+  function showLearningContent() {
+    document.getElementById('pleaseLoginHint').classList.add('hidden');
+    document.getElementById('learningContent').classList.remove('hidden');
+    switchView('main');
+    renderAll();
+  }
+
+  function hideLearningContent() {
+    document.getElementById('pleaseLoginHint').classList.remove('hidden');
+    document.getElementById('learningContent').classList.add('hidden');
+    document.getElementById('view-analytics').classList.add('hidden');
+    document.getElementById('view-weekdb').classList.add('hidden');
+    document.getElementById('view-eventsdb').classList.add('hidden');
+    document.getElementById('view-tasksdb').classList.add('hidden');
+    document.getElementById('view-examsdb').classList.add('hidden');
+  }
+
+  function updateUserUI() {
+    const loginBtn = document.getElementById('loginBtnGroup');
+    const userInfo = document.getElementById('userInfo');
+    if (currentUser) {
+      loginBtn.classList.add('hidden');
+      userInfo.classList.remove('hidden');
+      document.getElementById('userDisplayName').textContent = currentUser.displayName;
+      document.getElementById('userAvatar').textContent = currentUser.displayName.charAt(0).toUpperCase();
+    } else {
+      loginBtn.classList.remove('hidden');
+      userInfo.classList.add('hidden');
+    }
+  }
+
+  function openProfileModal() {
+    if (!currentUser) return;
+    document.getElementById('profileAccount').value = currentUser.name;
+    document.getElementById('profileDisplayName').value = currentUser.displayName;
+    document.getElementById('profileNewPassword').value = '';
+    document.getElementById('profileConfirmPassword').value = '';
+    document.getElementById('profileMessage').classList.add('hidden');
+    document.getElementById('profileModal').classList.remove('hidden');
+  }
+
+  function closeProfileModal() { 
+    document.getElementById('profileModal').classList.add('hidden'); 
+  }
+
+  function saveProfile() {
+    const newName = document.getElementById('profileDisplayName').value.trim();
+    const newPw = document.getElementById('profileNewPassword').value;
+    const confirmPw = document.getElementById('profileConfirmPassword').value;
+
+    if (!newName) { showProfileMsg('請輸入顯示名稱', 'red'); return; }
+    if (newPw && newPw !== confirmPw) { showProfileMsg('兩次密碼不一致', 'red'); return; }
+
+    const users = JSON.parse(localStorage.getItem('my_study_users')) || [];
+    const idx = users.findIndex(u => u.name === currentUser.name);
+    if (idx >= 0) {
+      users[idx].displayName = newName;
+      if (newPw) users[idx].password = newPw;
+      localStorage.setItem('my_study_users', JSON.stringify(users));
+      currentUser.displayName = newName;
+      localStorage.setItem('my_study_user', JSON.stringify(currentUser));
+      updateUserUI();
+      showProfileMsg('儲存成功！', 'emerald');
+      setTimeout(closeProfileModal, 1000);
+    }
+  }
+
+  function showProfileMsg(text, color) {
+    const msg = document.getElementById('profileMessage');
+    msg.textContent = text;
+    msg.classList.remove('hidden', 'text-red-500', 'text-emerald-500');
+    msg.classList.add(color === 'red' ? 'text-red-500' : 'text-emerald-500');
+  }
+
+  // --- 深色模式修正 ---
+  function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark');
+    localStorage.setItem('my_study_darkmode', isDark);
+    updateDarkModeUI(isDark);
+  }
+
+  function updateDarkModeUI(isDark) {
+    const icon2 = document.getElementById('darkModeIcon2');
+    const text2 = document.getElementById('darkModeText2');
+    const btn2 = document.getElementById('darkModeBtn2');
+
+    if (btn2 && icon2 && text2) {
+      if (isDark) {
+        icon2.className = 'fa-solid fa-sun text-[10px]';
+        text2.textContent = '淺色模式';
+        btn2.className = 'flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl transition font-bold text-xs';
+      } else {
+        icon2.className = 'fa-solid fa-moon text-[10px]';
+        text2.textContent = '深色模式';
+        btn2.className = 'flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl transition font-bold text-xs';
+      }
+    }
+  }
+
+  // --- 語錄功能 ---
+  function toggleQuoteEdit() {
+    const editor = document.getElementById('quoteEditor');
+    const display = document.getElementById('quoteDisplay');
+    editor.classList.toggle('hidden');
+    if (!editor.classList.contains('hidden')) {
+      loadQuoteSettings();
+      display.style.cursor = 'default';
+    } else {
+      display.style.cursor = 'pointer';
+    }
+  }
+
+  function loadQuoteSettings() {
+    const saved = JSON.parse(localStorage.getItem('my_study_quote')) || { text: '', font: 'font-serif', textColor: '#475569', bgColor: '#f8fafc' };
+    document.getElementById('quoteText').value = saved.text;
+    document.getElementById('quoteFont').value = saved.font;
+    document.getElementById('quoteTextColor').value = saved.textColor;
+    document.getElementById('quoteBgColor').value = saved.bgColor;
+  }
+
+  function updateQuotePreview() {
+    const font = document.getElementById('quoteFont').value;
+    const textColor = document.getElementById('quoteTextColor').value;
+    const bgColor = document.getElementById('quoteBgColor').value;
+    const display = document.getElementById('quoteDisplay');
+    display.className = `text-xs font-medium leading-relaxed min-h-[20px] ${font}`;
+    display.style.color = textColor;
+    display.style.backgroundColor = bgColor;
+    display.style.borderRadius = '0.5rem';
+    display.style.padding = '0.5rem';
+  }
+
+  function saveQuote() {
+    const text = document.getElementById('quoteText').value.trim();
+    const font = document.getElementById('quoteFont').value;
+    const textColor = document.getElementById('quoteTextColor').value;
+    const bgColor = document.getElementById('quoteBgColor').value;
+    const quote = { text, font, textColor, bgColor };
+    localStorage.setItem('my_study_quote', JSON.stringify(quote));
+    applyQuoteDisplay();
+    toggleQuoteEdit();
+  }
+
+  function applyQuoteDisplay() {
+    const saved = JSON.parse(localStorage.getItem('my_study_quote')) || { text: '', font: 'font-serif', textColor: '#475569', bgColor: '#f8fafc' };
+    const display = document.getElementById('quoteDisplay');
+    display.textContent = saved.text || '點擊編輯你的精神語錄...';
+    display.className = `text-xs font-medium leading-relaxed min-h-[20px] ${saved.font}`;
+    display.style.fontFamily = saved.font === 'font-serif' ? 'serif' : saved.font === 'font-mono' ? 'monospace' : 'sans-serif';
+    display.style.color = saved.textColor;
+    display.style.backgroundColor = saved.bgColor;
+    display.style.borderRadius = '0.5rem';
+    display.style.padding = saved.text ? '0.5rem' : '0';
+  }
+
+  function clearTasksAndEvents() {
+    if (!confirm('確定要清除所有日程和任務嗎？')) return;
+    ['my_study_tasks','my_study_exams','my_study_events','my_study_timeline','my_study_history'].forEach(k => localStorage.removeItem(k));
+    tasks = []; exams = []; events = []; timelineItems = {}; historyDB = {};
+    renderAll();
+    renderEventsDb();
+    renderTasksDb();
+    renderExamsDb();
+    alert('已清除所有日程和任務！');
+  }
+
+  // --- 初始化 ---
+  document.addEventListener('DOMContentLoaded', () => {
+    startClock();
+    updateUserUI();
+    if (currentUser) {
+      showLearningContent();
+    } else {
+      hideLearningContent();
+    }
+    applyQuoteDisplay();
+    const savedDark = localStorage.getItem('my_study_darkmode') === 'true';
+    if (savedDark) {
+      document.body.classList.add('dark');
+      updateDarkModeUI(true);
+    }
+  });
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarTexts = document.querySelectorAll('.sidebar-text');
+    isSidebarCollapsed = !isSidebarCollapsed;
+    if(isSidebarCollapsed) {
+      sidebar.classList.remove('w-64', 'p-6');
+      sidebar.classList.add('w-20', 'p-4');
+      sidebarTexts.forEach(el => el.classList.add('hidden'));
+    } else {
+      sidebar.classList.remove('w-20', 'p-4');
+      sidebar.classList.add('w-64', 'p-6');
+      sidebarTexts.forEach(el => el.classList.remove('hidden'));
+    }
+  }
+
+  function switchView(view) {
+    document.getElementById('learningContent').classList.add('hidden');
+    document.getElementById('view-analytics').classList.add('hidden');
+    document.getElementById('view-weekdb').classList.add('hidden');
+    document.getElementById('view-eventsdb').classList.add('hidden');
+    document.getElementById('view-tasksdb').classList.add('hidden');
+    document.getElementById('view-examsdb').classList.add('hidden');
+
+    ['main','analytics','weekdb','eventsdb','tasksdb','examsdb'].forEach(v => {
+      const btn = document.getElementById('nav-' + v);
+      if (btn) btn.className = "w-full text-left px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 transition flex items-center gap-3 overflow-hidden whitespace-nowrap";
+    });
+
+    const activeNav = document.getElementById('nav-' + view);
+    if (activeNav) activeNav.className = "w-full text-left px-3.5 py-2.5 rounded-xl bg-slate-800 text-white font-bold transition flex items-center gap-3 overflow-hidden whitespace-nowrap";
+
+    if(view === 'main') {
+      document.getElementById('learningContent').classList.remove('hidden');
+    } else if(view === 'analytics') {
+      document.getElementById('view-analytics').classList.remove('hidden');
+      renderHistoryTable();
+    } else if(view === 'weekdb') {
+      document.getElementById('view-weekdb').classList.remove('hidden');
+      renderWeekDb();
+    } else if(view === 'eventsdb') {
+      document.getElementById('view-eventsdb').classList.remove('hidden');
+      renderEventsDb();
+    } else if(view === 'tasksdb') {
+      document.getElementById('view-tasksdb').classList.remove('hidden');
+      renderTasksDb();
+    } else if(view === 'examsdb') {
+      document.getElementById('view-examsdb').classList.remove('hidden');
+      renderExamsDb();
+    }
+  }
+
+  let isMusicPlaying = false;
+  let currentTrack = 0;
+  const musicTracks = [
+    'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
+    'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3'
+  ];
+  const musicNames = ['鋼琴音樂', '雪景音樂'];
+
+  function toggleMusic() {
+    const audio = document.getElementById('musicAudio');
+    const icon = document.getElementById('musicIcon2');
+    const text = document.getElementById('musicText2');
+    const btn = document.getElementById('musicBtn2');
+
+    if (isMusicPlaying) {
+      audio.pause();
+      audio.currentTime = 0;
+      icon.className = 'fa-solid fa-play text-[10px]';
+      text.textContent = '舒緩音樂';
+      btn.className = 'flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl transition font-bold text-xs';
+      isMusicPlaying = false;
+    } else {
+      currentTrack = (currentTrack + 1) % musicTracks.length;
+      audio.src = musicTracks[currentTrack];
+      audio.play().catch(() => {});
+      icon.className = 'fa-solid fa-stop text-[10px]';
+      text.textContent = musicNames[currentTrack];
+      btn.className = 'flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl transition font-bold text-xs';
+      isMusicPlaying = true;
+    }
+  }
+
+  function startClock() {
+    const update = () => {
+      const now = new Date();
+      const clock = document.getElementById('clockDisplay');
+      const dateEl = document.getElementById('dateDisplay');
+      if (clock) clock.textContent = now.toTimeString().split(' ')[0];
+      const days = ['日','一','二','三','四','五','六'];
+      if (dateEl) dateEl.textContent = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} (${days[now.getDay()]})`;
+    };
+    update();
+    setInterval(update, 1000);
+  }
+
+  function toggleCustomSubject() {
+    const select = document.getElementById('subjectSelect');
+    const customInput = document.getElementById('customSubjectInput');
+    if (select.value === 'custom') {
+      customInput.classList.remove('hidden');
+      customInput.required = true;
+    } else {
+      customInput.classList.add('hidden');
+      customInput.required = false;
+    }
+  }
+
+  document.getElementById('eventForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('eventName').value;
+    const date = document.getElementById('eventDate').value;
+    const color = document.getElementById('eventColor').value;
+
+    if (!name || !date) { alert('請填寫日程名稱和日期'); return; }
+
+    events.push({ id: Date.now(), name, date, color });
+    localStorage.setItem('my_study_events', JSON.stringify(events));
+
+    e.target.reset();
+    renderCalendar();
+    if (!document.getElementById('view-eventsdb').classList.contains('hidden')) {
+      renderEventsDb();
+    }
+  });
+
+  document.getElementById('taskForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const subSelect = document.getElementById('subjectSelect').value;
+    const subject = subSelect === 'custom' ? document.getElementById('customSubjectInput').value : subSelect;
+    const name = document.getElementById('taskName').value;
+    const category = document.getElementById('taskCategory').value;
+    const planType = document.getElementById('planType').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+    const note = document.getElementById('taskNote').value;
+    const progress = parseInt(document.getElementById('taskProgress').value);
+
+    const importance = [];
+    if (document.getElementById('impUrgent').checked) importance.push('urgent');
+    if (document.getElementById('impImportant').checked) importance.push('important');
+    if (document.getElementById('impNormal').checked) importance.push('normal');
+
+    tasks.push({ id: Date.now(), subject, name, category, planType, startTime, endTime, note, progress, importance });
+    localStorage.setItem('my_study_tasks', JSON.stringify(tasks));
+
+    e.target.reset();
+    document.getElementById('progressVal').textContent = '0%';
+    toggleCustomSubject();
+    renderAll();
+  });
+
+  function filterPlan(type) {
+    currentPlanTab = type;
+    ['week','month','long'].forEach(t => {
+      const btn = document.getElementById(`tab-${t}`);
+      if(btn) {
+        btn.className = t === type ? "px-3 py-1 rounded-xl bg-slate-800 text-white font-bold" : "px-3 py-1 rounded-xl text-slate-400 hover:bg-slate-50 font-bold";
+      }
+    });
+    renderTasks();
+  }
+
+  function renderTasks() {
+    const tbody = document.getElementById('taskTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    let filtered = tasks.filter(t => t.planType === currentPlanTab);
+
+    const sortBy = document.getElementById('sortSelect').value;
+    if(sortBy === 'subject') filtered.sort((a,b) => a.subject.localeCompare(b.subject));
+    else if(sortBy === 'category') filtered.sort((a,b) => a.category.localeCompare(b.category));
+    else if(sortBy === 'progress') filtered.sort((a,b) => b.progress - a.progress);
+    else if(sortBy === 'time') filtered.sort((a,b) => new Date(a.startTime) - new Date(b.startTime));
+
+    if(filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-slate-300">目前無任務</td></tr>`;
+    } else {
+      filtered.forEach(t => {
+        const imp = t.importance || [];
+        const impHtml = imp.map(i => {
+          if (i === 'urgent') return '<span class="text-[9px] font-bold px-1 py-0.5 bg-red-100 text-red-600 rounded mr-0.5">緊急</span>';
+          if (i === 'important') return '<span class="text-[9px] font-bold px-1 py-0.5 bg-amber-100 text-amber-600 rounded mr-0.5">重要</span>';
+          if (i === 'normal') return '<span class="text-[9px] font-bold px-1 py-0.5 bg-slate-200 text-slate-600 rounded">不緊急</span>';
+          return '';
+        }).join('');
+
+        const tr = document.createElement('tr');
+        tr.className = `hover:bg-slate-50/60 transition ${imp.includes('urgent') ? 'bg-red-50/30' : imp.includes('important') ? 'bg-amber-50/30' : ''}`;
+        tr.innerHTML = `
+          <td class="py-2.5 font-bold text-slate-800 text-xs">${escapeHtml(t.subject)}</td>
+          <td class="py-2.5"><span class="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-lg text-[10px] font-bold">${escapeHtml(t.category)}</span></td>
+          <td class="py-2.5 font-medium text-xs">${escapeHtml(t.name)}<br>${impHtml}</td>
+          <td class="py-2.5 text-slate-400 text-[10px]">${escapeHtml(t.note || '-')}</td>
+          <td class="py-2.5">
+            <button onclick="openTimeModal(${t.id})" class="px-1.5 py-0.5 bg-slate-50 border border-slate-100 rounded-lg hover:bg-slate-100 text-[10px] text-slate-500 transition text-left">
+              ${t.startTime.replace('T',' ')}<br>~ ${t.endTime.split('T')[1]}
+            </button>
+          </td>
+          <td class="py-2.5">
+            <input type="number" min="0" max="100" value="${t.progress}" onchange="updateProgress(${t.id}, this.value)" class="w-10 p-0.5 border border-slate-100 rounded-lg text-center font-bold text-xs"> %
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('statTotalTasks').textContent = tasks.length;
+    const avg = tasks.length > 0 ? Math.round(tasks.reduce((sum, t) => sum + t.progress, 0) / tasks.length) : 0;
+    document.getElementById('statAvgProgress').textContent = `${avg}%`;
+
+    updateUrgentAlert();
+  }
+
+  function updateProgress(id, val) {
+    const task = tasks.find(t => t.id === id);
+    if(task) {
+      task.progress = Math.min(100, Math.max(0, parseInt(val) || 0));
+      localStorage.setItem('my_study_tasks', JSON.stringify(tasks));
+      renderTasks();
+    }
+  }
+
+  let weekDbDate = new Date();
+
+  function getWeekDates(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    const start = new Date(d.setDate(diff));
+    const end = new Date(d.setDate(diff + 6));
+    return { start, end };
+  }
+
+  function formatDate(date) {
+    return `${date.getFullYear()}/${String(date.getMonth()+1).padStart(2,'0')}/${String(date.getDate()).padStart(2,'0')}`;
+  }
+
+  function changeWeek(delta) {
+    weekDbDate.setDate(weekDbDate.getDate() + (delta * 7));
+    renderWeekDb();
+  }
+
+  function goToCurrentWeek() {
+    weekDbDate = new Date();
+    renderWeekDb();
+  }
+
+  function renderWeekDb() {
+    const { start, end } = getWeekDates(weekDbDate);
+    document.getElementById('weekRangeText').textContent = `${formatDate(start)} ~ ${formatDate(end)}`;
+
+    const days = ['日','一','二','三','四','五','六'];
+    let dateHeaderHtml = '<th class="pb-2 pr-3 w-16">時段</th>';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+      const isToday = formatDate(d) === formatDate(new Date());
+      dateHeaderHtml += `<th class="pb-2 pr-3 ${isToday ? 'text-emerald-500 font-bold' : ''}">${dateStr}<br><span class="text-[9px] font-normal text-slate-400">(${days[i]})</span></th>`;
+    }
+    document.getElementById('weekDbHeader').innerHTML = dateHeaderHtml;
+
+    const tbody = document.getElementById('weekDbBody');
+    tbody.innerHTML = '';
+    const timelineData = JSON.parse(localStorage.getItem('my_study_timeline')) || {};
+
+    for (let hour = 0; hour < 24; hour++) {
+      const tr = document.createElement('tr');
+      const timeCell = document.createElement('td');
+      timeCell.className = 'py-2 pr-3 font-mono font-bold text-slate-400 text-[10px]';
+      timeCell.textContent = `${String(hour).padStart(2,'0')}:00`;
+      tr.appendChild(timeCell);
+
+      for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+        const d = new Date(start);
+        d.setDate(d.getDate() + dayIndex);
+        const dateKey = formatDate(d);
+        const dayItems = (timelineData[dateKey] || []).filter(item => {
+          const [startH] = item.startTime.split(':').map(Number);
+          const [endH] = item.endTime.split(':').map(Number);
+          return hour >= startH && hour < endH;
+        });
+
+        const cell = document.createElement('td');
+        cell.className = 'py-1 pr-3';
+
+        if (dayItems.length > 0) {
+          const cellDiv = document.createElement('div');
+          cellDiv.className = 'p-1.5 rounded-lg text-[9px] leading-tight space-y-1';
+
+          dayItems.forEach(item => {
+            const isDone = item.done;
+            const checkIcon = isDone ? '<i class="fa-solid fa-check-circle text-emerald-500"></i>' : '<i class="fa-regular fa-circle text-slate-300"></i>';
+            const itemDiv = document.createElement('div');
+            itemDiv.className = `flex items-center gap-1 ${isDone ? '' : 'text-slate-700'}`;
+            itemDiv.innerHTML = `${checkIcon}<span class="truncate flex-1 ${isDone ? 'line-through opacity-60' : ''}">${escapeHtml(item.content)}</span>`;
+            cellDiv.appendChild(itemDiv);
+            cellDiv.classList.add(isDone ? 'bg-emerald-50' : 'bg-slate-50');
+          });
+          cell.appendChild(cellDiv);
+        }
+        tr.appendChild(cell);
+      }
+      tbody.appendChild(tr);
+    }
+  }
+
+  function renderEventsDb() {
+    const container = document.getElementById('eventsDbList');
+    events = JSON.parse(localStorage.getItem('my_study_events')) || [];
+    document.getElementById('eventsCount').textContent = events.length;
+
+    if (events.length === 0) {
+      container.innerHTML = '<div class="text-center py-8 text-slate-300">尚無日程記錄</div>';
+      return;
+    }
+
+    events.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    container.innerHTML = events.map(event => {
+      const colorClass = event.color || 'bg-slate-500';
+      const isPast = new Date(event.date) < new Date().setHours(0,0,0,0);
+      return `
+        <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 ${isPast ? 'opacity-60' : ''}">
+          <div class="${colorClass} w-2 h-10 rounded-full shrink-0"></div>
+          <div class="flex-1 min-w-0">
+            <div class="font-bold text-slate-700 text-sm truncate">${escapeHtml(event.name)}</div>
+            <div class="text-xs text-slate-400">${event.date}</div>
+          </div>
+          <button onclick="openEditEventModal(${event.id})" class="text-slate-400 hover:text-slate-600 text-xs px-2 py-1">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button onclick="deleteEvent(${event.id})" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-1">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function deleteEvent(id) {
+    const eventId = typeof id === 'string' ? parseInt(id) : id;
+    if (!confirm('確定要刪除這個日程嗎？')) return;
+    events = events.filter(e => e.id !== eventId);
+    localStorage.setItem('my_study_events', JSON.stringify(events));
+    renderEventsDb();
+    renderCalendar();
+  }
+
+  let currentTasksDbFilter = 'all';
+
+  function filterTasksDb(filter) {
+    currentTasksDbFilter = filter;
+    ['all','week','month','long'].forEach(f => {
+      const el = document.getElementById('tasksDbFilter' + f.charAt(0).toUpperCase() + f.slice(1));
+      if (el) {
+        el.className = f === filter ? 'px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold' : 'px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition';
+      }
+    });
+    renderTasksDb();
+  }
+
+  function renderTasksDb() {
+    const container = document.getElementById('tasksDbList');
+    let allTasks = JSON.parse(localStorage.getItem('my_study_tasks')) || [];
+
+    if (currentTasksDbFilter !== 'all') {
+      allTasks = allTasks.filter(t => t.planType === currentTasksDbFilter);
+    }
+
+    const total = JSON.parse(localStorage.getItem('my_study_tasks') || '[]').length;
+    const completed = JSON.parse(localStorage.getItem('my_study_tasks') || '[]').filter(t => t.progress >= 100).length;
+    document.getElementById('tasksTotalCount').textContent = total;
+    document.getElementById('tasksCompletedCount').textContent = completed;
+    document.getElementById('tasksPendingCount').textContent = total - completed;
+
+    if (allTasks.length === 0) {
+      container.innerHTML = '<div class="text-center py-8 text-slate-300">尚無任務記錄</div>';
+      return;
+    }
+
+    allTasks.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+
+    container.innerHTML = allTasks.map(task => {
+      const isDone = task.progress >= 100;
+      const imp = task.importance || [];
+      const urgentMark = imp.includes('urgent') ? '<span class="text-[10px] font-bold px-1.5 py-0.5 bg-red-100 text-red-600 rounded">緊急</span>' : '';
+      const importantMark = imp.includes('important') ? '<span class="text-[10px] font-bold px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded">重要</span>' : '';
+      const normalMark = imp.includes('normal') ? '<span class="text-[10px] font-bold px-1.5 py-0.5 bg-slate-200 text-slate-600 rounded">不緊急</span>' : '';
+      const impBorder = imp.includes('urgent') ? 'border-l-4 border-red-500' : imp.includes('important') ? 'border-l-4 border-amber-400' : '';
+
+      return `
+        <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 ${impBorder} ${isDone ? 'opacity-60' : ''}">
+          <div class="w-10 h-10 ${isDone ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-600'} rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
+            ${isDone ? '<i class="fa-solid fa-check"></i>' : task.progress + '%'}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="text-[10px] font-bold px-2 py-0.5 bg-slate-200 rounded text-slate-600">${escapeHtml(task.subject)}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 rounded text-indigo-600">${task.planType === 'week' ? '週' : task.planType === 'month' ? '月' : '長期'}</span>
+              ${urgentMark}${importantMark}${normalMark}
+            </div>
+            <div class="font-bold text-slate-700 text-sm truncate ${isDone ? 'line-through' : ''}">${escapeHtml(task.name)}</div>
+            <div class="text-xs text-slate-400">${task.startTime.replace('T', ' ')} ~ ${task.endTime.split('T')[1]}</div>
+          </div>
+          <button onclick="deleteTask(${task.id})" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-1">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function deleteTask(id) {
+    if (!confirm('確定要刪除這個任務嗎？')) return;
+    tasks = tasks.filter(t => t.id != id);
+    localStorage.setItem('my_study_tasks', JSON.stringify(tasks));
+    renderTasksDb();
+    renderTasks();
+  }
+
+  let currentExamsDbFilter = 'all';
+
+  function filterExamsDb(filter) {
+    currentExamsDbFilter = filter;
+    ['all','upcoming','completed'].forEach(f => {
+      const el = document.getElementById('examsDbFilter' + f.charAt(0).toUpperCase() + f.slice(1));
+      if (el) {
+        el.className = f === filter ? 'px-3 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-bold' : 'px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition';
+      }
+    });
+    renderExamsDb();
+  }
+
+  function renderExamsDb() {
+    const container = document.getElementById('examsDbList');
+    exams = JSON.parse(localStorage.getItem('my_study_exams')) || [];
+
+    const total = exams.length;
+    const completed = exams.filter(e => e.completed).length;
+    document.getElementById('examsTotalCount').textContent = total;
+    document.getElementById('examsCompletedCount').textContent = completed;
+    document.getElementById('examsPendingCount').textContent = total - completed;
+
+    let filteredExams = [...exams];
+    const today = new Date().setHours(0,0,0,0);
+
+    if (currentExamsDbFilter === 'upcoming') {
+      filteredExams = exams.filter(e => !e.completed && new Date(e.date) >= today);
+    } else if (currentExamsDbFilter === 'completed') {
+      filteredExams = exams.filter(e => e.completed);
+    }
+
+    if (filteredExams.length === 0) {
+      container.innerHTML = '<div class="text-center py-8 text-slate-300">尚無考試記錄</div>';
+      return;
+    }
+
+    filteredExams.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    container.innerHTML = filteredExams.map(exam => {
+      const examDate = new Date(exam.date);
+      const isPast = examDate < new Date(today);
+      const isToday = examDate.getTime() === today;
+      const daysUntil = Math.ceil((examDate - new Date(today)) / (1000 * 60 * 60 * 24));
+
+      let dateBadge = '';
+      if (exam.completed) {
+        dateBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded">已完成</span>';
+      } else if (isToday) {
+        dateBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-rose-500 text-white rounded animate-pulse">今天</span>';
+      } else if (daysUntil > 0 && daysUntil <= 7) {
+        dateBadge = `<span class="text-[10px] font-bold px-2 py-0.5 bg-rose-100 text-rose-600 rounded">${daysUntil}天後</span>`;
+      } else if (isPast) {
+        dateBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-500 rounded">已過期</span>';
+      } else {
+        dateBadge = '<span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded">即將到來</span>';
+      }
+
+      return `
+        <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 ${exam.completed ? 'opacity-60' : ''} ${!exam.completed && isToday ? 'border-rose-300 bg-rose-50/50' : ''}">
+          <div class="w-10 h-10 ${exam.completed ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'} rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
+            ${exam.completed ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-graduation-cap"></i>'}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              ${dateBadge}
+              <span class="text-[10px] font-bold px-2 py-0.5 bg-amber-100 text-amber-700 rounded">${exam.date}</span>
+            </div>
+            <div class="font-bold text-slate-700 text-sm ${exam.completed ? 'line-through' : ''}">${escapeHtml(exam.name)}</div>
+          </div>
+          <div class="flex items-center gap-1">
+            ${!exam.completed ? `
+              <button onclick="completeExamDb(${exam.id})" class="text-emerald-500 hover:text-emerald-700 text-xs px-2 py-1" title="標記完成">
+                <i class="fa-solid fa-check"></i>
+              </button>
+            ` : ''}
+            <button onclick="deleteExamDb(${exam.id})" class="text-rose-400 hover:text-rose-600 text-xs px-2 py-1" title="刪除">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function completeExamDb(id) {
+    const exam = exams.find(e => e.id === id);
+    if (exam) {
+      exam.completed = true;
+      localStorage.setItem('my_study_exams', JSON.stringify(exams));
+      renderExamsDb();
+      renderExams();
+    }
+  }
+
+  function deleteExamDb(id) {
+    if (!confirm('確定要刪除這個考試嗎？')) return;
+    exams = exams.filter(e => e.id !== id);
+    localStorage.setItem('my_study_exams', JSON.stringify(exams));
+    renderExamsDb();
+    renderExams();
+  }
+
+  function openTimeModal(id) {
+    editingTaskId = id;
+    const task = tasks.find(t => t.id === id);
+    if(task) {
+      document.getElementById('editStartTime').value = task.startTime;
+      document.getElementById('editEndTime').value = task.endTime;
+      document.getElementById('timeModal').classList.remove('hidden');
+    }
+  }
+  function closeTimeModal() { document.getElementById('timeModal').classList.add('hidden'); }
+  function saveTimeModal() {
+    const task = tasks.find(t => t.id === editingTaskId);
+    if(task) {
+      task.startTime = document.getElementById('editStartTime').value;
+      task.endTime = document.getElementById('editEndTime').value;
+      localStorage.setItem('my_study_tasks', JSON.stringify(tasks));
+      renderTasks();
+    }
+    closeTimeModal();
+  }
+
+  function updateUrgentAlert() {
+    const alertBox = document.getElementById('urgentAlert');
+    if (!alertBox) return;
+    const now = new Date();
+    const urgent = tasks.filter(t => {
+      const end = new Date(t.endTime);
+      const diff = (end - now) / (1000*60*60*24);
+      return diff >= 0 && diff <= 3 && t.progress < 100;
+    });
+
+    if(urgent.length > 0) {
+      alertBox.textContent = `🚨 ${urgent[0].subject} - ${urgent[0].name} (進度 ${urgent[0].progress}%)`;
+    } else {
+      alertBox.textContent = '無即將到期（3天內）的未完成任務';
+    }
+  }
+
+  function renderCalendar() {
+    const grid = document.getElementById('calendarGrid');
+    const title = document.getElementById('calMonthYear');
+    if (!grid || !title) return;
+    grid.innerHTML = '';
+
+    const y = calDate.getFullYear();
+    const m = calDate.getMonth();
+    title.textContent = `${y} 年 ${m + 1} 月`;
+
+    const firstDay = new Date(y, m, 1).getDay();
+    const days = new Date(y, m + 1, 0).getDate();
+
+    events = JSON.parse(localStorage.getItem('my_study_events')) || [];
+    const examList = JSON.parse(localStorage.getItem('my_study_exams')) || [];
+
+    for(let i=0; i<firstDay; i++) {
+      const empty = document.createElement('div');
+      empty.className = "p-1 min-h-[48px]";
+      grid.appendChild(empty);
+    }
+
+    for(let d=1; d<=days; d++) {
+      const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dayEvents = events.filter(e => e.date === dateStr);
+      const dayExams = examList.filter(e => e.date === dateStr);
+
+      const cell = document.createElement('div');
+      cell.className = "calendar-cell p-1.5 bg-slate-50/70 border border-slate-100 rounded-xl text-xs cursor-pointer hover:bg-slate-100 transition";
+
+      const badges = dayEvents.map(e => `<div class="${e.color} text-white text-[8px] px-1.5 py-0.5 rounded-md truncate font-medium cursor-pointer hover:opacity-80" onclick="openEditEventModal(${e.id})" title="點擊編輯">${escapeHtml(e.name)}</div>`).join('');
+      const examBadges = dayExams.map(e => `<div class="bg-rose-500 text-white text-[8px] px-1.5 py-0.5 rounded-md truncate font-bold cursor-pointer hover:bg-rose-600 ${e.completed ? 'opacity-50' : ''}" onclick="openExamDbFromCalendar('${e.date}')" title="考試：${escapeHtml(e.name)}">📝 ${escapeHtml(e.name)}</div>`).join('');
+      const isToday = dateStr === formatDate(new Date()).replace(/\//g, '-');
+      const dayClass = isToday ? 'bg-emerald-500 text-white rounded-md px-1' : 'font-bold text-slate-400';
+
+      cell.innerHTML = `
+        <div class="${dayClass} text-[10px] mb-1 inline-block">${d}</div>
+        <div class="day-badges">${examBadges}${badges}</div>
+      `;
+      grid.appendChild(cell);
+    }
+  }
+
+  function changeMonth(d) {
+    calDate.setMonth(calDate.getMonth() + d);
+    renderCalendar();
+  }
+
+  function openEditEventModal(id) {
+    const eventId = typeof id === 'string' ? parseInt(id) : id;
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+    document.getElementById('editEventId').value = event.id;
+    document.getElementById('editEventName').value = event.name;
+    document.getElementById('editEventDate').value = event.date;
+    document.getElementById('editEventColor').value = event.color || 'bg-indigo-500';
+    document.getElementById('editEventModal').classList.remove('hidden');
+  }
+
+  function closeEditEventModal() { document.getElementById('editEventModal').classList.add('hidden'); }
+
+  function saveEditEvent() {
+    const id = parseInt(document.getElementById('editEventId').value);
+    const idx = events.findIndex(e => e.id === id);
+    if (idx >= 0) {
+      events[idx].name = document.getElementById('editEventName').value;
+      events[idx].date = document.getElementById('editEventDate').value;
+      events[idx].color = document.getElementById('editEventColor').value;
+      localStorage.setItem('my_study_events', JSON.stringify(events));
+      renderCalendar();
+      renderEventsDb();
+      closeEditEventModal();
+    }
+  }
+
+  function deleteEditEvent() {
+    const id = parseInt(document.getElementById('editEventId').value);
+    if (!confirm('確定要刪除這個日程嗎？')) return;
+    events = events.filter(e => e.id !== id);
+    localStorage.setItem('my_study_events', JSON.stringify(events));
+    renderCalendar();
+    renderEventsDb();
+    closeEditEventModal();
+  }
+
+  function openExamDbFromCalendar(dateStr) {
+    switchView('examsdb');
+  }
+
+  function openExamModal() {
+    document.getElementById('modalExamName').value = '';
+    document.getElementById('modalExamDate').value = '';
+    document.getElementById('examModal').classList.remove('hidden');
+  }
+
+  function closeExamModal() {
+    document.getElementById('examModal').classList.add('hidden');
+  }
+
+  function saveExamFromModal() {
+    const name = document.getElementById('modalExamName').value.trim();
+    const date = document.getElementById('modalExamDate').value;
+    if (!name || !date) { alert('請填寫考試名稱與日期'); return; }
+    exams.push({ id: Date.now(), name, date, completed: false });
+    localStorage.setItem('my_study_exams', JSON.stringify(exams));
+    closeExamModal();
+    renderExams();
+    renderCalendar();
+  }
+
+  function renderExams() {
+    const container = document.getElementById('examList');
+    if (!container) return;
+    exams = JSON.parse(localStorage.getItem('my_study_exams')) || [];
+    container.innerHTML = '';
+
+    const upcoming = exams
+      .filter(e => !e.completed)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (upcoming.length === 0) {
+      container.innerHTML = '<div class="text-xs text-slate-300 py-2">目前無近期考試</div>';
+      return;
+    }
+
+    upcoming.forEach(e => {
+      const item = document.createElement('div');
+      item.className = 'flex items-center justify-between p-2 bg-slate-50 rounded-xl text-xs';
+      item.innerHTML = `
+        <div class="flex items-center gap-2 truncate">
+          <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+          <span class="font-bold text-slate-700 truncate">${escapeHtml(e.name)}</span>
+        </div>
+        <span class="text-[10px] text-slate-400 font-mono">${e.date}</span>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  function addCustomHourlyItem() {
+    const start = document.getElementById('customStartTime').value;
+    const end = document.getElementById('customEndTime').value;
+    const content = document.getElementById('customContent').value.trim();
+    const color = document.getElementById('customColor').value;
+
+    if (!start || !end || !content) { alert('請填寫完整時間與活動內容'); return; }
+
+    const todayStr = formatDate(new Date());
+    if (!timelineItems[todayStr]) timelineItems[todayStr] = [];
+
+    timelineItems[todayStr].push({
+      id: Date.now(),
+      startTime: start,
+      endTime: end,
+      content,
+      color,
+      done: false
+    });
+
+    localStorage.setItem('my_study_timeline', JSON.stringify(timelineItems));
+    document.getElementById('customContent').value = '';
+    renderTimeline();
+    updateDailyRate();
+  }
+
+  function renderTimeline() {
+    const container = document.getElementById('timelineEvents');
+    const grid = document.getElementById('timelineGrid');
+    if (!container || !grid) return;
+
+    grid.innerHTML = '';
+    container.innerHTML = '';
+
+    for (let h = 0; h < 24; h++) {
+      const slot = document.createElement('div');
+      slot.className = 'timeline-hour-slot flex items-start text-[9px] text-slate-300 font-mono px-1';
+      slot.textContent = `${String(h).padStart(2, '0')}:00`;
+      grid.appendChild(slot);
+    }
+
+    const todayStr = formatDate(new Date());
+    const items = timelineItems[todayStr] || [];
+
+    items.forEach(item => {
+      const [sh, sm] = item.startTime.split(':').map(Number);
+      const [eh, em] = item.endTime.split(':').map(Number);
+
+      const startMinutes = sh * 60 + sm;
+      const endMinutes = eh * 60 + em;
+      const durationMinutes = Math.max(15, endMinutes - startMinutes);
+
+      const top = startMinutes * 0.8;
+      const height = durationMinutes * 0.8;
+
+      const el = document.createElement('div');
+      el.className = `absolute left-12 right-2 p-2 rounded-xl text-xs text-white shadow-sm flex items-center justify-between cursor-pointer transition ${item.color} ${item.done ? 'opacity-50 line-through' : ''}`;
+      el.style.top = `${top}px`;
+      el.style.height = `${height}px`;
+
+      el.innerHTML = `
+        <div class="truncate flex items-center gap-1.5">
+          <span class="text-[10px] font-mono opacity-80">${item.startTime}-${item.endTime}</span>
+          <span class="font-bold truncate">${escapeHtml(item.content)}</span>
+        </div>
+        <div class="flex items-center gap-1 shrink-0">
+          <button onclick="toggleTimelineItem(${item.id})" class="p-1 hover:opacity-80">
+            <i class="fa-solid ${item.done ? 'fa-check-circle' : 'fa-circle'}"></i>
+          </button>
+          <button onclick="deleteTimelineItem(${item.id})" class="p-1 hover:opacity-80">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  function toggleTimelineItem(id) {
+    const todayStr = formatDate(new Date());
+    const items = timelineItems[todayStr] || [];
+    const target = items.find(i => i.id === id);
+    if (target) {
+      target.done = !target.done;
+      localStorage.setItem('my_study_timeline', JSON.stringify(timelineItems));
+      renderTimeline();
+      updateDailyRate();
+    }
+  }
+
+  function deleteTimelineItem(id) {
+    const todayStr = formatDate(new Date());
+    if (!timelineItems[todayStr]) return;
+    timelineItems[todayStr] = timelineItems[todayStr].filter(i => i.id !== id);
+    localStorage.setItem('my_study_timeline', JSON.stringify(timelineItems));
+    renderTimeline();
+    updateDailyRate();
+  }
+
+  function updateDailyRate() {
+    const todayStr = formatDate(new Date());
+    const items = timelineItems[todayStr] || [];
+    const total = items.length;
+    const completed = items.filter(i => i.done).length;
+    const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    const rateText = document.getElementById('dailyRateText');
+    const rateBar = document.getElementById('dailyRateBar');
+    if (rateText) rateText.textContent = `${rate}%`;
+    if (rateBar) rateBar.style.width = `${rate}%`;
+
+    historyDB[todayStr] = { total, completed, rate };
+    localStorage.setItem('my_study_history', JSON.stringify(historyDB));
+  }
+
+  function renderHistoryTable() {
+    const tbody = document.getElementById('historyTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const dates = Object.keys(historyDB).sort((a, b) => new Date(b) - new Date(a));
+    if (dates.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-slate-300">尚無歷史達成率記錄</td></tr>`;
+      return;
+    }
+
+    dates.forEach(date => {
+      const h = historyDB[date];
+      const tr = document.createElement('tr');
+      tr.className = 'border-b border-slate-50 text-slate-600';
+      tr.innerHTML = `
+        <td class="py-2.5 font-bold">${date}</td>
+        <td class="py-2.5">${h.total}</td>
+        <td class="py-2.5 text-emerald-600 font-bold">${h.completed}</td>
+        <td class="py-2.5 font-bold">${h.rate}%</td>
+        <td class="py-2.5 text-slate-400">${h.total - h.completed} 項</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function runAIAnalysis() {
+    const aiCard = document.getElementById('aiCard');
+    const aiText = document.getElementById('aiReportText');
+    if (!aiCard || !aiText) return;
+
+    aiCard.classList.remove('hidden');
+
+    const totalTasks = tasks.length;
+    const avgProgress = totalTasks > 0 ? Math.round(tasks.reduce((sum, t) => sum + t.progress, 0) / totalTasks) : 0;
+    const incomplete = tasks.filter(t => t.progress < 100);
+
+    aiText.innerHTML = `
+      根據近期數據分析：目前共有 <strong>${totalTasks}</strong> 項學習任務，平均進度為 <strong>${avgProgress}%</strong>。<br>
+      還有 <strong>${incomplete.length}</strong> 個未完成項目。建議優先處理標記為「緊急」與「重要」的任務，並將較長的時間段拆解為 25 分鐘番茄鐘專注執行。
+    `;
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function renderAll() {
+    renderCalendar();
+    renderTasks();
+    renderExams();
+    renderTimeline();
+    updateDailyRate();
+  }
+</script>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
